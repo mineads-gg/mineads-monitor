@@ -71,10 +71,10 @@ publishing {
       pom {
         name = "MineAdsMonitor"
         description = rootProject.description
-        url = "https://github.com/AlexProgrammerDE/MineAdsMonitor"
+        url = "https://github.com/mineads-gg/MineAdsMonitor"
         organization {
-          name = "AlexProgrammerDE"
-          url = "https://pistonmaster.net"
+          name = "MineAds"
+          url = "https://mineads.gg"
         }
         developers {
           developer {
@@ -90,17 +90,17 @@ publishing {
           }
         }
         scm {
-          connection = "scm:git:https://github.com/AlexProgrammerDE/MineAdsMonitor.git"
-          developerConnection = "scm:git:ssh://git@github.com/AlexProgrammerDE/MineAdsMonitor.git"
-          url = "https://github.com/AlexProgrammerDE/MineAdsMonitor"
+          connection = "scm:git:https://github.com/mineads-gg/MineAdsMonitor.git"
+          developerConnection = "scm:git:ssh://git@github.com/mineads-gg/MineAdsMonitor.git"
+          url = "https://github.com/mineads-gg/MineAdsMonitor"
         }
         ciManagement {
           system = "GitHub Actions"
-          url = "https://github.com/AlexProgrammerDE/MineAdsMonitor/actions"
+          url = "https://github.com/mineads-gg/MineAdsMonitor/actions"
         }
         issueManagement {
           system = "GitHub"
-          url = "https://github.com/AlexProgrammerDE/MineAdsMonitor/issues"
+          url = "https://github.com/mineads-gg/MineAdsMonitor/issues"
         }
       }
     }
