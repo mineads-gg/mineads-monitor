@@ -23,11 +23,11 @@ tasks {
         "mineadsmonitor-build-data.properties"
       )
     ) {
-      expand(
+      expand(mapOf(
         "version" to project.version,
         "description" to project.description,
         "url" to "https://modrinth.com/plugin/mineadsmonitor",
-      )
+      ))
     }
   }
   test {
