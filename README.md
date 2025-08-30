@@ -1,3 +1,3 @@
 # MineAdsMonitor
 
-Push your server analytics to MineAds.
+🔌 Push your server analytics to MineAds.
