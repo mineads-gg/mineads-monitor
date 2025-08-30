@@ -56,22 +56,23 @@ tasks.withType<Javadoc> {
   enabled = false
 }
 
-val repoName = if (version.toString().endsWith("SNAPSHOT")) "maven-snapshots" else "maven-releases"
 publishing {
   repositories {
-    maven("https://repo.codemc.org/repository/${repoName}/") {
-      credentials.username = System.getenv("CODEMC_USERNAME")
-      credentials.password = System.getenv("CODEMC_PASSWORD")
-      name = "codemc"
+    maven("https://maven.pkg.github.com/mineads-gg/mineads-plugin") {
+      name = "GitHubPackages"
+      credentials {
+        username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+        password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+      }
     }
   }
   publications {
-    register<MavenPublication>("mavenJava") {
+    register<MavenPublication>("gpr") {
       from(components["java"])
       pom {
         name = "MineAdsMonitor"
         description = rootProject.description
-        url = "https://github.com/mineads-gg/MineAdsMonitor"
+        url = "https://github.com/mineads-gg/mineads-plugin"
         organization {
           name = "MineAds"
           url = "https://mineads.gg"
@@ -90,17 +91,17 @@ publishing {
           }
         }
         scm {
-          connection = "scm:git:https://github.com/mineads-gg/MineAdsMonitor.git"
-          developerConnection = "scm:git:ssh://git@github.com/mineads-gg/MineAdsMonitor.git"
-          url = "https://github.com/mineads-gg/MineAdsMonitor"
+          connection = "scm:git:https://github.com/mineads-gg/mineads-plugin.git"
+          developerConnection = "scm:git:ssh://git@github.com/mineads-gg/mineads-plugin.git"
+          url = "https://github.com/mineads-gg/mineads-plugin"
         }
         ciManagement {
           system = "GitHub Actions"
-          url = "https://github.com/mineads-gg/MineAdsMonitor/actions"
+          url = "https://github.com/mineads-gg/mineads-plugin/actions"
         }
         issueManagement {
           system = "GitHub"
-          url = "https://github.com/mineads-gg/MineAdsMonitor/issues"
+          url = "https://github.com/mineads-gg/mineads-plugin/issues"
         }
       }
     }
