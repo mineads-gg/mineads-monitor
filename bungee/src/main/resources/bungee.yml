@@ -1,0 +1,6 @@
+name: MineAdsMonitor
+version: ${version}
+main: gg.mineads.monitor.bungee.MineAdsMonitorBungee
+author: AlexProgrammerDE
+description: ${description}
+softDepends: [ "LuckPerms" ]

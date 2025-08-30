@@ -1,0 +1,7 @@
+name: MineAdsMonitor
+version: ${version}
+api-version: 1.13
+main: gg.mineads.monitor.bukkit.MineAdsMonitorBukkit
+description: ${description}
+website: ${url}
+softdepend: [ "LuckPerms" ]

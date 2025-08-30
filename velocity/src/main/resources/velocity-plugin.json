@@ -1,0 +1,12 @@
+{
+  "id": "mineadsmonitor",
+  "name": "MineAdsMonitor",
+  "version": "${version}",
+  "description": "${description}",
+  "url": "${url}",
+  "authors": [
+    "AlexProgrammerDE"
+  ],
+  "dependencies": [],
+  "main": "gg.mineads.monitor.velocity.MineAdsMonitorVelocity"
+}
