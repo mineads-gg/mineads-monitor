@@ -1,14 +1,13 @@
 plugins {
-    id("mm.java-conventions")
-    id("mm.shadow-conventions")
+  id("mm.java-conventions")
+  id("mm.shadow-conventions")
 }
 
 dependencies {
-    api("net.skinsrestorer:axiom:1.1.2-SNAPSHOT")
-    api("net.lenni0451.mcstructs:text:3.1.0")
-    implementation(project(":mineadsmonitor-api", "shadow"))
+  implementation(project(":mineadsmonitor-api", "shadow"))
 
-    compileOnly("com.github.LeonMangler:PremiumVanishAPI:2.9.18-2")
+  compileOnly("net.luckperms:api:5.5")
 
-    compileOnly("net.luckperms:api:5.5")
+  implementation("de.exlll:configlib-yaml:4.6.1")
+  implementation("org.msgpack:msgpack-core:0.9.9")
 }

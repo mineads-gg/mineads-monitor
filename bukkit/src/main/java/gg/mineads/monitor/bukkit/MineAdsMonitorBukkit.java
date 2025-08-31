@@ -18,8 +18,8 @@
 package gg.mineads.monitor.bukkit;
 
 import com.tcoded.folialib.FoliaLib;
+import gg.mineads.monitor.shared.MineAdsMonitorBootstrap;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import gg.mineads.monitor.shared.*;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
 
