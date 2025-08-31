@@ -11,4 +11,5 @@ dependencies {
   implementation("net.kyori:adventure-platform-bungeecord:4.4.1")
 
   compileOnly("net.md-5:bungeecord-api:1.21-R0.3")
+  compileOnly("net.luckperms:api:5.5")
 }

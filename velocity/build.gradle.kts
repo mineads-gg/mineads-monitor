@@ -12,6 +12,7 @@ dependencies {
   implementation("org.bstats:bstats-velocity:3.1.0")
 
   compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
+  compileOnly("net.luckperms:api:5.5")
 }
 
 tasks {

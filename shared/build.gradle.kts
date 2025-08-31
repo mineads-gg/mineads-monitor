@@ -10,4 +10,5 @@ dependencies {
 
   implementation("de.exlll:configlib-yaml:4.6.1")
   implementation("org.msgpack:msgpack-core:0.9.10")
+  implementation("com.google.code.gson:gson:2.10.1")
 }

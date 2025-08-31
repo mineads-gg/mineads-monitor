@@ -13,4 +13,5 @@ dependencies {
   implementation("com.tcoded:FoliaLib:0.5.1")
 
   compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+  compileOnly("net.luckperms:api:5.5")
 }

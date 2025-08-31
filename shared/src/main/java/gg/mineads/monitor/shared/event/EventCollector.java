@@ -15,7 +15,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package gg.mineads.monitor.shared;
+package gg.mineads.monitor.shared.event;
 
-public interface MineAdsMonitorBootstrap {
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+public class EventCollector {
+
+  private final Queue<Object> events = new ConcurrentLinkedQueue<>();
+
+  public void addEvent(Object event) {
+    events.add(event);
+  }
+
+  public Queue<Object> getEvents() {
+    Queue<Object> currentEvents = new ConcurrentLinkedQueue<>(events);
+    events.clear();
+    return currentEvents;
+  }
+
+  public int getQueueSize() {
+    return events.size();
+  }
+
 }

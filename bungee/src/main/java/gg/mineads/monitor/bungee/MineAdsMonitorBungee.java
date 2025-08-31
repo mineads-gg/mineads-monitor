@@ -17,25 +17,66 @@
  */
 package gg.mineads.monitor.bungee;
 
-import gg.mineads.monitor.shared.MineAdsMonitorBootstrap;
+import gg.mineads.monitor.bungee.listener.PlayerListener;
+import gg.mineads.monitor.bungee.scheduler.BungeeScheduler;
+import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
+import gg.mineads.monitor.shared.scheduler.Scheduler;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.bstats.bungeecord.Metrics;
 
-public class MineAdsMonitorBungee extends Plugin implements MineAdsMonitorBootstrap {
+import java.nio.file.Path;
+
+public class MineAdsMonitorBungee extends Plugin {
+
+  private final AbstractMineAdsMonitorBootstrap bootstrap;
   private BungeeAudiences adventure;
+
+  public MineAdsMonitorBungee() {
+    this.bootstrap = new Bootstrap(this);
+  }
 
   @Override
   public void onEnable() {
     this.adventure = BungeeAudiences.create(this);
     new Metrics(this, 27109);
+
+    this.bootstrap.onEnable();
+
+    getProxy().getPluginManager().registerListener(this, new PlayerListener(bootstrap.getEventCollector()));
   }
 
   @Override
   public void onDisable() {
+    this.bootstrap.onDisable();
+
     if (this.adventure != null) {
       this.adventure.close();
       this.adventure = null;
+    }
+  }
+
+  private static class Bootstrap extends AbstractMineAdsMonitorBootstrap {
+
+    private final MineAdsMonitorBungee plugin;
+
+    public Bootstrap(MineAdsMonitorBungee plugin) {
+      this.plugin = plugin;
+    }
+
+    @Override
+    public Scheduler getScheduler() {
+      return new BungeeScheduler(plugin);
+    }
+
+    @Override
+    public Path getDataFolder() {
+      return plugin.getDataFolder().toPath();
+    }
+
+    @Override
+    public String getPluginVersion() {
+      return plugin.getDescription().getVersion();
     }
   }
 }

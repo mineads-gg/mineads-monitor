@@ -18,27 +18,72 @@
 package gg.mineads.monitor.bukkit;
 
 import com.tcoded.folialib.FoliaLib;
-import gg.mineads.monitor.shared.MineAdsMonitorBootstrap;
+import gg.mineads.monitor.bukkit.listener.PlayerListener;
+import gg.mineads.monitor.bukkit.scheduler.BukkitScheduler;
+import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
+import gg.mineads.monitor.shared.scheduler.Scheduler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class MineAdsMonitorBukkit extends JavaPlugin implements MineAdsMonitorBootstrap {
+import java.nio.file.Path;
+
+public class MineAdsMonitorBukkit extends JavaPlugin {
+
+  private final AbstractMineAdsMonitorBootstrap bootstrap;
   private FoliaLib foliaLib;
   private BukkitAudiences adventure;
+
+  public MineAdsMonitorBukkit() {
+    this.bootstrap = new Bootstrap(this);
+  }
 
   @Override
   public void onEnable() {
     this.foliaLib = new FoliaLib(this);
     this.adventure = BukkitAudiences.create(this);
     new Metrics(this, 27108);
+
+    this.bootstrap.onEnable();
+
+    getServer().getPluginManager().registerEvents(new PlayerListener(bootstrap.getEventCollector()), this);
   }
 
   @Override
   public void onDisable() {
+    this.bootstrap.onDisable();
+
     if (this.adventure != null) {
       this.adventure.close();
       this.adventure = null;
+    }
+  }
+
+  public FoliaLib getFoliaLib() {
+    return foliaLib;
+  }
+
+  private static class Bootstrap extends AbstractMineAdsMonitorBootstrap {
+
+    private final MineAdsMonitorBukkit plugin;
+
+    public Bootstrap(MineAdsMonitorBukkit plugin) {
+      this.plugin = plugin;
+    }
+
+    @Override
+    public Scheduler getScheduler() {
+      return new BukkitScheduler(plugin.getFoliaLib());
+    }
+
+    @Override
+    public Path getDataFolder() {
+      return plugin.getDataFolder().toPath();
+    }
+
+    @Override
+    public String getPluginVersion() {
+      return plugin.getDescription().getVersion();
     }
   }
 }
