@@ -77,15 +77,6 @@ java {
   }
 }
 
-tasks.withType<JavaCompile> {
-  options.encoding = "UTF-8"
-  options.compilerArgs.add("-Xlint:all,-serial,-processing")
-}
-
-tasks.withType<Javadoc> {
-  enabled = false
-}
-
 publishing {
   repositories {
     maven("https://maven.pkg.github.com/mineads-gg/mineads-monitor") {
