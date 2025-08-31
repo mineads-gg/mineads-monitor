@@ -9,5 +9,5 @@ dependencies {
   compileOnly("net.luckperms:api:5.5")
 
   implementation("de.exlll:configlib-yaml:4.6.1")
-  implementation("org.msgpack:msgpack-core:0.9.9")
+  implementation("org.msgpack:msgpack-core:0.9.10")
 }
