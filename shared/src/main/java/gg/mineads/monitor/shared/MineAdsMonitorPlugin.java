@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package gg.mineads.monitor.api;
+package gg.mineads.monitor.shared;
 
-public class MineAdsMonitorApi {
+public class MineAdsMonitorPlugin {
 }

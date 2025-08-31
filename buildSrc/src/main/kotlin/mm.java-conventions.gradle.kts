@@ -1,16 +1,23 @@
 plugins {
   `java-library`
+  `java-test-fixtures`
   `maven-publish`
+  id("mm.formatting-logic")
+  id("net.kyori.indra.git")
+  id("io.freefair.lombok")
+  id("net.ltgt.errorprone")
 }
 
 dependencies {
-  compileOnly("org.projectlombok:lombok:1.18.38")
-  annotationProcessor("org.projectlombok:lombok:1.18.38")
+  api("org.jetbrains:annotations:26.0.2")
+  compileOnly("com.github.spotbugs:spotbugs-annotations:4.9.4")
+
+  errorprone("com.google.errorprone:error_prone_core:2.41.0")
 
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-  testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
-  testImplementation("org.mockito:mockito-core:5.19.0")
-  testImplementation("org.mockito:mockito-junit-jupiter:5.19.0")
+  testFixturesApi("org.junit.jupiter:junit-jupiter:5.13.4")
+  testFixturesApi("org.mockito:mockito-core:5.19.0")
+  testFixturesApi("org.mockito:mockito-junit-jupiter:5.19.0")
 }
 
 tasks {
@@ -23,11 +30,13 @@ tasks {
         "mineadsmonitor-build-data.properties"
       )
     ) {
-      expand(mapOf(
-        "version" to project.version,
-        "description" to project.description,
-        "url" to "https://modrinth.com/plugin/mineadsmonitor",
-      ))
+      expand(
+        mapOf(
+          "version" to project.version,
+          "description" to project.description,
+          "url" to "https://modrinth.com/plugin/mineadsmonitor",
+        )
+      )
     }
   }
   test {
@@ -38,6 +47,27 @@ tasks {
   }
   jar {
     from(rootProject.file("LICENSE"))
+  }
+  javadoc {
+    title = "MineAdsMonitor Javadocs"
+    options.encoding = Charsets.UTF_8.name()
+    (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:none", "-quiet")
+    onlyIf { project.name.contains("api") }
+  }
+  delombok {
+    onlyIf { project.name.contains("api") }
+  }
+  compileJava {
+    options.encoding = Charsets.UTF_8.name()
+    options.compilerArgs.addAll(
+      listOf(
+        "-parameters",
+        "-nowarn",
+        "-Xlint:-deprecation",
+        "-Xlint:-processing"
+      )
+    )
+    options.isFork = true
   }
 }
 
@@ -58,7 +88,7 @@ tasks.withType<Javadoc> {
 
 publishing {
   repositories {
-    maven("https://maven.pkg.github.com/mineads-gg/mineads-plugin") {
+    maven("https://maven.pkg.github.com/mineads-gg/mineads-monitor") {
       name = "GitHubPackages"
       credentials {
         username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
@@ -72,7 +102,7 @@ publishing {
       pom {
         name = "MineAdsMonitor"
         description = rootProject.description
-        url = "https://github.com/mineads-gg/mineads-plugin"
+        url = "https://github.com/mineads-gg/mineads-monitor"
         organization {
           name = "MineAds"
           url = "https://mineads.gg"
@@ -86,22 +116,22 @@ publishing {
         }
         licenses {
           license {
-            name = "Apache License 2.0"
-            url = "https://www.apache.org/licenses/LICENSE-2.0"
+            name = "GNU General Public License v3.0"
+            url = "https://www.gnu.org/licenses/gpl-3.0.html"
           }
         }
         scm {
-          connection = "scm:git:https://github.com/mineads-gg/mineads-plugin.git"
-          developerConnection = "scm:git:ssh://git@github.com/mineads-gg/mineads-plugin.git"
-          url = "https://github.com/mineads-gg/mineads-plugin"
+          connection = "scm:git:https://github.com/mineads-gg/mineads-monitor.git"
+          developerConnection = "scm:git:ssh://git@github.com/mineads-gg/mineads-monitor.git"
+          url = "https://github.com/mineads-gg/mineads-monitor"
         }
         ciManagement {
           system = "GitHub Actions"
-          url = "https://github.com/mineads-gg/mineads-plugin/actions"
+          url = "https://github.com/mineads-gg/mineads-monitor/actions"
         }
         issueManagement {
           system = "GitHub"
-          url = "https://github.com/mineads-gg/mineads-plugin/issues"
+          url = "https://github.com/mineads-gg/mineads-monitor/issues"
         }
       }
     }
