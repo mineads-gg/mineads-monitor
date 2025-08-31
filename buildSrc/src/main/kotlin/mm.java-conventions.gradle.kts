@@ -91,8 +91,8 @@ publishing {
     maven("https://maven.pkg.github.com/mineads-gg/mineads-monitor") {
       name = "GitHubPackages"
       credentials {
-        username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-        password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+        username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+        password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
       }
     }
   }
