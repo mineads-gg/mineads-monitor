@@ -21,8 +21,7 @@ import gg.mineads.monitor.shared.event.EventCollector;
 import gg.mineads.monitor.shared.event.model.PlayerChatEvent;
 import gg.mineads.monitor.shared.event.model.PlayerCommandEvent;
 import gg.mineads.monitor.shared.event.model.PlayerLeaveEvent;
-import net.luckperms.api.LuckPerms;
-import net.luckperms.api.model.user.User;
+import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,22 +29,19 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.plugin.RegisteredServiceProvider;
 
 public class PlayerListener implements Listener {
 
   private final EventCollector eventCollector;
-  private final LuckPerms luckPerms;
 
   public PlayerListener(EventCollector eventCollector) {
     this.eventCollector = eventCollector;
-    this.luckPerms = getLuckPerms();
   }
 
   @EventHandler
   public void onPlayerJoin(org.bukkit.event.player.PlayerJoinEvent event) {
     Player player = event.getPlayer();
-    String rank = getRank(player);
+    String rank = LuckPermsUtil.getPrimaryGroup(player.getUniqueId());
 
     eventCollector.addEvent(new gg.mineads.monitor.shared.event.model.PlayerJoinEvent(
       player.getLocale(),
@@ -70,26 +66,5 @@ public class PlayerListener implements Listener {
   @EventHandler
   public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
     eventCollector.addEvent(new PlayerCommandEvent(event.getMessage()));
-  }
-
-  private String getRank(Player player) {
-    if (luckPerms == null) {
-      return "Unknown";
-    }
-
-    User user = luckPerms.getUserManager().getUser(player.getUniqueId());
-    if (user == null) {
-      return "Unknown";
-    }
-
-    return user.getPrimaryGroup();
-  }
-
-  private LuckPerms getLuckPerms() {
-    RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
-    if (provider != null) {
-      return provider.getProvider();
-    }
-    return null;
   }
 }

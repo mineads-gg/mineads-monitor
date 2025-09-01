@@ -26,23 +26,20 @@ import com.velocitypowered.api.proxy.Player;
 import gg.mineads.monitor.shared.event.EventCollector;
 import gg.mineads.monitor.shared.event.model.PlayerCommandEvent;
 import gg.mineads.monitor.shared.event.model.PlayerLeaveEvent;
-import net.luckperms.api.LuckPerms;
-import net.luckperms.api.model.user.User;
+import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 
 public class PlayerListener {
 
   private final EventCollector eventCollector;
-  private final LuckPerms luckPerms;
 
   public PlayerListener(EventCollector eventCollector) {
     this.eventCollector = eventCollector;
-    this.luckPerms = getLuckPerms();
   }
 
   @Subscribe
   public void onPostLogin(PostLoginEvent event) {
     Player player = event.getPlayer();
-    String rank = getRank(player);
+    String rank = LuckPermsUtil.getPrimaryGroup(player.getUniqueId());
 
     eventCollector.addEvent(new gg.mineads.monitor.shared.event.model.PlayerJoinEvent(
       player.getEffectiveLocale().toString(),
@@ -67,26 +64,5 @@ public class PlayerListener {
   @Subscribe
   public void onCommandExecute(CommandExecuteEvent event) {
     eventCollector.addEvent(new PlayerCommandEvent(event.getCommand()));
-  }
-
-  private String getRank(Player player) {
-    if (luckPerms == null) {
-      return "Unknown";
-    }
-
-    User user = luckPerms.getUserManager().getUser(player.getUniqueId());
-    if (user == null) {
-      return "Unknown";
-    }
-
-    return user.getPrimaryGroup();
-  }
-
-  private LuckPerms getLuckPerms() {
-    try {
-      return net.luckperms.api.LuckPermsProvider.get();
-    } catch (IllegalStateException e) {
-      return null;
-    }
   }
 }

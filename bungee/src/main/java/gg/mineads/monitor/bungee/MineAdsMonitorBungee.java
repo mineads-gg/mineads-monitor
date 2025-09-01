@@ -43,6 +43,15 @@ public class MineAdsMonitorBungee extends Plugin {
 
   @Override
   public void onEnable() {
+    // Initialize LuckPerms utility if available
+    gg.mineads.monitor.shared.permission.LuckPermsUtil.initialize(() -> {
+      try {
+        return net.luckperms.api.LuckPermsProvider.get();
+      } catch (Exception | NoClassDefFoundError e) {
+        return null;
+      }
+    });
+
     this.plugin = new MineAdsMonitorPlugin(bootstrap);
     this.plugin.onEnable();
   }

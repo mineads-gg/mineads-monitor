@@ -21,8 +21,7 @@ import gg.mineads.monitor.shared.event.EventCollector;
 import gg.mineads.monitor.shared.event.model.PlayerChatEvent;
 import gg.mineads.monitor.shared.event.model.PlayerCommandEvent;
 import gg.mineads.monitor.shared.event.model.PlayerLeaveEvent;
-import net.luckperms.api.LuckPerms;
-import net.luckperms.api.model.user.User;
+import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
@@ -33,17 +32,15 @@ import net.md_5.bungee.event.EventHandler;
 public class PlayerListener implements Listener {
 
   private final EventCollector eventCollector;
-  private final LuckPerms luckPerms;
 
   public PlayerListener(EventCollector eventCollector) {
     this.eventCollector = eventCollector;
-    this.luckPerms = getLuckPerms();
   }
 
   @EventHandler
   public void onPostLogin(PostLoginEvent event) {
     ProxiedPlayer player = event.getPlayer();
-    String rank = getRank(player);
+    String rank = LuckPermsUtil.getPrimaryGroup(player.getUniqueId());
 
     eventCollector.addEvent(new gg.mineads.monitor.shared.event.model.PlayerJoinEvent(
       player.getLocale().toString(),
@@ -66,27 +63,6 @@ public class PlayerListener implements Listener {
       eventCollector.addEvent(new PlayerCommandEvent(event.getMessage()));
     } else {
       eventCollector.addEvent(new PlayerChatEvent(event.getMessage()));
-    }
-  }
-
-  private String getRank(ProxiedPlayer player) {
-    if (luckPerms == null) {
-      return "Unknown";
-    }
-
-    User user = luckPerms.getUserManager().getUser(player.getUniqueId());
-    if (user == null) {
-      return "Unknown";
-    }
-
-    return user.getPrimaryGroup();
-  }
-
-  private LuckPerms getLuckPerms() {
-    try {
-      return net.luckperms.api.LuckPermsProvider.get();
-    } catch (IllegalStateException e) {
-      return null;
     }
   }
 }
