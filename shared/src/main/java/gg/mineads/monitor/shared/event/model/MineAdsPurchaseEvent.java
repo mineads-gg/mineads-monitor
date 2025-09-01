@@ -29,21 +29,6 @@ public class MineAdsPurchaseEvent {
     this.event = MineAdsEvent.purchase(type, data);
   }
 
-  /**
-   * Convenience constructor for backward compatibility.
-   *
-   * @param typeString the purchase type as string
-   * @param data       the purchase data
-   */
-  public MineAdsPurchaseEvent(String typeString, PurchaseData data) {
-    PurchaseType type;
-    switch (typeString) {
-      case "tebex" -> type = PurchaseType.TEBEX;
-      case "craftingstore" -> type = PurchaseType.CRAFTING_STORE;
-      default -> throw new IllegalArgumentException("Unknown purchase type: " + typeString);
-    }
-    this.event = MineAdsEvent.purchase(type, data);
-  }
 
   // Inner wrapper class for purchase data
   @Data
@@ -62,22 +47,7 @@ public class MineAdsPurchaseEvent {
       this.data = data;
     }
 
-    /**
-     * Convenience constructor for backward compatibility.
-     *
-     * @param typeString the purchase type as string
-     * @param data       the purchase data
-     */
-    public PurchaseWrapper(String typeString, PurchaseData data) {
-      PurchaseType type;
-      switch (typeString) {
-        case "tebex" -> type = PurchaseType.TEBEX;
-        case "craftingstore" -> type = PurchaseType.CRAFTING_STORE;
-        default -> throw new IllegalArgumentException("Unknown purchase type: " + typeString);
-      }
-      this.type = type;
-      this.data = data;
-    }
+
   }
 
 }

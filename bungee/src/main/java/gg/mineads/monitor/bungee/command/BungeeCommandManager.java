@@ -18,10 +18,8 @@
 package gg.mineads.monitor.bungee.command;
 
 import gg.mineads.monitor.bungee.MineAdsMonitorBungee;
-import gg.mineads.monitor.shared.PlatformBootstrap;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
-import net.md_5.bungee.api.plugin.Plugin;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.execution.ExecutionCoordinator;

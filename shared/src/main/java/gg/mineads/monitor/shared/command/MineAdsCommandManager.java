@@ -41,8 +41,8 @@ public abstract class MineAdsCommandManager<B extends PlatformBootstrap> impleme
 
   protected abstract CommandManager<WrappedCommandSender> createCommandManager(B plugin);
 
-    @Override
-    public void registerCommands() {
-      this.annotationParser.parse(new MineAdsCommand(new MineAdsMonitorPlugin((AbstractMineAdsMonitorBootstrap) platformBootstrap), this.commandManager));
-    }
+  @Override
+  public void registerCommands() {
+    this.annotationParser.parse(new MineAdsCommand(new MineAdsMonitorPlugin((AbstractMineAdsMonitorBootstrap) platformBootstrap), this.commandManager));
+  }
 }

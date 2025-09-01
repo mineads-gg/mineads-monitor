@@ -24,24 +24,24 @@ import net.md_5.bungee.api.CommandSender;
 
 public class BungeeWrappedCommandSender implements WrappedCommandSender {
 
-    private final CommandSender sender;
+  private final CommandSender sender;
 
-    public BungeeWrappedCommandSender(final CommandSender sender) {
-        this.sender = sender;
-    }
+  public BungeeWrappedCommandSender(final CommandSender sender) {
+    this.sender = sender;
+  }
 
-    @Override
-    public void sendMessage(final Component component) {
-        this.sender.sendMessage(LegacyComponentSerializer.legacySection().serialize(component));
-    }
+  @Override
+  public void sendMessage(final Component component) {
+    this.sender.sendMessage(LegacyComponentSerializer.legacySection().serialize(component));
+  }
 
-    @Override
-    public boolean hasPermission(final String permission) {
-        return this.sender.hasPermission(permission);
-    }
+  @Override
+  public boolean hasPermission(final String permission) {
+    return this.sender.hasPermission(permission);
+  }
 
-    public CommandSender getSender() {
-        return this.sender;
-    }
+  public CommandSender getSender() {
+    return this.sender;
+  }
 
 }

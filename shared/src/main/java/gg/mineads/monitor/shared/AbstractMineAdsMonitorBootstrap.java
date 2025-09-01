@@ -63,7 +63,6 @@ public abstract class AbstractMineAdsMonitorBootstrap implements PlatformBootstr
   }
 
 
-
   public abstract MineAdsScheduler getScheduler();
 
   public abstract Path getDataFolder();

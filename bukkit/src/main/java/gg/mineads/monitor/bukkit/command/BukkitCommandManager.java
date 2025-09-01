@@ -18,7 +18,6 @@
 package gg.mineads.monitor.bukkit.command;
 
 import gg.mineads.monitor.bukkit.MineAdsMonitorBukkit;
-import gg.mineads.monitor.shared.PlatformBootstrap;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import org.incendo.cloud.CommandManager;
@@ -28,16 +27,16 @@ import org.incendo.cloud.paper.LegacyPaperCommandManager;
 
 public class BukkitCommandManager extends MineAdsCommandManager<MineAdsMonitorBukkit.Bootstrap> {
 
-    public BukkitCommandManager(final MineAdsMonitorBukkit plugin) {
-        super(plugin.getBootstrap());
-    }
+  public BukkitCommandManager(final MineAdsMonitorBukkit plugin) {
+    super(plugin.getBootstrap());
+  }
 
-    @Override
-    protected CommandManager<WrappedCommandSender> createCommandManager(MineAdsMonitorBukkit.Bootstrap platformBootstrap) {
-        return new LegacyPaperCommandManager<>(
-          platformBootstrap.getOwningPlugin(),
-          ExecutionCoordinator.asyncCoordinator(),
-          SenderMapper.create(BukkitWrappedCommandSender::new, s -> ((BukkitWrappedCommandSender) s).getSender())
-        );
-    }
+  @Override
+  protected CommandManager<WrappedCommandSender> createCommandManager(MineAdsMonitorBukkit.Bootstrap platformBootstrap) {
+    return new LegacyPaperCommandManager<>(
+      platformBootstrap.getOwningPlugin(),
+      ExecutionCoordinator.asyncCoordinator(),
+      SenderMapper.create(BukkitWrappedCommandSender::new, s -> ((BukkitWrappedCommandSender) s).getSender())
+    );
+  }
 }

@@ -46,7 +46,7 @@ public class PlayerListener {
 
     batchProcessor.addEvent(MineAdsEvent.playerJoin(
       sessionId,
-      player.getEffectiveLocale().toString(),
+      player.getEffectiveLocale() != null ? player.getEffectiveLocale().toString() : "en_US",
       player.getRemoteAddress().getAddress().getHostAddress(),
       player.getClientBrand(),
       String.valueOf(player.getProtocolVersion().getProtocol()),

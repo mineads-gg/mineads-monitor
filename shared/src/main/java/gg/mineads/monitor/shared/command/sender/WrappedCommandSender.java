@@ -21,8 +21,8 @@ import net.kyori.adventure.text.Component;
 
 public interface WrappedCommandSender {
 
-    void sendMessage(Component component);
+  void sendMessage(Component component);
 
-    boolean hasPermission(String permission);
+  boolean hasPermission(String permission);
 
 }

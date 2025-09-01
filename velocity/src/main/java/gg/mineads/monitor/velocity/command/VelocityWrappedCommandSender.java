@@ -23,24 +23,24 @@ import net.kyori.adventure.text.Component;
 
 public class VelocityWrappedCommandSender implements WrappedCommandSender {
 
-    private final CommandSource source;
+  private final CommandSource source;
 
-    public VelocityWrappedCommandSender(final CommandSource source) {
-        this.source = source;
-    }
+  public VelocityWrappedCommandSender(final CommandSource source) {
+    this.source = source;
+  }
 
-    @Override
-    public void sendMessage(final Component component) {
-        this.source.sendMessage(component);
-    }
+  @Override
+  public void sendMessage(final Component component) {
+    this.source.sendMessage(component);
+  }
 
-    @Override
-    public boolean hasPermission(final String permission) {
-        return this.source.hasPermission(permission);
-    }
+  @Override
+  public boolean hasPermission(final String permission) {
+    return this.source.hasPermission(permission);
+  }
 
-    public CommandSource getSource() {
-        return this.source;
-    }
+  public CommandSource getSource() {
+    return this.source;
+  }
 
 }

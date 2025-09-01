@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
 @RequiredArgsConstructor
 public class MineAdsCommand {
 
-    private final MineAdsMonitorPlugin plugin;
+  private final MineAdsMonitorPlugin plugin;
   private final CommandManager<WrappedCommandSender> commandManager;
 
   @Command("version")

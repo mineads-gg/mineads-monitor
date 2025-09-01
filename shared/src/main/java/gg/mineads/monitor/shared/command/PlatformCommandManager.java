@@ -18,5 +18,5 @@
 package gg.mineads.monitor.shared.command;
 
 public interface PlatformCommandManager {
-    void registerCommands();
+  void registerCommands();
 }

@@ -61,10 +61,9 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
 
   @Getter
   public static class Bootstrap extends AbstractMineAdsMonitorBootstrap {
+    private final MineAdsMonitorBukkit plugin;
     private FoliaLib foliaLib;
     private BukkitAudiences adventure;
-
-    private final MineAdsMonitorBukkit plugin;
 
     public Bootstrap(MineAdsMonitorBukkit plugin) {
       this.plugin = plugin;

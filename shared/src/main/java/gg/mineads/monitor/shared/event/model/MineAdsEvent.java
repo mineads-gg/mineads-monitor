@@ -56,7 +56,6 @@ public class MineAdsEvent {
     this.chatData = chatData;
     this.commandData = commandData;
     this.purchaseData = purchaseData;
-    validate();
   }
 
   /**
@@ -76,7 +75,9 @@ public class MineAdsEvent {
                                         boolean onlineMode, String luckPermsRank) {
     PlayerJoinData data = new PlayerJoinData(sessionId, locale, ip, clientBrand,
       minecraftVersion, onlineMode, luckPermsRank);
-    return new MineAdsEvent(EventType.JOIN, data, null, null, null, null);
+    MineAdsEvent event = new MineAdsEvent(EventType.JOIN, data, null, null, null, null);
+    event.validate();
+    return event;
   }
 
   /**
@@ -87,10 +88,10 @@ public class MineAdsEvent {
    */
   public static MineAdsEvent playerLeave(UUID sessionId) {
     PlayerLeaveData data = new PlayerLeaveData(sessionId);
-    return new MineAdsEvent(EventType.LEAVE, null, data, null, null, null);
+    MineAdsEvent event = new MineAdsEvent(EventType.LEAVE, null, data, null, null, null);
+    event.validate();
+    return event;
   }
-
-  // Factory methods for creating events directly
 
   /**
    * Create a player chat event.
@@ -101,7 +102,9 @@ public class MineAdsEvent {
    */
   public static MineAdsEvent playerChat(UUID sessionId, String message) {
     PlayerChatData data = new PlayerChatData(sessionId, message);
-    return new MineAdsEvent(EventType.CHAT, null, null, data, null, null);
+    MineAdsEvent event = new MineAdsEvent(EventType.CHAT, null, null, data, null, null);
+    event.validate();
+    return event;
   }
 
   /**
@@ -113,7 +116,9 @@ public class MineAdsEvent {
    */
   public static MineAdsEvent playerCommand(UUID sessionId, String command) {
     PlayerCommandData data = new PlayerCommandData(sessionId, command);
-    return new MineAdsEvent(EventType.COMMAND, null, null, null, data, null);
+    MineAdsEvent event = new MineAdsEvent(EventType.COMMAND, null, null, null, data, null);
+    event.validate();
+    return event;
   }
 
   /**
@@ -125,7 +130,9 @@ public class MineAdsEvent {
    */
   public static MineAdsEvent purchase(PurchaseType type, PurchaseData data) {
     MineAdsPurchaseEvent.PurchaseWrapper wrapper = new MineAdsPurchaseEvent.PurchaseWrapper(type, data);
-    return new MineAdsEvent(EventType.PURCHASE, null, null, null, null, wrapper);
+    MineAdsEvent event = new MineAdsEvent(EventType.PURCHASE, null, null, null, null, wrapper);
+    event.validate();
+    return event;
   }
 
   /**
@@ -165,18 +172,5 @@ public class MineAdsEvent {
     }
   }
 
-  /**
-   * Get the data for the specific event type.
-   *
-   * @return the appropriate data object based on event type
-   */
-  public Object getTypedData() {
-    return switch (eventType) {
-      case JOIN -> joinData;
-      case LEAVE -> leaveData;
-      case CHAT -> chatData;
-      case COMMAND -> commandData;
-      case PURCHASE -> purchaseData;
-    };
-  }
+
 }

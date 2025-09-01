@@ -17,7 +17,6 @@
  */
 package gg.mineads.monitor.velocity.command;
 
-import gg.mineads.monitor.shared.PlatformBootstrap;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import gg.mineads.monitor.velocity.MineAdsMonitorVelocity;
@@ -27,9 +26,9 @@ import org.incendo.cloud.execution.ExecutionCoordinator;
 
 public class VelocityCommandManager extends MineAdsCommandManager<MineAdsMonitorVelocity.Bootstrap> {
 
-    public VelocityCommandManager(final MineAdsMonitorVelocity plugin) {
-        super(plugin.getBootstrap());
-    }
+  public VelocityCommandManager(final MineAdsMonitorVelocity plugin) {
+    super(plugin.getBootstrap());
+  }
 
   @Override
   protected CommandManager<WrappedCommandSender> createCommandManager(MineAdsMonitorVelocity.Bootstrap plugin) {

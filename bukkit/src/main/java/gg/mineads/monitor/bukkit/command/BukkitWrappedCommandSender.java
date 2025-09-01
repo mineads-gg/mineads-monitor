@@ -23,24 +23,24 @@ import org.bukkit.command.CommandSender;
 
 public class BukkitWrappedCommandSender implements WrappedCommandSender {
 
-    private final CommandSender sender;
+  private final CommandSender sender;
 
-    public BukkitWrappedCommandSender(final CommandSender sender) {
-        this.sender = sender;
-    }
+  public BukkitWrappedCommandSender(final CommandSender sender) {
+    this.sender = sender;
+  }
 
-    @Override
-    public void sendMessage(final Component component) {
-        this.sender.sendMessage(component);
-    }
+  @Override
+  public void sendMessage(final Component component) {
+    this.sender.sendMessage(component);
+  }
 
-    @Override
-    public boolean hasPermission(final String permission) {
-        return this.sender.hasPermission(permission);
-    }
+  @Override
+  public boolean hasPermission(final String permission) {
+    return this.sender.hasPermission(permission);
+  }
 
-    public CommandSender getSender() {
-        return this.sender;
-    }
+  public CommandSender getSender() {
+    return this.sender;
+  }
 
 }
