@@ -17,7 +17,7 @@
  */
 package gg.mineads.monitor.shared.batch;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 import gg.mineads.monitor.shared.event.EventCollector;
 import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessagePack;
@@ -37,7 +37,7 @@ public class BatchProcessor implements Runnable {
   private final EventCollector eventCollector;
   private final String pluginKey;
   private final HttpClient httpClient;
-  private final Gson gson = new Gson();
+  private static final Gson GSON = new Gson();
 
   public BatchProcessor(EventCollector eventCollector, String pluginKey) {
     this.eventCollector = eventCollector;
@@ -73,11 +73,51 @@ public class BatchProcessor implements Runnable {
     }
   }
 
+  private static void packJson(MessageBufferPacker packer, JsonElement data) throws IOException {
+    switch (data) {
+      case JsonPrimitive primitive -> {
+        if (primitive.isBoolean()) {
+          packer.packBoolean(primitive.getAsBoolean());
+        } else if (primitive.isNumber()) {
+          Number num = primitive.getAsNumber();
+          switch (num) {
+            case Integer ignored -> packer.packInt(num.intValue());
+            case Long ignored -> packer.packLong(num.longValue());
+            case Double ignored -> packer.packDouble(num.doubleValue());
+            case Float ignored -> packer.packDouble(num.floatValue());
+            case Short ignored -> packer.packShort(num.shortValue());
+            case Byte ignored -> packer.packByte(num.byteValue());
+            default -> throw new IOException("Unknown number type: " + num.getClass().getName());
+          }
+        } else if (primitive.isString()) {
+          packer.packString(primitive.getAsString());
+        } else {
+          throw new IOException("Unknown JsonPrimitive type");
+        }
+      }
+      case JsonArray jsonArray -> {
+        packer.packArrayHeader(jsonArray.size());
+        for (JsonElement element : jsonArray) {
+          packJson(packer, element);
+        }
+      }
+      case JsonObject jsonObject -> {
+        packer.packMapHeader(jsonObject.size());
+        for (String key : jsonObject.keySet()) {
+          packer.packString(key);
+          packJson(packer, jsonObject.get(key));
+        }
+      }
+      case JsonNull ignored -> packer.packNil();
+      default -> throw new IOException("Invalid packing value of type " + data.getClass().getName());
+    }
+  }
+
   private byte[] serializeToMessagePack(Queue<Object> events) throws IOException {
-    String json = gson.toJson(events);
+    JsonElement json = GSON.toJsonTree(events);
 
     MessageBufferPacker packer = MessagePack.newDefaultBufferPacker();
-    packer.packString(json);
+    packJson(packer, json);
     packer.close();
 
     return packer.toByteArray();
