@@ -22,6 +22,8 @@ import gg.mineads.monitor.bungee.listener.PlayerListener;
 import gg.mineads.monitor.bungee.scheduler.BungeeScheduler;
 import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
+import gg.mineads.monitor.shared.command.MineAdsCommandManager;
+import gg.mineads.monitor.shared.command.PlatformCommandManager;
 import gg.mineads.monitor.shared.scheduler.Scheduler;
 import lombok.Getter;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
@@ -35,7 +37,7 @@ public class MineAdsMonitorBungee extends Plugin {
   @Getter
   private final Bootstrap bootstrap;
   private MineAdsMonitorPlugin plugin;
-  private BungeeCommandManager commandManager;
+  private PlatformCommandManager commandManager;
   private BungeeAudiences adventure;
 
   public MineAdsMonitorBungee() {
@@ -50,7 +52,7 @@ public class MineAdsMonitorBungee extends Plugin {
     this.plugin = new MineAdsMonitorPlugin(bootstrap);
     this.plugin.onEnable();
 
-    this.commandManager = new BungeeCommandManager(this);
+    this.commandManager = bootstrap.createCommandManager();
     this.commandManager.registerCommands();
 
     getProxy().getPluginManager().registerListener(this, new PlayerListener(plugin.getEventCollector()));
@@ -87,6 +89,11 @@ public class MineAdsMonitorBungee extends Plugin {
     @Override
     public MineAdsMonitorBungee getOwningPlugin() {
       return plugin;
+    }
+
+    @Override
+    public MineAdsCommandManager<?> createCommandManager() {
+      return new BungeeCommandManager(plugin);
     }
   }
 }

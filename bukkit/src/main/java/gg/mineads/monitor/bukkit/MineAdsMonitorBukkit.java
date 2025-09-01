@@ -18,9 +18,13 @@
 package gg.mineads.monitor.bukkit;
 
 import com.tcoded.folialib.FoliaLib;
+import gg.mineads.monitor.bukkit.command.BukkitCommandManager;
 import gg.mineads.monitor.bukkit.listener.PlayerListener;
 import gg.mineads.monitor.bukkit.scheduler.BukkitScheduler;
 import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
+import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
+import gg.mineads.monitor.shared.command.MineAdsCommandManager;
+import gg.mineads.monitor.shared.command.PlatformCommandManager;
 import gg.mineads.monitor.shared.scheduler.Scheduler;
 import lombok.Getter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -33,9 +37,11 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
 
   @Getter
   private final Bootstrap bootstrap;
+  private MineAdsMonitorPlugin plugin;
   @Getter
   private FoliaLib foliaLib;
   private BukkitAudiences adventure;
+  private PlatformCommandManager commandManager;
 
   public MineAdsMonitorBukkit() {
     this.bootstrap = new Bootstrap(this);
@@ -47,14 +53,18 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
     this.adventure = BukkitAudiences.create(this);
     new Metrics(this, 27108);
 
-    this.bootstrap.onEnable();
+    this.plugin = new MineAdsMonitorPlugin(bootstrap);
+    this.plugin.onEnable();
 
-    getServer().getPluginManager().registerEvents(new PlayerListener(bootstrap.getEventCollector()), this);
+    this.commandManager = bootstrap.createCommandManager();
+    this.commandManager.registerCommands();
+
+    getServer().getPluginManager().registerEvents(new PlayerListener(plugin.getEventCollector()), this);
   }
 
   @Override
   public void onDisable() {
-    this.bootstrap.onDisable();
+    this.plugin.onDisable();
 
     if (this.adventure != null) {
       this.adventure.close();
@@ -83,6 +93,11 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
     @Override
     public MineAdsMonitorBukkit getOwningPlugin() {
       return plugin;
+    }
+
+    @Override
+    public MineAdsCommandManager<?> createCommandManager() {
+      return new BukkitCommandManager(plugin);
     }
   }
 }

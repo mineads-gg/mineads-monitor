@@ -26,6 +26,8 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
+import gg.mineads.monitor.shared.command.MineAdsCommandManager;
+import gg.mineads.monitor.shared.command.PlatformCommandManager;
 import gg.mineads.monitor.shared.scheduler.Scheduler;
 import gg.mineads.monitor.velocity.command.VelocityCommandManager;
 import gg.mineads.monitor.velocity.listener.PlayerListener;
@@ -45,7 +47,7 @@ public class MineAdsMonitorVelocity {
   private final Metrics.Factory metricsFactory;
   private final Bootstrap bootstrap;
   private MineAdsMonitorPlugin plugin;
-  private VelocityCommandManager commandManager;
+  private PlatformCommandManager commandManager;
 
   @Inject
   public MineAdsMonitorVelocity(ProxyServer proxyServer, Logger log, @DataDirectory Path pluginDir, PluginContainer container, Metrics.Factory metricsFactory) {
@@ -64,7 +66,7 @@ public class MineAdsMonitorVelocity {
     this.plugin = new MineAdsMonitorPlugin(bootstrap);
     this.plugin.onEnable();
 
-    this.commandManager = new VelocityCommandManager(this);
+    this.commandManager = bootstrap.createCommandManager();
     this.commandManager.registerCommands();
 
     proxyServer.getEventManager().register(this, new PlayerListener(plugin.getEventCollector()));
@@ -96,6 +98,11 @@ public class MineAdsMonitorVelocity {
     @Override
     public MineAdsMonitorVelocity getOwningPlugin() {
       return plugin;
+    }
+
+    @Override
+    public MineAdsCommandManager<?> createCommandManager() {
+      return new VelocityCommandManager(plugin);
     }
   }
 }

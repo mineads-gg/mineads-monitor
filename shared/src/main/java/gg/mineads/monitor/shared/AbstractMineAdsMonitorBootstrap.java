@@ -23,6 +23,7 @@ import gg.mineads.monitor.shared.batch.BatchProcessor;
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.EventCollector;
 import gg.mineads.monitor.shared.scheduler.Scheduler;
+import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -62,6 +63,9 @@ public abstract class AbstractMineAdsMonitorBootstrap implements PlatformBootstr
       batchProcessor.run();
     }
   }
+
+  @Override
+  public abstract MineAdsCommandManager<?> createCommandManager();
 
   private void loadConfig() {
     Path configPath = getDataFolder().resolve("config.yml");

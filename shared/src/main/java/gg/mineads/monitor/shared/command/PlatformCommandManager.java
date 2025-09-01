@@ -15,15 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package gg.mineads.monitor.shared;
+package gg.mineads.monitor.shared.command;
 
-import gg.mineads.monitor.shared.command.MineAdsCommandManager;
-
-public interface PlatformBootstrap {
-
-  void onEnable();
-
-  void onDisable();
-
-  MineAdsCommandManager<?> createCommandManager();
+public interface PlatformCommandManager {
+    void registerCommands();
 }

@@ -17,50 +17,29 @@
  */
 package gg.mineads.monitor.shared;
 
-import de.exlll.configlib.YamlConfigurations;
-import gg.mineads.monitor.shared.batch.BatchProcessor;
-import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.EventCollector;
-import gg.mineads.monitor.shared.scheduler.Scheduler;
+import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import lombok.Getter;
-
-import java.nio.file.Path;
-import java.util.concurrent.TimeUnit;
 
 public class MineAdsMonitorPlugin {
 
   private final AbstractMineAdsMonitorBootstrap bootstrap;
   @Getter
   private EventCollector eventCollector;
-  private BatchProcessor batchProcessor;
-  private Config config;
 
   public MineAdsMonitorPlugin(AbstractMineAdsMonitorBootstrap bootstrap) {
     this.bootstrap = bootstrap;
   }
 
   public void onEnable() {
-    loadConfig();
+    // Delegate to bootstrap for core functionality
+    bootstrap.onEnable();
 
-    if (config.getApiKey() == null || config.getApiKey().isEmpty()) {
-      // Log message to configure API key
-      return;
-    }
-
-    eventCollector = new EventCollector();
-    batchProcessor = new BatchProcessor(eventCollector, config.getApiKey());
-
-    bootstrap.getScheduler().scheduleAsync(batchProcessor, 10, 10, TimeUnit.SECONDS); // 10 seconds
+    // Get the event collector after bootstrap initialization
+    this.eventCollector = bootstrap.getEventCollector();
   }
 
   public void onDisable() {
-    if (batchProcessor != null) {
-      batchProcessor.run();
-    }
-  }
-
-  private void loadConfig() {
-    Path configPath = bootstrap.getDataFolder().resolve("config.yml");
-    config = YamlConfigurations.update(configPath, Config.class);
+    bootstrap.onDisable();
   }
 }
