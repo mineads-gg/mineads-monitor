@@ -170,7 +170,7 @@ public class BatchProcessor implements Runnable {
     }
   }
 
-  private void processQueueSafely() {
+  void processQueueSafely() {
     Queue<Object> currentEvents = new ConcurrentLinkedQueue<>();
     int drained = 0;
 

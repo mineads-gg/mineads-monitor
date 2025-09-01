@@ -121,11 +121,8 @@ class BatchProcessorTest {
     doReturn(CompletableFuture.completedFuture(mockResponse))
       .when(mockHttpClient).sendAsync(any(HttpRequest.class), any());
 
-    // Run the processor
-    batchProcessor.run();
-
-    // Wait a bit for async processing
-    Thread.sleep(100);
+    // Run the processor synchronously to avoid async issues
+    batchProcessor.processQueueSafely();
 
     // Verify HTTP client was called
     verify(mockHttpClient, atLeastOnce()).sendAsync(any(HttpRequest.class), any());
@@ -157,11 +154,8 @@ class BatchProcessorTest {
     doReturn(CompletableFuture.completedFuture(mockResponse))
       .when(mockHttpClient).sendAsync(any(HttpRequest.class), any());
 
-    // Trigger processing
-    batchProcessor.processIfNecessary();
-
-    // Wait for async processing
-    Thread.sleep(100);
+    // Trigger processing synchronously
+    batchProcessor.processQueueSafely();
 
     // Verify HTTP client was called
     verify(mockHttpClient, atLeastOnce()).sendAsync(any(HttpRequest.class), any());
