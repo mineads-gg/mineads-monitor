@@ -54,8 +54,9 @@ public class PlayerListener implements Listener {
 
     batchProcessor.addEvent(MineAdsEvent.playerJoin(
       sessionId,
-      player.getLocale().toString(),
-      player.getAddress().getAddress().getHostAddress(),
+      player.getLocale() != null ? player.getLocale().toString() : "en_US",
+      player.getAddress() != null && player.getAddress().getAddress() != null
+        ? player.getAddress().getAddress().getHostAddress() : "unknown",
       "Unknown",
       String.valueOf(player.getPendingConnection().getVersion()),
       player.getPendingConnection().isOnlineMode(),

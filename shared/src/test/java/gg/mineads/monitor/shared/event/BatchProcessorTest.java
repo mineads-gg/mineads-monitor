@@ -15,9 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package gg.mineads.monitor.shared.batch;
+package gg.mineads.monitor.shared.event;
 
-import gg.mineads.monitor.shared.event.BatchProcessor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -183,7 +182,7 @@ class BatchProcessorTest {
     Queue<Object> events = new ConcurrentLinkedQueue<>();
     events.add("string");
     events.add(42);
-    events.add(3.14);
+    events.add(3.26);
     events.add(true);
     events.add(123L);
 

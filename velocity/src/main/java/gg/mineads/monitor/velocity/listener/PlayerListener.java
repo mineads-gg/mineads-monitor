@@ -55,8 +55,9 @@ public class PlayerListener {
     batchProcessor.addEvent(MineAdsEvent.playerJoin(
       sessionId,
       player.getEffectiveLocale() != null ? player.getEffectiveLocale().toString() : "en_US",
-      player.getRemoteAddress().getAddress().getHostAddress(),
-      player.getClientBrand(),
+      player.getRemoteAddress() != null && player.getRemoteAddress().getAddress() != null
+        ? player.getRemoteAddress().getAddress().getHostAddress() : "unknown",
+      player.getClientBrand() != null ? player.getClientBrand() : "Unknown",
       String.valueOf(player.getProtocolVersion().getProtocol()),
       player.isOnlineMode(),
       rank

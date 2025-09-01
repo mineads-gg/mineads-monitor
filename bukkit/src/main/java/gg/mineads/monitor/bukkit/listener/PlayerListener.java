@@ -57,7 +57,8 @@ public class PlayerListener implements Listener {
     batchProcessor.addEvent(MineAdsEvent.playerJoin(
       sessionId,
       player.getLocale(),
-      player.getAddress().getAddress().getHostAddress(),
+      player.getAddress() != null && player.getAddress().getAddress() != null
+        ? player.getAddress().getAddress().getHostAddress() : "unknown",
       "Unknown", // Client brand is not available on Bukkit
       Bukkit.getBukkitVersion(),
       Bukkit.getOnlineMode(),
