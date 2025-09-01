@@ -17,25 +17,15 @@
  */
 package gg.mineads.monitor.shared.event.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import org.jetbrains.annotations.Nullable;
+import com.google.gson.annotations.SerializedName;
 
-import java.util.UUID;
+/**
+ * Enum representing different types of purchase providers.
+ */
+public enum PurchaseType {
+  @SerializedName("tebex")
+  TEBEX,
 
-@Data
-@AllArgsConstructor
-public final class PlayerJoinData {
-  private final UUID sessionId;
-  @Nullable
-  private final String locale;
-  @Nullable
-  private final String ip;
-  @Nullable
-  private final String clientBrand;
-  @Nullable
-  private final String minecraftVersion;
-  private final boolean onlineMode;
-  @Nullable
-  private final String luckPermsRank;
+  @SerializedName("craftingstore")
+  CRAFTING_STORE;
 }

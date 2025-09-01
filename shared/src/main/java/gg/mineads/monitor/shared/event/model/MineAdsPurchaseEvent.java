@@ -25,15 +25,59 @@ public class MineAdsPurchaseEvent {
   private final MineAdsEvent event;
 
   // Convenience constructor for Tebex
-  public MineAdsPurchaseEvent(String type, Object data) {
-    this.event = new MineAdsEvent("purchase", new PurchaseWrapper(type, data));
+  public MineAdsPurchaseEvent(PurchaseType type, PurchaseData data) {
+    this.event = MineAdsEvent.purchase(type, data);
+  }
+
+  /**
+   * Convenience constructor for backward compatibility.
+   *
+   * @param typeString the purchase type as string
+   * @param data       the purchase data
+   */
+  public MineAdsPurchaseEvent(String typeString, PurchaseData data) {
+    PurchaseType type;
+    switch (typeString) {
+      case "tebex" -> type = PurchaseType.TEBEX;
+      case "craftingstore" -> type = PurchaseType.CRAFTING_STORE;
+      default -> throw new IllegalArgumentException("Unknown purchase type: " + typeString);
+    }
+    this.event = MineAdsEvent.purchase(type, data);
   }
 
   // Inner wrapper class for purchase data
   @Data
-  public static class PurchaseWrapper {
-    private final String type; // "tebex" or "craftingstore"
-    private final Object data; // TebexPurchaseData or CraftingStorePurchaseData
+  public static final class PurchaseWrapper {
+    private final PurchaseType type;
+    private final PurchaseData data; // TebexPurchaseData or CraftingStorePurchaseData
+
+    /**
+     * Constructor with PurchaseType.
+     *
+     * @param type the purchase type
+     * @param data the purchase data
+     */
+    public PurchaseWrapper(PurchaseType type, PurchaseData data) {
+      this.type = type;
+      this.data = data;
+    }
+
+    /**
+     * Convenience constructor for backward compatibility.
+     *
+     * @param typeString the purchase type as string
+     * @param data       the purchase data
+     */
+    public PurchaseWrapper(String typeString, PurchaseData data) {
+      PurchaseType type;
+      switch (typeString) {
+        case "tebex" -> type = PurchaseType.TEBEX;
+        case "craftingstore" -> type = PurchaseType.CRAFTING_STORE;
+        default -> throw new IllegalArgumentException("Unknown purchase type: " + typeString);
+      }
+      this.type = type;
+      this.data = data;
+    }
   }
 
 }

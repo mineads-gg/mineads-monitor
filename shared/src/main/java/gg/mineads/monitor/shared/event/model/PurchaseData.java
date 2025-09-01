@@ -17,17 +17,11 @@
  */
 package gg.mineads.monitor.shared.event.model;
 
-import lombok.Data;
-
-@Data
-public class MineAdsPlayerLeaveEvent {
-
-  private final MineAdsEvent event;
-
-  // Convenience constructor
-  public MineAdsPlayerLeaveEvent(String sessionId) {
-    PlayerLeaveData data = new PlayerLeaveData(sessionId);
-    this.event = new MineAdsEvent("leave", data);
-  }
-
+/**
+ * Sealed interface for purchase data types.
+ * This ensures type safety for purchase-specific data.
+ */
+public sealed interface PurchaseData permits
+  TebexPurchaseData,
+  CraftingStorePurchaseData {
 }

@@ -19,13 +19,15 @@ package gg.mineads.monitor.shared.event.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class PlayerJoinDataTest {
 
   @Test
   void testConstructorWithAllFields() {
-    String sessionId = "session-123";
+    UUID sessionId = UUID.randomUUID();
     String locale = "en_US";
     String ip = "192.168.1.1";
     String clientBrand = "vanilla";
@@ -46,7 +48,7 @@ class PlayerJoinDataTest {
 
   @Test
   void testConstructorWithNullFields() {
-    String sessionId = "session-123";
+    UUID sessionId = UUID.randomUUID();
 
     PlayerJoinData data = new PlayerJoinData(sessionId, null, null, null, null, false, null);
 
@@ -61,7 +63,7 @@ class PlayerJoinDataTest {
 
   @Test
   void testConstructorWithMixedNullAndNonNullFields() {
-    String sessionId = "session-456";
+    UUID sessionId = UUID.randomUUID();
     String locale = "de_DE";
     String ip = null;
     String clientBrand = "fabric";
@@ -82,25 +84,26 @@ class PlayerJoinDataTest {
 
   @Test
   void testOnlineModeTrue() {
-    PlayerJoinData data = new PlayerJoinData("session-123", null, null, null, null, true, null);
+    PlayerJoinData data = new PlayerJoinData(UUID.randomUUID(), null, null, null, null, true, null);
     assertTrue(data.isOnlineMode());
   }
 
   @Test
   void testOnlineModeFalse() {
-    PlayerJoinData data = new PlayerJoinData("session-123", null, null, null, null, false, null);
+    PlayerJoinData data = new PlayerJoinData(UUID.randomUUID(), null, null, null, null, false, null);
     assertFalse(data.isOnlineMode());
   }
 
   @Test
-  void testEmptyStrings() {
-    PlayerJoinData data = new PlayerJoinData("", "", "", "", "", false, "");
+  void testNullValues() {
+    UUID sessionId = UUID.randomUUID();
+    PlayerJoinData data = new PlayerJoinData(sessionId, null, null, null, null, false, null);
 
-    assertEquals("", data.getSessionId());
-    assertEquals("", data.getLocale());
-    assertEquals("", data.getIp());
-    assertEquals("", data.getClientBrand());
-    assertEquals("", data.getMinecraftVersion());
-    assertEquals("", data.getLuckPermsRank());
+    assertEquals(sessionId, data.getSessionId());
+    assertNull(data.getLocale());
+    assertNull(data.getIp());
+    assertNull(data.getClientBrand());
+    assertNull(data.getMinecraftVersion());
+    assertNull(data.getLuckPermsRank());
   }
 }

@@ -26,20 +26,20 @@ import org.incendo.cloud.annotations.AnnotationParser;
 
 public abstract class MineAdsCommandManager<B extends PlatformBootstrap> implements PlatformCommandManager {
 
-  protected final CommandManager<WrappedCommandSender> commandManager;
-    protected final AnnotationParser<WrappedCommandSender> annotationParser;
   protected final B platformBootstrap;
+  protected final CommandManager<WrappedCommandSender> commandManager;
+  protected final AnnotationParser<WrappedCommandSender> annotationParser;
 
-    public MineAdsCommandManager(final B plugin) {
-      this.platformBootstrap = plugin;
-        this.commandManager = createCommandManager(plugin);
-        this.annotationParser = new AnnotationParser<>(
-                this.commandManager,
-                WrappedCommandSender.class
-        );
-    }
+  public MineAdsCommandManager(final B plugin) {
+    this.platformBootstrap = plugin;
+    this.commandManager = createCommandManager(plugin);
+    this.annotationParser = new AnnotationParser<>(
+      this.commandManager,
+      WrappedCommandSender.class
+    );
+  }
 
-    protected abstract CommandManager<WrappedCommandSender> createCommandManager(B plugin);
+  protected abstract CommandManager<WrappedCommandSender> createCommandManager(B plugin);
 
     @Override
     public void registerCommands() {

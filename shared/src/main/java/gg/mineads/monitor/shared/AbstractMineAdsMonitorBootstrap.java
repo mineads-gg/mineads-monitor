@@ -18,22 +18,16 @@
 package gg.mineads.monitor.shared;
 
 import de.exlll.configlib.YamlConfigurations;
-import gg.mineads.monitor.data.BuildData;
 import gg.mineads.monitor.shared.batch.BatchProcessor;
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
+import gg.mineads.monitor.shared.update.UpdateChecker;
 import lombok.Getter;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractMineAdsMonitorBootstrap implements PlatformBootstrap {
-
-  private static final String GITHUB_API_URL = "https://api.github.com/repos/mineads-gg/mineads-monitor/releases/latest";
 
   @Getter
   private BatchProcessor batchProcessor;
@@ -57,7 +51,8 @@ public abstract class AbstractMineAdsMonitorBootstrap implements PlatformBootstr
     // Initialize platform-specific services
     initializeLuckPerms();
 
-    checkForUpdates();
+    // Check for updates asynchronously
+    UpdateChecker.checkForUpdates();
   }
 
   protected void shutdownCoreServices() {
@@ -67,21 +62,7 @@ public abstract class AbstractMineAdsMonitorBootstrap implements PlatformBootstr
     }
   }
 
-  private void checkForUpdates() {
-    HttpClient httpClient = HttpClient.newHttpClient();
-    HttpRequest request = HttpRequest.newBuilder()
-      .uri(URI.create(GITHUB_API_URL))
-      .build();
 
-    httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-      .thenApply(HttpResponse::body)
-      .thenAccept(body -> {
-        // very basic update checker, just checking if the version is the same
-        if (!body.contains(BuildData.VERSION)) {
-          // Log message about new version
-        }
-      });
-  }
 
   public abstract MineAdsScheduler getScheduler();
 

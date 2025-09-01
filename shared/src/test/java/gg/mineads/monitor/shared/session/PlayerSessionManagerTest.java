@@ -35,10 +35,9 @@ class PlayerSessionManagerTest {
   @Test
   void testCreateSession() {
     UUID playerUuid = UUID.randomUUID();
-    String sessionId = PlayerSessionManager.createSession(playerUuid);
+    UUID sessionId = PlayerSessionManager.createSession(playerUuid);
 
     assertNotNull(sessionId);
-    assertFalse(sessionId.isEmpty());
     assertEquals(sessionId, PlayerSessionManager.getSessionId(playerUuid));
     assertTrue(PlayerSessionManager.hasSession(playerUuid));
   }
@@ -48,16 +47,16 @@ class PlayerSessionManagerTest {
     UUID playerUuid = UUID.randomUUID();
     assertNull(PlayerSessionManager.getSessionId(playerUuid));
 
-    String sessionId = PlayerSessionManager.createSession(playerUuid);
+    UUID sessionId = PlayerSessionManager.createSession(playerUuid);
     assertEquals(sessionId, PlayerSessionManager.getSessionId(playerUuid));
   }
 
   @Test
   void testRemoveSession() {
     UUID playerUuid = UUID.randomUUID();
-    String sessionId = PlayerSessionManager.createSession(playerUuid);
+    UUID sessionId = PlayerSessionManager.createSession(playerUuid);
 
-    String removedSessionId = PlayerSessionManager.removeSession(playerUuid);
+    UUID removedSessionId = PlayerSessionManager.removeSession(playerUuid);
     assertEquals(sessionId, removedSessionId);
     assertNull(PlayerSessionManager.getSessionId(playerUuid));
     assertFalse(PlayerSessionManager.hasSession(playerUuid));
@@ -111,11 +110,11 @@ class PlayerSessionManagerTest {
   void testMultipleSessionsForSamePlayer() {
     UUID playerUuid = UUID.randomUUID();
 
-    String sessionId1 = PlayerSessionManager.createSession(playerUuid);
+    UUID sessionId1 = PlayerSessionManager.createSession(playerUuid);
     assertEquals(sessionId1, PlayerSessionManager.getSessionId(playerUuid));
 
     // Creating another session for the same player should replace the first
-    String sessionId2 = PlayerSessionManager.createSession(playerUuid);
+    UUID sessionId2 = PlayerSessionManager.createSession(playerUuid);
     assertNotEquals(sessionId1, sessionId2);
     assertEquals(sessionId2, PlayerSessionManager.getSessionId(playerUuid));
     assertEquals(1, PlayerSessionManager.getActiveSessionCount());

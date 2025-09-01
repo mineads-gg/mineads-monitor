@@ -129,7 +129,7 @@ class LuckPermsUtilTest {
     LuckPermsUtil.initialize(() -> mockLuckPerms);
 
     String result = LuckPermsUtil.getPrimaryGroup(playerUuid);
-    assertEquals("Unknown", result);
+    assertNull(result);
   }
 
   @Test
@@ -145,7 +145,7 @@ class LuckPermsUtilTest {
     LuckPermsUtil.initialize(() -> mockLuckPerms);
 
     String result = LuckPermsUtil.getPrimaryGroup(playerUuid);
-    assertEquals("Unknown", result);
+    assertNull(result);
   }
 
   @Test
@@ -155,7 +155,7 @@ class LuckPermsUtilTest {
     LuckPermsUtil.initialize(() -> null);
 
     String result = LuckPermsUtil.getPrimaryGroup(playerUuid);
-    assertEquals("Unknown", result);
+    assertNull(result);
   }
 
   @Test

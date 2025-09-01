@@ -26,7 +26,6 @@ public class MineAdsMonitorPlugin {
   private final AbstractMineAdsMonitorBootstrap bootstrap;
   @Getter
   private BatchProcessor batchProcessor;
-  private MineAdsCommandManager<?> commandManager;
 
   public MineAdsMonitorPlugin(AbstractMineAdsMonitorBootstrap bootstrap) {
     this.bootstrap = bootstrap;
@@ -46,8 +45,8 @@ public class MineAdsMonitorPlugin {
     this.batchProcessor = bootstrap.getBatchProcessor();
 
     // Create and register commands
-    this.commandManager = bootstrap.createCommandManager();
-    this.commandManager.registerCommands();
+    MineAdsCommandManager<?> commandManager = bootstrap.createCommandManager();
+    commandManager.registerCommands();
 
     // Register platform-specific listeners
     if (this.batchProcessor != null) {

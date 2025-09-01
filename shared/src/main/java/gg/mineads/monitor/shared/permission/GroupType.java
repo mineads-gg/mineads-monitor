@@ -15,19 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package gg.mineads.monitor.shared.event.model;
+package gg.mineads.monitor.shared.permission;
 
-import lombok.Data;
-
-@Data
-public class MineAdsPlayerChatEvent {
-
-  private final MineAdsEvent event;
-
-  // Convenience constructor
-  public MineAdsPlayerChatEvent(String sessionId, String message) {
-    PlayerChatData data = new PlayerChatData(sessionId, message);
-    this.event = new MineAdsEvent("chat", data);
-  }
-
+/**
+ * Enum representing different types of permission groups.
+ * Note: This enum is currently empty as group types are handled as strings
+ * to allow for dynamic permission systems.
+ */
+public enum GroupType {
+  // Empty enum - group types are handled as strings for flexibility
 }

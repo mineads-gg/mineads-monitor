@@ -18,8 +18,12 @@
 package gg.mineads.monitor.shared.event.model;
 
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
+import java.util.UUID;
 
 @Data
-public class PlayerLeaveData {
-  private final String sessionId;
+@RequiredArgsConstructor
+public final class PlayerLeaveData {
+  private final UUID sessionId;
 }

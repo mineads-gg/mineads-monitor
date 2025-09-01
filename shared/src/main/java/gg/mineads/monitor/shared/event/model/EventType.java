@@ -17,17 +17,24 @@
  */
 package gg.mineads.monitor.shared.event.model;
 
-import lombok.Data;
+import com.google.gson.annotations.SerializedName;
 
-@Data
-public class MineAdsPlayerCommandEvent {
+/**
+ * Enum representing different types of events that can be tracked.
+ */
+public enum EventType {
+  @SerializedName("purchase")
+  PURCHASE,
 
-  private final MineAdsEvent event;
+  @SerializedName("chat")
+  CHAT,
 
-  // Convenience constructor
-  public MineAdsPlayerCommandEvent(String sessionId, String command) {
-    PlayerCommandData data = new PlayerCommandData(sessionId, command);
-    this.event = new MineAdsEvent("command", data);
-  }
+  @SerializedName("command")
+  COMMAND,
 
+  @SerializedName("join")
+  JOIN,
+
+  @SerializedName("leave")
+  LEAVE;
 }

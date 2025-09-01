@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerSessionManager {
 
-  private static final Map<UUID, String> playerSessions = new ConcurrentHashMap<>();
+  private static final Map<UUID, UUID> playerSessions = new ConcurrentHashMap<>();
 
   /**
    * Generates a new session ID for a player when they join.
@@ -31,8 +31,8 @@ public class PlayerSessionManager {
    * @param playerUuid The UUID of the player
    * @return The generated session ID
    */
-  public static String createSession(UUID playerUuid) {
-    String sessionId = UUID.randomUUID().toString();
+  public static UUID createSession(UUID playerUuid) {
+    UUID sessionId = UUID.randomUUID();
     playerSessions.put(playerUuid, sessionId);
     return sessionId;
   }
@@ -43,7 +43,7 @@ public class PlayerSessionManager {
    * @param playerUuid The UUID of the player
    * @return The session ID, or null if no session exists
    */
-  public static String getSessionId(UUID playerUuid) {
+  public static UUID getSessionId(UUID playerUuid) {
     return playerSessions.get(playerUuid);
   }
 
@@ -53,7 +53,7 @@ public class PlayerSessionManager {
    * @param playerUuid The UUID of the player
    * @return The session ID that was removed, or null if none existed
    */
-  public static String removeSession(UUID playerUuid) {
+  public static UUID removeSession(UUID playerUuid) {
     return playerSessions.remove(playerUuid);
   }
 

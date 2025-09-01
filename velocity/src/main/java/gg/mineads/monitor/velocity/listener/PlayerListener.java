@@ -24,12 +24,11 @@ import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
 import gg.mineads.monitor.shared.batch.BatchProcessor;
-import gg.mineads.monitor.shared.event.model.MineAdsPlayerChatEvent;
-import gg.mineads.monitor.shared.event.model.MineAdsPlayerCommandEvent;
-import gg.mineads.monitor.shared.event.model.MineAdsPlayerJoinEvent;
-import gg.mineads.monitor.shared.event.model.MineAdsPlayerLeaveEvent;
+import gg.mineads.monitor.shared.event.model.MineAdsEvent;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
+
+import java.util.UUID;
 
 public class PlayerListener {
 
@@ -42,10 +41,10 @@ public class PlayerListener {
   @Subscribe
   public void onPostLogin(PostLoginEvent event) {
     Player player = event.getPlayer();
-    String sessionId = PlayerSessionManager.createSession(player.getUniqueId());
+    UUID sessionId = PlayerSessionManager.createSession(player.getUniqueId());
     String rank = LuckPermsUtil.getPrimaryGroup(player.getUniqueId());
 
-    batchProcessor.addEvent(new MineAdsPlayerJoinEvent(
+    batchProcessor.addEvent(MineAdsEvent.playerJoin(
       sessionId,
       player.getEffectiveLocale().toString(),
       player.getRemoteAddress().getAddress().getHostAddress(),
@@ -59,18 +58,18 @@ public class PlayerListener {
   @Subscribe
   public void onDisconnect(DisconnectEvent event) {
     Player player = event.getPlayer();
-    String sessionId = PlayerSessionManager.removeSession(player.getUniqueId());
+    UUID sessionId = PlayerSessionManager.removeSession(player.getUniqueId());
     if (sessionId != null) {
-      batchProcessor.addEvent(new MineAdsPlayerLeaveEvent(sessionId));
+      batchProcessor.addEvent(MineAdsEvent.playerLeave(sessionId));
     }
   }
 
   @Subscribe
   public void onPlayerChat(PlayerChatEvent event) {
     Player player = event.getPlayer();
-    String sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
+    UUID sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
     if (sessionId != null) {
-      batchProcessor.addEvent(new MineAdsPlayerChatEvent(sessionId, event.getMessage()));
+      batchProcessor.addEvent(MineAdsEvent.playerChat(sessionId, event.getMessage()));
     }
   }
 
@@ -80,9 +79,9 @@ public class PlayerListener {
       return;
     }
 
-    String sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
+    UUID sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
     if (sessionId != null) {
-      batchProcessor.addEvent(new MineAdsPlayerCommandEvent(sessionId, event.getCommand()));
+      batchProcessor.addEvent(MineAdsEvent.playerCommand(sessionId, event.getCommand()));
     }
   }
 }

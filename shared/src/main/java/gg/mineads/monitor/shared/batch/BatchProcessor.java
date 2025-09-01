@@ -18,6 +18,7 @@
 package gg.mineads.monitor.shared.batch;
 
 import com.google.gson.*;
+import lombok.RequiredArgsConstructor;
 import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessagePack;
 
@@ -34,9 +35,8 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
+@RequiredArgsConstructor
 public class BatchProcessor implements Runnable {
-
-  private static final String API_ENDPOINT = "https://ingest.mineads.gg/event";
   private static final int BATCH_SIZE_THRESHOLD = 100;
   private static final int MAX_RETRY_ATTEMPTS = 3;
   private static final long INITIAL_RETRY_DELAY_MS = 1000; // 1 second
@@ -45,22 +45,16 @@ public class BatchProcessor implements Runnable {
   private static final Gson GSON = new Gson();
   private final Queue<Object> events = new ConcurrentLinkedQueue<>();
   private final String pluginKey;
-  private final HttpClient httpClient;
-  private final ScheduledExecutorService retryExecutor;
+  private final HttpClient httpClient = HttpClient.newBuilder()
+    .connectTimeout(Duration.ofSeconds(10))
+    .build();
+  private final ScheduledExecutorService retryExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
+    Thread t = new Thread(r, "BatchProcessor-Retry");
+    t.setDaemon(true);
+    return t;
+  });
   private final ReentrantLock processingLock = new ReentrantLock();
   private final AtomicBoolean isProcessing = new AtomicBoolean(false);
-
-  public BatchProcessor(String pluginKey) {
-    this.pluginKey = pluginKey;
-    this.httpClient = HttpClient.newBuilder()
-      .connectTimeout(Duration.ofSeconds(10))
-      .build();
-    this.retryExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
-      Thread t = new Thread(r, "BatchProcessor-Retry");
-      t.setDaemon(true);
-      return t;
-    });
-  }
 
   private static byte[] serializeToMessagePack(Queue<Object> events) throws IOException {
     JsonElement json = GSON.toJsonTree(events);
@@ -203,9 +197,9 @@ public class BatchProcessor implements Runnable {
 
   private void sendBatchWithRetry(byte[] batch, int attempt) {
     HttpRequest request = HttpRequest.newBuilder()
-      .uri(URI.create(API_ENDPOINT))
-      .header("X-API-KEY", pluginKey)
-      .header("Content-Type", "application/msgpack")
+      .uri(URI.create(HttpConstants.API_ENDPOINT))
+      .header(HttpConstants.HEADER_API_KEY, pluginKey)
+      .header(HttpConstants.HEADER_CONTENT_TYPE, HttpConstants.CONTENT_TYPE_MSGPACK)
       .timeout(REQUEST_TIMEOUT)
       .PUT(HttpRequest.BodyPublishers.ofByteArray(batch))
       .build();

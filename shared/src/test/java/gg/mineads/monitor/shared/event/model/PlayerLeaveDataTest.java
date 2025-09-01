@@ -19,45 +19,23 @@ package gg.mineads.monitor.shared.event.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PlayerLeaveDataTest {
 
   @Test
   void testConstructor() {
-    String sessionId = "session-123";
+    UUID sessionId = UUID.randomUUID();
     PlayerLeaveData data = new PlayerLeaveData(sessionId);
 
     assertEquals(sessionId, data.getSessionId());
   }
 
   @Test
-  void testConstructorWithEmptyString() {
-    String sessionId = "";
-    PlayerLeaveData data = new PlayerLeaveData(sessionId);
-
-    assertEquals("", data.getSessionId());
-  }
-
-  @Test
-  void testConstructorWithNullString() {
-    // Since sessionId is final, we can't test null directly
-    // But we can test with an empty string
-    PlayerLeaveData data = new PlayerLeaveData("");
-    assertEquals("", data.getSessionId());
-  }
-
-  @Test
-  void testConstructorWithLongSessionId() {
-    String sessionId = "very-long-session-id-that-might-be-used-in-production-123456789";
-    PlayerLeaveData data = new PlayerLeaveData(sessionId);
-
-    assertEquals(sessionId, data.getSessionId());
-  }
-
-  @Test
-  void testConstructorWithUUIDSessionId() {
-    String sessionId = "550e8400-e29b-41d4-a716-446655440000";
+  void testConstructorWithSpecificUUID() {
+    UUID sessionId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
     PlayerLeaveData data = new PlayerLeaveData(sessionId);
 
     assertEquals(sessionId, data.getSessionId());

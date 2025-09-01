@@ -17,11 +17,13 @@
  */
 package gg.mineads.monitor.shared.event.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
 
 @Data
-public class TebexPurchaseData {
+@AllArgsConstructor
+public final class TebexPurchaseData implements PurchaseData {
   private final String id; // Game-specific primary ID (Steam64, Xbox XUID, UUID, etc.)
   private final String username; // Username used during login or purchase
   private final String transaction; // Unique transaction ID

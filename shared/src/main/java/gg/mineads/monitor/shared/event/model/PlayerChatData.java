@@ -17,10 +17,14 @@
  */
 package gg.mineads.monitor.shared.event.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
-public class PlayerChatData {
-  private final String sessionId;
+@AllArgsConstructor
+public final class PlayerChatData {
+  private final UUID sessionId;
   private final String message;
 }

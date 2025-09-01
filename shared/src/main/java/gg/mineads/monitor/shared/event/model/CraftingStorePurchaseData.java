@@ -17,11 +17,13 @@
  */
 package gg.mineads.monitor.shared.event.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
 
 @Data
-public class CraftingStorePurchaseData {
+@AllArgsConstructor
+public final class CraftingStorePurchaseData implements PurchaseData {
   private final String player; // Username (alphanumeric)
   private final String uuid; // UUID (steamid64 for Steam games)
   private final String packageName; // Package name

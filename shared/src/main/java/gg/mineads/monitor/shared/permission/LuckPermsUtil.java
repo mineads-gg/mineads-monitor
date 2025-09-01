@@ -62,22 +62,22 @@ public class LuckPermsUtil {
    * Gets the primary group of a user.
    *
    * @param uuid The UUID of the user
-   * @return The primary group of the user, or "Unknown" if not available
+   * @return The primary group of the user, or null if not available
    */
   public static String getPrimaryGroup(UUID uuid) {
     if (!isAvailable()) {
-      return "Unknown";
+      return null;
     }
 
     try {
       User user = luckPerms.getUserManager().getUser(uuid);
       if (user == null) {
-        return "Unknown";
+        return null;
       }
 
       return user.getPrimaryGroup();
     } catch (Exception e) {
-      return "Unknown";
+      return null;
     }
   }
 }

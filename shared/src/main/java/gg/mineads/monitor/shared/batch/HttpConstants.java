@@ -15,22 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package gg.mineads.monitor.shared.event.model;
+package gg.mineads.monitor.shared.batch;
 
-import lombok.Data;
+/**
+ * Constants for HTTP communication with the MineAds API.
+ */
+public final class HttpConstants {
 
-@Data
-public class MineAdsPlayerJoinEvent {
+  // API endpoints
+  public static final String API_ENDPOINT = "https://ingest.mineads.gg/event";
 
-  private final MineAdsEvent event;
+  // HTTP headers
+  public static final String HEADER_API_KEY = "X-API-KEY";
+  public static final String HEADER_CONTENT_TYPE = "Content-Type";
 
-  // Convenience constructor
-  public MineAdsPlayerJoinEvent(String sessionId, String locale, String ip,
-                                String clientBrand, String minecraftVersion,
-                                boolean onlineMode, String luckPermsRank) {
-    PlayerJoinData data = new PlayerJoinData(sessionId, locale, ip, clientBrand,
-      minecraftVersion, onlineMode, luckPermsRank);
-    this.event = new MineAdsEvent("join", data);
+  // Content types
+  public static final String CONTENT_TYPE_MSGPACK = "application/msgpack";
+
+  private HttpConstants() {
+    // Utility class
   }
-
 }
