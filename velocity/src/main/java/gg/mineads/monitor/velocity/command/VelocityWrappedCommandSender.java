@@ -21,14 +21,7 @@ import com.velocitypowered.api.command.CommandSource;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import net.kyori.adventure.text.Component;
 
-public class VelocityWrappedCommandSender implements WrappedCommandSender {
-
-  private final CommandSource source;
-
-  public VelocityWrappedCommandSender(final CommandSource source) {
-    this.source = source;
-  }
-
+public record VelocityWrappedCommandSender(CommandSource source) implements WrappedCommandSender {
   @Override
   public void sendMessage(final Component component) {
     this.source.sendMessage(component);
@@ -38,9 +31,4 @@ public class VelocityWrappedCommandSender implements WrappedCommandSender {
   public boolean hasPermission(final String permission) {
     return this.source.hasPermission(permission);
   }
-
-  public CommandSource getSource() {
-    return this.source;
-  }
-
 }

@@ -37,7 +37,10 @@ public class BukkitCommandManager extends MineAdsCommandManager<MineAdsMonitorBu
     return new LegacyPaperCommandManager<>(
       platformBootstrap.getOwningPlugin(),
       ExecutionCoordinator.asyncCoordinator(),
-      SenderMapper.create(BukkitWrappedCommandSender::new, s -> ((BukkitWrappedCommandSender) s).getSender())
+      SenderMapper.create(
+        s -> new BukkitWrappedCommandSender(platformBootstrap, s),
+        s -> ((BukkitWrappedCommandSender) s).sender()
+      )
     );
   }
 }

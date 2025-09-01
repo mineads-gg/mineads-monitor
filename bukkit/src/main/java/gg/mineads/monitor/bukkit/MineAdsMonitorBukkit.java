@@ -29,6 +29,7 @@ import gg.mineads.monitor.shared.event.BatchProcessor;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.luckperms.api.LuckPerms;
 import org.bstats.bukkit.Metrics;
@@ -40,7 +41,6 @@ import java.nio.file.Path;
 @Getter
 public class MineAdsMonitorBukkit extends JavaPlugin {
   private final Bootstrap bootstrap;
-  private MineAdsMonitorPlugin plugin;
 
   public MineAdsMonitorBukkit() {
     this.bootstrap = new Bootstrap(this);
@@ -48,27 +48,20 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
 
   @Override
   public void onEnable() {
-    this.plugin = new MineAdsMonitorPlugin(bootstrap);
-    this.plugin.onEnable();
+    bootstrap.onEnable();
   }
 
   @Override
   public void onDisable() {
-    if (this.plugin != null) {
-      this.plugin.onDisable();
-      this.plugin = null;
-    }
+    bootstrap.onDisable();
   }
 
   @Getter
+  @RequiredArgsConstructor
   public static class Bootstrap extends AbstractMineAdsMonitorBootstrap {
     private final MineAdsMonitorBukkit plugin;
     private FoliaLib foliaLib;
     private BukkitAudiences adventure;
-
-    public Bootstrap(MineAdsMonitorBukkit plugin) {
-      this.plugin = plugin;
-    }
 
     @Override
     public MineAdsScheduler getScheduler() {
@@ -87,7 +80,7 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
 
     @Override
     public MineAdsCommandManager<?> createCommandManager(MineAdsMonitorPlugin mineAdsPlugin) {
-      return new BukkitCommandManager(plugin.getBootstrap(), mineAdsPlugin);
+      return new BukkitCommandManager(this, mineAdsPlugin);
     }
 
     @Override

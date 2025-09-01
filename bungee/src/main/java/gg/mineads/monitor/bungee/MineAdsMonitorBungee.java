@@ -28,6 +28,7 @@ import gg.mineads.monitor.shared.event.BatchProcessor;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.luckperms.api.LuckPermsProvider;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -38,7 +39,6 @@ import java.nio.file.Path;
 @Getter
 public class MineAdsMonitorBungee extends Plugin {
   private final Bootstrap bootstrap;
-  private MineAdsMonitorPlugin plugin;
 
   public MineAdsMonitorBungee() {
     this.bootstrap = new Bootstrap(this);
@@ -46,26 +46,19 @@ public class MineAdsMonitorBungee extends Plugin {
 
   @Override
   public void onEnable() {
-    this.plugin = new MineAdsMonitorPlugin(bootstrap);
-    this.plugin.onEnable();
+    bootstrap.onEnable();
   }
 
   @Override
   public void onDisable() {
-    if (this.plugin != null) {
-      this.plugin.onDisable();
-      this.plugin = null;
-    }
+    bootstrap.onDisable();
   }
 
+  @Getter
+  @RequiredArgsConstructor
   public static class Bootstrap extends AbstractMineAdsMonitorBootstrap {
-
     private final MineAdsMonitorBungee plugin;
     private BungeeAudiences adventure;
-
-    public Bootstrap(MineAdsMonitorBungee plugin) {
-      this.plugin = plugin;
-    }
 
     @Override
     public MineAdsScheduler getScheduler() {
@@ -84,7 +77,7 @@ public class MineAdsMonitorBungee extends Plugin {
 
     @Override
     public MineAdsCommandManager<?> createCommandManager(MineAdsMonitorPlugin mineAdsPlugin) {
-      return new BungeeCommandManager(plugin.getBootstrap(), mineAdsPlugin);
+      return new BungeeCommandManager(this, mineAdsPlugin);
     }
 
     @Override

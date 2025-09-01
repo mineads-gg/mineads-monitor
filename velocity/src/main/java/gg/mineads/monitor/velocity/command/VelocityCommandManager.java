@@ -37,7 +37,7 @@ public class VelocityCommandManager extends MineAdsCommandManager<MineAdsMonitor
       plugin.getOwningPlugin().getContainer(),
       plugin.getOwningPlugin().getProxyServer(),
       ExecutionCoordinator.asyncCoordinator(),
-      SenderMapper.create(VelocityWrappedCommandSender::new, s -> ((VelocityWrappedCommandSender) s).getSource())
+      SenderMapper.create(VelocityWrappedCommandSender::new, s -> ((VelocityWrappedCommandSender) s).source())
     );
   }
 }

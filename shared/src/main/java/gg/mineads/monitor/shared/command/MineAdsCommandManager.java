@@ -17,13 +17,13 @@
  */
 package gg.mineads.monitor.shared.command;
 
+import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
-import gg.mineads.monitor.shared.PlatformBootstrap;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.annotations.AnnotationParser;
 
-public abstract class MineAdsCommandManager<B extends PlatformBootstrap> implements PlatformCommandManager {
+public abstract class MineAdsCommandManager<B extends AbstractMineAdsMonitorBootstrap> implements PlatformCommandManager {
 
   protected final B platformBootstrap;
   protected final MineAdsMonitorPlugin plugin;

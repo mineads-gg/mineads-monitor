@@ -17,31 +17,19 @@
  */
 package gg.mineads.monitor.bungee.command;
 
+import gg.mineads.monitor.bungee.MineAdsMonitorBungee;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.CommandSender;
 
-public class BungeeWrappedCommandSender implements WrappedCommandSender {
-
-  private final CommandSender sender;
-
-  public BungeeWrappedCommandSender(final CommandSender sender) {
-    this.sender = sender;
-  }
-
+public record BungeeWrappedCommandSender(MineAdsMonitorBungee.Bootstrap bootstrap, CommandSender sender) implements WrappedCommandSender {
   @Override
   public void sendMessage(final Component component) {
-    this.sender.sendMessage(LegacyComponentSerializer.legacySection().serialize(component));
+    bootstrap.getAdventure().sender(sender).sendMessage(component);
   }
 
   @Override
   public boolean hasPermission(final String permission) {
     return this.sender.hasPermission(permission);
   }
-
-  public CommandSender getSender() {
-    return this.sender;
-  }
-
 }

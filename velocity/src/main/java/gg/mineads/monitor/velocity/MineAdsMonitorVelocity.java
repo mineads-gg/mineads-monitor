@@ -35,6 +35,7 @@ import gg.mineads.monitor.velocity.command.VelocityCommandManager;
 import gg.mineads.monitor.velocity.listener.PlayerListener;
 import gg.mineads.monitor.velocity.scheduler.VelocityMineAdsScheduler;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.luckperms.api.LuckPermsProvider;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
@@ -49,7 +50,6 @@ public class MineAdsMonitorVelocity {
   private final PluginContainer container;
   private final Metrics.Factory metricsFactory;
   private final Bootstrap bootstrap;
-  private MineAdsMonitorPlugin plugin;
 
   @Inject
   public MineAdsMonitorVelocity(ProxyServer proxyServer, Logger log, @DataDirectory Path pluginDir, PluginContainer container, Metrics.Factory metricsFactory) {
@@ -63,25 +63,18 @@ public class MineAdsMonitorVelocity {
 
   @Subscribe
   public void onProxyInitialization(ProxyInitializeEvent event) {
-    this.plugin = new MineAdsMonitorPlugin(bootstrap);
-    this.plugin.onEnable();
+    this.bootstrap.onEnable();
   }
 
   @Subscribe
   public void onProxyShutdown(ProxyShutdownEvent event) {
-    if (this.plugin != null) {
-      this.plugin.onDisable();
-      this.plugin = null;
-    }
+    this.bootstrap.onDisable();
   }
 
+  @Getter
+  @RequiredArgsConstructor
   public static class Bootstrap extends AbstractMineAdsMonitorBootstrap {
-
     private final MineAdsMonitorVelocity plugin;
-
-    public Bootstrap(MineAdsMonitorVelocity plugin) {
-      this.plugin = plugin;
-    }
 
     @Override
     public MineAdsScheduler getScheduler() {
@@ -100,7 +93,7 @@ public class MineAdsMonitorVelocity {
 
     @Override
     public MineAdsCommandManager<?> createCommandManager(MineAdsMonitorPlugin mineAdsPlugin) {
-      return new VelocityCommandManager(plugin.getBootstrap(), mineAdsPlugin);
+      return new VelocityCommandManager(this, mineAdsPlugin);
     }
 
     @Override

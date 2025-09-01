@@ -36,7 +36,10 @@ public class BungeeCommandManager extends MineAdsCommandManager<MineAdsMonitorBu
     return new org.incendo.cloud.bungee.BungeeCommandManager<>(
       platformBootstrap.getOwningPlugin(),
       ExecutionCoordinator.asyncCoordinator(),
-      SenderMapper.create(BungeeWrappedCommandSender::new, s -> ((BungeeWrappedCommandSender) s).getSender())
+      SenderMapper.create(
+        s -> new BungeeWrappedCommandSender(platformBootstrap, s),
+        s -> ((BungeeWrappedCommandSender) s).sender()
+      )
     );
   }
 }

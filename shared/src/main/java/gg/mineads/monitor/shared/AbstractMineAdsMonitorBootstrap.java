@@ -17,14 +17,49 @@
  */
 package gg.mineads.monitor.shared;
 
+import gg.mineads.monitor.shared.command.MineAdsCommandManager;
+import gg.mineads.monitor.shared.config.Config;
+import gg.mineads.monitor.shared.event.BatchProcessor;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 
 import java.nio.file.Path;
 
-public abstract class AbstractMineAdsMonitorBootstrap implements PlatformBootstrap {
+public abstract class AbstractMineAdsMonitorBootstrap {
+  private MineAdsMonitorPlugin plugin;
+
+  public void onEnable() {
+    this.plugin = new MineAdsMonitorPlugin(this);
+    this.plugin.onEnable();
+  }
+
+  public void onDisable() {
+    if (this.plugin != null) {
+      this.plugin.onDisable();
+      this.plugin = null;
+    }
+  }
+
   public abstract MineAdsScheduler getScheduler();
 
   public abstract Path getDataFolder();
 
   public abstract Object getOwningPlugin();
+
+  public abstract MineAdsCommandManager<?> createCommandManager(MineAdsMonitorPlugin plugin);
+
+  public abstract void registerListeners(BatchProcessor batchProcessor, Config config);
+
+  public abstract void initializePlatform();
+
+  public abstract void shutdownPlatform();
+
+  public abstract boolean isPluginEnabled(String pluginName);
+
+  public abstract String getLuckPermsPlatformName();
+
+  public boolean isLuckPermsEnabled() {
+    return isPluginEnabled(getLuckPermsPlatformName());
+  }
+
+  public abstract void initializeLuckPerms();
 }

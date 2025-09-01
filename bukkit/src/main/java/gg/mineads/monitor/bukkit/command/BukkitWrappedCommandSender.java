@@ -17,30 +17,19 @@
  */
 package gg.mineads.monitor.bukkit.command;
 
+import gg.mineads.monitor.bukkit.MineAdsMonitorBukkit;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 
-public class BukkitWrappedCommandSender implements WrappedCommandSender {
-
-  private final CommandSender sender;
-
-  public BukkitWrappedCommandSender(final CommandSender sender) {
-    this.sender = sender;
-  }
-
+public record BukkitWrappedCommandSender(MineAdsMonitorBukkit.Bootstrap bootstrap, CommandSender sender) implements WrappedCommandSender {
   @Override
   public void sendMessage(final Component component) {
-    this.sender.sendMessage(component);
+    bootstrap.getAdventure().sender(sender).sendMessage(component);
   }
 
   @Override
   public boolean hasPermission(final String permission) {
     return this.sender.hasPermission(permission);
   }
-
-  public CommandSender getSender() {
-    return this.sender;
-  }
-
 }
