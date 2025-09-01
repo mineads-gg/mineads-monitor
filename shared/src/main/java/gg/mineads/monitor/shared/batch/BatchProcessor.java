@@ -23,6 +23,8 @@ import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessagePack;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -74,6 +76,16 @@ public class BatchProcessor implements Runnable {
     }
   }
 
+  private static byte[] serializeToMessagePack(Queue<Object> events) throws IOException {
+    JsonElement json = GSON.toJsonTree(events);
+
+    MessageBufferPacker packer = MessagePack.newDefaultBufferPacker();
+    packJson(packer, json);
+    packer.close();
+
+    return packer.toByteArray();
+  }
+
   private static void packJson(MessageBufferPacker packer, JsonElement data) throws IOException {
     switch (data) {
       case JsonPrimitive primitive -> {
@@ -82,12 +94,14 @@ public class BatchProcessor implements Runnable {
         } else if (primitive.isNumber()) {
           Number num = primitive.getAsNumber();
           switch (num) {
-            case Integer ignored -> packer.packInt(num.intValue());
-            case Long ignored -> packer.packLong(num.longValue());
-            case Double ignored -> packer.packDouble(num.doubleValue());
-            case Float ignored -> packer.packDouble(num.floatValue());
-            case Short ignored -> packer.packShort(num.shortValue());
-            case Byte ignored -> packer.packByte(num.byteValue());
+            case Integer i -> packer.packInt(i);
+            case Long l -> packer.packLong(l);
+            case Double d -> packer.packDouble(d);
+            case Float f -> packer.packDouble(f);
+            case Short s -> packer.packShort(s);
+            case Byte b -> packer.packByte(b);
+            case BigInteger bigInteger -> packer.packBigInteger(bigInteger);
+            case BigDecimal bigDecimal -> packer.packString(bigDecimal.toString());
             default -> throw new IOException("Unknown number type: " + num.getClass().getName());
           }
         } else if (primitive.isString()) {
@@ -112,16 +126,6 @@ public class BatchProcessor implements Runnable {
       case JsonNull ignored -> packer.packNil();
       default -> throw new IOException("Invalid packing value of type " + data.getClass().getName());
     }
-  }
-
-  private byte[] serializeToMessagePack(Queue<Object> events) throws IOException {
-    JsonElement json = GSON.toJsonTree(events);
-
-    MessageBufferPacker packer = MessagePack.newDefaultBufferPacker();
-    packJson(packer, json);
-    packer.close();
-
-    return packer.toByteArray();
   }
 
   private void sendBatch(byte[] batch) {

@@ -19,14 +19,11 @@ package gg.mineads.monitor.shared.config;
 
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
+import lombok.Getter;
 
+@Getter
 @Configuration
 public class Config {
-
   @Comment("The plugin key for your server. You can get this from the MineAds dashboard.")
   private String pluginKey = "";
-
-  public String getPluginKey() {
-    return pluginKey;
-  }
 }
