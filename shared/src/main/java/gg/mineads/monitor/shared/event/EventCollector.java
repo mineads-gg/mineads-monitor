@@ -17,15 +17,21 @@
  */
 package gg.mineads.monitor.shared.event;
 
+import gg.mineads.monitor.shared.batch.BatchProcessor;
+
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class EventCollector {
 
   private final Queue<Object> events = new ConcurrentLinkedQueue<>();
+  private BatchProcessor batchProcessor;
 
   public void addEvent(Object event) {
     events.add(event);
+    if (batchProcessor != null) {
+      batchProcessor.processIfNecessary();
+    }
   }
 
   public Queue<Object> getEvents() {
@@ -38,4 +44,7 @@ public class EventCollector {
     return events.size();
   }
 
+  public void setBatchProcessor(BatchProcessor batchProcessor) {
+    this.batchProcessor = batchProcessor;
+  }
 }

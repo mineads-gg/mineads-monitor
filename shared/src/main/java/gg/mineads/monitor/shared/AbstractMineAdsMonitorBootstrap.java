@@ -20,7 +20,6 @@ package gg.mineads.monitor.shared;
 import de.exlll.configlib.YamlConfigurations;
 import gg.mineads.monitor.data.BuildData;
 import gg.mineads.monitor.shared.batch.BatchProcessor;
-import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.EventCollector;
 import gg.mineads.monitor.shared.scheduler.Scheduler;
@@ -40,10 +39,12 @@ public abstract class AbstractMineAdsMonitorBootstrap implements PlatformBootstr
   private BatchProcessor batchProcessor;
   private Config config;
 
-  @Override
-  public void onEnable() {
-    loadConfig();
+  protected void loadConfig() {
+    Path configPath = getDataFolder().resolve("config.yml");
+    config = YamlConfigurations.update(configPath, Config.class);
+  }
 
+  protected void initializeCoreServices() {
     if (config.getPluginKey() == null || config.getPluginKey().isEmpty()) {
       // Log message to configure plugin key
       return;
@@ -57,19 +58,10 @@ public abstract class AbstractMineAdsMonitorBootstrap implements PlatformBootstr
     checkForUpdates();
   }
 
-  @Override
-  public void onDisable() {
+  protected void shutdownCoreServices() {
     if (batchProcessor != null) {
       batchProcessor.run();
     }
-  }
-
-  @Override
-  public abstract MineAdsCommandManager<?> createCommandManager();
-
-  private void loadConfig() {
-    Path configPath = getDataFolder().resolve("config.yml");
-    config = YamlConfigurations.update(configPath, Config.class);
   }
 
   private void checkForUpdates() {

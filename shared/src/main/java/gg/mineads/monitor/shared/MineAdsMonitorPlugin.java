@@ -17,8 +17,8 @@
  */
 package gg.mineads.monitor.shared;
 
-import gg.mineads.monitor.shared.event.EventCollector;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
+import gg.mineads.monitor.shared.event.EventCollector;
 import lombok.Getter;
 
 public class MineAdsMonitorPlugin {
@@ -26,20 +26,40 @@ public class MineAdsMonitorPlugin {
   private final AbstractMineAdsMonitorBootstrap bootstrap;
   @Getter
   private EventCollector eventCollector;
+  private MineAdsCommandManager<?> commandManager;
 
   public MineAdsMonitorPlugin(AbstractMineAdsMonitorBootstrap bootstrap) {
     this.bootstrap = bootstrap;
   }
 
   public void onEnable() {
-    // Delegate to bootstrap for core functionality
-    bootstrap.onEnable();
+    // Initialize platform-specific components
+    bootstrap.initializePlatform();
 
-    // Get the event collector after bootstrap initialization
+    // Load configuration
+    bootstrap.loadConfig();
+
+    // Initialize core services
+    bootstrap.initializeCoreServices();
+
+    // Get the event collector after initialization
     this.eventCollector = bootstrap.getEventCollector();
+
+    // Create and register commands
+    this.commandManager = bootstrap.createCommandManager();
+    this.commandManager.registerCommands();
+
+    // Register platform-specific listeners
+    if (this.eventCollector != null) {
+      bootstrap.registerListeners(this.eventCollector);
+    }
   }
 
   public void onDisable() {
-    bootstrap.onDisable();
+    // Shutdown core services
+    bootstrap.shutdownCoreServices();
+
+    // Shutdown platform-specific components
+    bootstrap.shutdownPlatform();
   }
 }

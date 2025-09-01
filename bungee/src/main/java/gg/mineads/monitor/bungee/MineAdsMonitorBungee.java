@@ -23,7 +23,7 @@ import gg.mineads.monitor.bungee.scheduler.BungeeScheduler;
 import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
-import gg.mineads.monitor.shared.command.PlatformCommandManager;
+import gg.mineads.monitor.shared.event.EventCollector;
 import gg.mineads.monitor.shared.scheduler.Scheduler;
 import lombok.Getter;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
@@ -37,7 +37,6 @@ public class MineAdsMonitorBungee extends Plugin {
   @Getter
   private final Bootstrap bootstrap;
   private MineAdsMonitorPlugin plugin;
-  private PlatformCommandManager commandManager;
   private BungeeAudiences adventure;
 
   public MineAdsMonitorBungee() {
@@ -46,21 +45,15 @@ public class MineAdsMonitorBungee extends Plugin {
 
   @Override
   public void onEnable() {
-    this.adventure = BungeeAudiences.create(this);
-    new Metrics(this, 27109);
-
     this.plugin = new MineAdsMonitorPlugin(bootstrap);
     this.plugin.onEnable();
-
-    this.commandManager = bootstrap.createCommandManager();
-    this.commandManager.registerCommands();
-
-    getProxy().getPluginManager().registerListener(this, new PlayerListener(plugin.getEventCollector()));
   }
 
   @Override
   public void onDisable() {
-    this.plugin.onDisable();
+    if (this.plugin != null) {
+      this.plugin.onDisable();
+    }
 
     if (this.adventure != null) {
       this.adventure.close();
@@ -94,6 +87,24 @@ public class MineAdsMonitorBungee extends Plugin {
     @Override
     public MineAdsCommandManager<?> createCommandManager() {
       return new BungeeCommandManager(plugin);
+    }
+
+    @Override
+    public void registerListeners(EventCollector eventCollector) {
+      plugin.getProxy().getPluginManager().registerListener(plugin, new PlayerListener(eventCollector));
+    }
+
+    @Override
+    public void initializePlatform() {
+      plugin.adventure = BungeeAudiences.create(plugin);
+      new Metrics(plugin, 27109);
+    }
+
+    @Override
+    public void shutdownPlatform() {
+      if (plugin.adventure != null) {
+        plugin.adventure.close();
+      }
     }
   }
 }

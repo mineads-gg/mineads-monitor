@@ -27,7 +27,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
-import gg.mineads.monitor.shared.command.PlatformCommandManager;
+import gg.mineads.monitor.shared.event.EventCollector;
 import gg.mineads.monitor.shared.scheduler.Scheduler;
 import gg.mineads.monitor.velocity.command.VelocityCommandManager;
 import gg.mineads.monitor.velocity.listener.PlayerListener;
@@ -47,7 +47,6 @@ public class MineAdsMonitorVelocity {
   private final Metrics.Factory metricsFactory;
   private final Bootstrap bootstrap;
   private MineAdsMonitorPlugin plugin;
-  private PlatformCommandManager commandManager;
 
   @Inject
   public MineAdsMonitorVelocity(ProxyServer proxyServer, Logger log, @DataDirectory Path pluginDir, PluginContainer container, Metrics.Factory metricsFactory) {
@@ -61,20 +60,15 @@ public class MineAdsMonitorVelocity {
 
   @Subscribe
   public void onProxyInitialization(ProxyInitializeEvent event) {
-    metricsFactory.make(this, 27110);
-
     this.plugin = new MineAdsMonitorPlugin(bootstrap);
     this.plugin.onEnable();
-
-    this.commandManager = bootstrap.createCommandManager();
-    this.commandManager.registerCommands();
-
-    proxyServer.getEventManager().register(this, new PlayerListener(plugin.getEventCollector()));
   }
 
   @Subscribe
   public void onProxyShutdown(ProxyShutdownEvent event) {
-    this.plugin.onDisable();
+    if (this.plugin != null) {
+      this.plugin.onDisable();
+    }
   }
 
   public static class Bootstrap extends AbstractMineAdsMonitorBootstrap {
@@ -103,6 +97,21 @@ public class MineAdsMonitorVelocity {
     @Override
     public MineAdsCommandManager<?> createCommandManager() {
       return new VelocityCommandManager(plugin);
+    }
+
+    @Override
+    public void registerListeners(EventCollector eventCollector) {
+      plugin.proxyServer.getEventManager().register(plugin, new PlayerListener(eventCollector));
+    }
+
+    @Override
+    public void initializePlatform() {
+      plugin.metricsFactory.make(plugin, 27110);
+    }
+
+    @Override
+    public void shutdownPlatform() {
+      // Velocity doesn't require specific shutdown operations for metrics
     }
   }
 }

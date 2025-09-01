@@ -24,7 +24,7 @@ import gg.mineads.monitor.bukkit.scheduler.BukkitScheduler;
 import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
-import gg.mineads.monitor.shared.command.PlatformCommandManager;
+import gg.mineads.monitor.shared.event.EventCollector;
 import gg.mineads.monitor.shared.scheduler.Scheduler;
 import lombok.Getter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -41,7 +41,6 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
   @Getter
   private FoliaLib foliaLib;
   private BukkitAudiences adventure;
-  private PlatformCommandManager commandManager;
 
   public MineAdsMonitorBukkit() {
     this.bootstrap = new Bootstrap(this);
@@ -49,22 +48,15 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
 
   @Override
   public void onEnable() {
-    this.foliaLib = new FoliaLib(this);
-    this.adventure = BukkitAudiences.create(this);
-    new Metrics(this, 27108);
-
     this.plugin = new MineAdsMonitorPlugin(bootstrap);
     this.plugin.onEnable();
-
-    this.commandManager = bootstrap.createCommandManager();
-    this.commandManager.registerCommands();
-
-    getServer().getPluginManager().registerEvents(new PlayerListener(plugin.getEventCollector()), this);
   }
 
   @Override
   public void onDisable() {
-    this.plugin.onDisable();
+    if (this.plugin != null) {
+      this.plugin.onDisable();
+    }
 
     if (this.adventure != null) {
       this.adventure.close();
@@ -98,6 +90,25 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
     @Override
     public MineAdsCommandManager<?> createCommandManager() {
       return new BukkitCommandManager(plugin);
+    }
+
+    @Override
+    public void registerListeners(EventCollector eventCollector) {
+      plugin.getServer().getPluginManager().registerEvents(new PlayerListener(eventCollector), plugin);
+    }
+
+    @Override
+    public void initializePlatform() {
+      plugin.foliaLib = new FoliaLib(plugin);
+      plugin.adventure = BukkitAudiences.create(plugin);
+      new Metrics(plugin, 27108);
+    }
+
+    @Override
+    public void shutdownPlatform() {
+      if (plugin.adventure != null) {
+        plugin.adventure.close();
+      }
     }
   }
 }

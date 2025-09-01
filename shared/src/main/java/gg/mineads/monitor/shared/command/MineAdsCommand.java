@@ -17,19 +17,26 @@
  */
 package gg.mineads.monitor.shared.command;
 
+import gg.mineads.monitor.data.BuildData;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
+import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
+import lombok.RequiredArgsConstructor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Permission;
 
 @Command("mineadsmonitor")
+@RequiredArgsConstructor
 public class MineAdsCommand {
 
     private final MineAdsMonitorPlugin plugin;
-    private final CommandManager commandManager;
+  private final CommandManager<WrappedCommandSender> commandManager;
 
-    public MineAdsCommand(final MineAdsMonitorPlugin plugin, final CommandManager commandManager) {
-        this.plugin = plugin;
-        this.commandManager = commandManager;
+  @Command("version")
+  @Permission("mineadsmonitor.admin")
+  public void onTestVersion(final WrappedCommandSender sender) {
+    sender.sendMessage(Component.text("Current plugin version: " + BuildData.VERSION, NamedTextColor.GREEN));
     }
-
 }

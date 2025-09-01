@@ -43,6 +43,7 @@ public class BatchProcessor implements Runnable {
     this.eventCollector = eventCollector;
     this.pluginKey = pluginKey;
     this.httpClient = HttpClient.newHttpClient();
+    this.eventCollector.setBatchProcessor(this);
   }
 
   @Override

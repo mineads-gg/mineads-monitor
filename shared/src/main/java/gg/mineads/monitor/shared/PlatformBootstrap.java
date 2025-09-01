@@ -18,12 +18,14 @@
 package gg.mineads.monitor.shared;
 
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
+import gg.mineads.monitor.shared.event.EventCollector;
 
 public interface PlatformBootstrap {
-
-  void onEnable();
-
-  void onDisable();
-
   MineAdsCommandManager<?> createCommandManager();
+
+  void registerListeners(EventCollector eventCollector);
+
+  void initializePlatform();
+
+  void shutdownPlatform();
 }

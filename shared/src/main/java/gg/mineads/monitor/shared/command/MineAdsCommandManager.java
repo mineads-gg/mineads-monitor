@@ -17,6 +17,8 @@
  */
 package gg.mineads.monitor.shared.command;
 
+import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
+import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.PlatformBootstrap;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import org.incendo.cloud.CommandManager;
@@ -24,10 +26,12 @@ import org.incendo.cloud.annotations.AnnotationParser;
 
 public abstract class MineAdsCommandManager<B extends PlatformBootstrap> implements PlatformCommandManager {
 
-    protected final CommandManager<gg.mineads.monitor.shared.command.sender.WrappedCommandSender> commandManager;
+  protected final CommandManager<WrappedCommandSender> commandManager;
     protected final AnnotationParser<WrappedCommandSender> annotationParser;
+  protected final B platformBootstrap;
 
     public MineAdsCommandManager(final B plugin) {
+      this.platformBootstrap = plugin;
         this.commandManager = createCommandManager(plugin);
         this.annotationParser = new AnnotationParser<>(
                 this.commandManager,
@@ -39,6 +43,6 @@ public abstract class MineAdsCommandManager<B extends PlatformBootstrap> impleme
 
     @Override
     public void registerCommands() {
-        this.annotationParser.parse(new MineAdsCommand(null, this.commandManager));
+      this.annotationParser.parse(new MineAdsCommand(new MineAdsMonitorPlugin((AbstractMineAdsMonitorBootstrap) platformBootstrap), this.commandManager));
     }
 }
