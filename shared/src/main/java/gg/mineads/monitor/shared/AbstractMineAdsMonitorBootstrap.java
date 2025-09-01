@@ -20,10 +20,10 @@ package gg.mineads.monitor.shared;
 import de.exlll.configlib.YamlConfigurations;
 import gg.mineads.monitor.data.BuildData;
 import gg.mineads.monitor.shared.batch.BatchProcessor;
+import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.EventCollector;
 import gg.mineads.monitor.shared.scheduler.Scheduler;
-import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -44,13 +44,13 @@ public abstract class AbstractMineAdsMonitorBootstrap implements PlatformBootstr
   public void onEnable() {
     loadConfig();
 
-    if (config.getApiKey() == null || config.getApiKey().isEmpty()) {
-      // Log message to configure API key
+    if (config.getPluginKey() == null || config.getPluginKey().isEmpty()) {
+      // Log message to configure plugin key
       return;
     }
 
     eventCollector = new EventCollector();
-    batchProcessor = new BatchProcessor(eventCollector, config.getApiKey());
+    batchProcessor = new BatchProcessor(eventCollector, config.getPluginKey());
 
     getScheduler().scheduleAsync(batchProcessor, 10, 10, TimeUnit.SECONDS); // 10 seconds
 

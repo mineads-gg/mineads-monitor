@@ -23,10 +23,10 @@ import de.exlll.configlib.Configuration;
 @Configuration
 public class Config {
 
-  @Comment("The API key for your server. You can get this from the MineAds dashboard.")
-  private String apiKey = "";
+  @Comment("The plugin key for your server. You can get this from the MineAds dashboard.")
+  private String pluginKey = "";
 
-  public String getApiKey() {
-    return apiKey;
+  public String getPluginKey() {
+    return pluginKey;
   }
 }

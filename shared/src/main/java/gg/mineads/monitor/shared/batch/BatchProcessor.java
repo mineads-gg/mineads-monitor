@@ -35,13 +35,13 @@ public class BatchProcessor implements Runnable {
   private static final int BATCH_SIZE_THRESHOLD = 100;
 
   private final EventCollector eventCollector;
-  private final String apiKey;
+  private final String pluginKey;
   private final HttpClient httpClient;
   private final Gson gson = new Gson();
 
-  public BatchProcessor(EventCollector eventCollector, String apiKey) {
+  public BatchProcessor(EventCollector eventCollector, String pluginKey) {
     this.eventCollector = eventCollector;
-    this.apiKey = apiKey;
+    this.pluginKey = pluginKey;
     this.httpClient = HttpClient.newHttpClient();
   }
 
@@ -86,7 +86,7 @@ public class BatchProcessor implements Runnable {
   private void sendBatch(byte[] batch) {
     HttpRequest request = HttpRequest.newBuilder()
       .uri(URI.create(API_ENDPOINT))
-      .header("X-API-KEY", apiKey)
+      .header("X-API-KEY", pluginKey)
       .header("Content-Type", "application/msgpack")
       .PUT(HttpRequest.BodyPublishers.ofByteArray(batch))
       .build();
