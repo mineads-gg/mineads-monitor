@@ -68,6 +68,7 @@ public class MineAdsMonitorVelocity {
   public void onProxyShutdown(ProxyShutdownEvent event) {
     if (this.plugin != null) {
       this.plugin.onDisable();
+      this.plugin = null;
     }
   }
 

@@ -32,12 +32,10 @@ import org.bstats.bungeecord.Metrics;
 
 import java.nio.file.Path;
 
+@Getter
 public class MineAdsMonitorBungee extends Plugin {
-
-  @Getter
   private final Bootstrap bootstrap;
   private MineAdsMonitorPlugin plugin;
-  private BungeeAudiences adventure;
 
   public MineAdsMonitorBungee() {
     this.bootstrap = new Bootstrap(this);
@@ -53,17 +51,14 @@ public class MineAdsMonitorBungee extends Plugin {
   public void onDisable() {
     if (this.plugin != null) {
       this.plugin.onDisable();
-    }
-
-    if (this.adventure != null) {
-      this.adventure.close();
-      this.adventure = null;
+      this.plugin = null;
     }
   }
 
   public static class Bootstrap extends AbstractMineAdsMonitorBootstrap {
 
     private final MineAdsMonitorBungee plugin;
+    private BungeeAudiences adventure;
 
     public Bootstrap(MineAdsMonitorBungee plugin) {
       this.plugin = plugin;
@@ -96,14 +91,15 @@ public class MineAdsMonitorBungee extends Plugin {
 
     @Override
     public void initializePlatform() {
-      plugin.adventure = BungeeAudiences.create(plugin);
+      this.adventure = BungeeAudiences.create(plugin);
       new Metrics(plugin, 27109);
     }
 
     @Override
     public void shutdownPlatform() {
-      if (plugin.adventure != null) {
-        plugin.adventure.close();
+      if (this.adventure != null) {
+        this.adventure.close();
+        this.adventure = null;
       }
     }
   }

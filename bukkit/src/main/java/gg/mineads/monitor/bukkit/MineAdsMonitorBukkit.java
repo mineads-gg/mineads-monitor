@@ -33,14 +33,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.nio.file.Path;
 
+@Getter
 public class MineAdsMonitorBukkit extends JavaPlugin {
-
-  @Getter
   private final Bootstrap bootstrap;
   private MineAdsMonitorPlugin plugin;
-  @Getter
-  private FoliaLib foliaLib;
-  private BukkitAudiences adventure;
 
   public MineAdsMonitorBukkit() {
     this.bootstrap = new Bootstrap(this);
@@ -56,15 +52,14 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
   public void onDisable() {
     if (this.plugin != null) {
       this.plugin.onDisable();
-    }
-
-    if (this.adventure != null) {
-      this.adventure.close();
-      this.adventure = null;
+      this.plugin = null;
     }
   }
 
+  @Getter
   public static class Bootstrap extends AbstractMineAdsMonitorBootstrap {
+    private FoliaLib foliaLib;
+    private BukkitAudiences adventure;
 
     private final MineAdsMonitorBukkit plugin;
 
@@ -74,7 +69,7 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
 
     @Override
     public Scheduler getScheduler() {
-      return new BukkitScheduler(plugin.getFoliaLib());
+      return new BukkitScheduler(foliaLib);
     }
 
     @Override
@@ -99,15 +94,16 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
 
     @Override
     public void initializePlatform() {
-      plugin.foliaLib = new FoliaLib(plugin);
-      plugin.adventure = BukkitAudiences.create(plugin);
+      this.foliaLib = new FoliaLib(plugin);
+      this.adventure = BukkitAudiences.create(plugin);
       new Metrics(plugin, 27108);
     }
 
     @Override
     public void shutdownPlatform() {
-      if (plugin.adventure != null) {
-        plugin.adventure.close();
+      if (this.adventure != null) {
+        this.adventure.close();
+        this.adventure = null;
       }
     }
   }
