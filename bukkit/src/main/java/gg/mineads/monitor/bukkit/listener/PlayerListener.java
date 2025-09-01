@@ -23,6 +23,7 @@ import gg.mineads.monitor.shared.event.model.MineAdsPlayerCommandEvent;
 import gg.mineads.monitor.shared.event.model.MineAdsPlayerJoinEvent;
 import gg.mineads.monitor.shared.event.model.MineAdsPlayerLeaveEvent;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
+import gg.mineads.monitor.shared.session.PlayerSessionManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -43,9 +44,11 @@ public class PlayerListener implements Listener {
   @EventHandler
   public void onPlayerJoin(PlayerJoinEvent event) {
     Player player = event.getPlayer();
+    String sessionId = PlayerSessionManager.createSession(player.getUniqueId());
     String rank = LuckPermsUtil.getPrimaryGroup(player.getUniqueId());
 
     batchProcessor.addEvent(new MineAdsPlayerJoinEvent(
+      sessionId,
       player.getLocale(),
       player.getAddress().getAddress().getHostAddress(),
       "Unknown", // Client brand is not available on Bukkit
@@ -57,16 +60,28 @@ public class PlayerListener implements Listener {
 
   @EventHandler
   public void onPlayerQuit(PlayerQuitEvent event) {
-    batchProcessor.addEvent(new MineAdsPlayerLeaveEvent());
+    Player player = event.getPlayer();
+    String sessionId = PlayerSessionManager.removeSession(player.getUniqueId());
+    if (sessionId != null) {
+      batchProcessor.addEvent(new MineAdsPlayerLeaveEvent(sessionId));
+    }
   }
 
   @EventHandler
   public void onPlayerChat(AsyncPlayerChatEvent event) {
-    batchProcessor.addEvent(new MineAdsPlayerChatEvent(event.getMessage()));
+    Player player = event.getPlayer();
+    String sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
+    if (sessionId != null) {
+      batchProcessor.addEvent(new MineAdsPlayerChatEvent(sessionId, event.getMessage()));
+    }
   }
 
   @EventHandler
   public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
-    batchProcessor.addEvent(new MineAdsPlayerCommandEvent(event.getMessage()));
+    Player player = event.getPlayer();
+    String sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
+    if (sessionId != null) {
+      batchProcessor.addEvent(new MineAdsPlayerCommandEvent(sessionId, event.getMessage()));
+    }
   }
 }

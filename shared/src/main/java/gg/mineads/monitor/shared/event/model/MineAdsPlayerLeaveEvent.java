@@ -23,5 +23,6 @@ import lombok.Data;
 public class MineAdsPlayerLeaveEvent {
 
   private final long time = System.currentTimeMillis();
+  private final String sessionId;
 
 }

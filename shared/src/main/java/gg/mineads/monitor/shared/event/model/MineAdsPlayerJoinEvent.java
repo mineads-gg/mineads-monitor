@@ -23,6 +23,7 @@ import lombok.Data;
 public class MineAdsPlayerJoinEvent {
 
   private final long time = System.currentTimeMillis();
+  private final String sessionId;
   private final String locale;
   private final String ip;
   private final String clientBrand;

@@ -23,6 +23,7 @@ import lombok.Data;
 public class MineAdsPlayerChatEvent {
 
   private final long time = System.currentTimeMillis();
+  private final String sessionId;
   private final String message;
 
 }
