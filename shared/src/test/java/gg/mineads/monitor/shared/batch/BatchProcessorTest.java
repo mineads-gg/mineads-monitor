@@ -17,6 +17,7 @@
  */
 package gg.mineads.monitor.shared.batch;
 
+import gg.mineads.monitor.shared.event.BatchProcessor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

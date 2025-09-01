@@ -17,48 +17,172 @@
  */
 package gg.mineads.monitor.shared;
 
-import gg.mineads.monitor.shared.batch.BatchProcessor;
+import de.exlll.configlib.YamlConfigurations;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
+import gg.mineads.monitor.shared.config.Config;
+import gg.mineads.monitor.shared.event.BatchProcessor;
 import lombok.Getter;
+import lombok.extern.java.Log;
 
+import java.nio.file.Path;
+import java.util.logging.Level;
+
+@Log
 public class MineAdsMonitorPlugin {
 
   private final AbstractMineAdsMonitorBootstrap bootstrap;
   @Getter
   private BatchProcessor batchProcessor;
+  @Getter
+  private Config config;
+  private boolean initialized = false;
 
   public MineAdsMonitorPlugin(AbstractMineAdsMonitorBootstrap bootstrap) {
     this.bootstrap = bootstrap;
   }
 
   public void onEnable() {
-    // Initialize platform-specific components
-    bootstrap.initializePlatform();
+    try {
+      // Initialize platform-specific components
+      bootstrap.initializePlatform();
 
-    // Load configuration
-    bootstrap.loadConfig();
+      // Load configuration
+      loadConfig();
 
-    // Initialize core services
-    bootstrap.initializeCoreServices();
+      // Validate configuration
+      if (!isConfigurationValid()) {
+        log.warning("[MineAdsMonitor] Plugin key not configured. Please set 'pluginKey' in config.yml");
+        return;
+      }
 
-    // Get the batch processor after initialization
-    this.batchProcessor = bootstrap.getBatchProcessor();
+      // Initialize core services
+      initializeCoreServices();
 
-    // Create and register commands
-    MineAdsCommandManager<?> commandManager = bootstrap.createCommandManager();
-    commandManager.registerCommands();
+      // Create and register commands
+      MineAdsCommandManager<?> commandManager = bootstrap.createCommandManager(this);
+      commandManager.registerCommands();
 
-    // Register platform-specific listeners
-    if (this.batchProcessor != null) {
-      bootstrap.registerListeners(this.batchProcessor);
+      // Register platform-specific listeners
+      if (this.batchProcessor != null) {
+        bootstrap.registerListeners(this.batchProcessor, this.config);
+      }
+
+      initialized = true;
+      log.info("[MineAdsMonitor] Plugin enabled successfully");
+
+    } catch (Exception e) {
+      log.log(Level.SEVERE, "[MineAdsMonitor] Failed to enable plugin", e);
+      onDisable(); // Cleanup on failure
     }
   }
 
   public void onDisable() {
-    // Shutdown core services
-    bootstrap.shutdownCoreServices();
+    try {
+      // Shutdown core services
+      shutdownCoreServices();
 
-    // Shutdown platform-specific components
-    bootstrap.shutdownPlatform();
+      // Shutdown platform-specific components
+      bootstrap.shutdownPlatform();
+
+      initialized = false;
+      log.info("[MineAdsMonitor] Plugin disabled successfully");
+
+    } catch (Exception e) {
+      log.log(Level.SEVERE, "[MineAdsMonitor] Error during plugin shutdown", e);
+    }
+  }
+
+  /**
+   * Load configuration from file
+   */
+  private void loadConfig() {
+    Path configPath = bootstrap.getDataFolder().resolve("config.yml");
+    config = YamlConfigurations.update(configPath, Config.class);
+  }
+
+  /**
+   * Validate that required configuration is present
+   */
+  private boolean isConfigurationValid() {
+    return config != null && config.getPluginKey() != null && !config.getPluginKey().isEmpty();
+  }
+
+  /**
+   * Initialize core services
+   */
+  private void initializeCoreServices() {
+    batchProcessor = new BatchProcessor(config.getPluginKey());
+
+    bootstrap.getScheduler().scheduleAsync(batchProcessor, 10, 10, java.util.concurrent.TimeUnit.SECONDS);
+
+    // Initialize platform-specific services
+    bootstrap.initializeLuckPerms();
+
+    // Check for updates asynchronously
+    gg.mineads.monitor.shared.update.UpdateChecker.checkForUpdates();
+  }
+
+  /**
+   * Shutdown core services
+   */
+  private void shutdownCoreServices() {
+    if (batchProcessor != null) {
+      batchProcessor.run(); // Process any remaining events
+      batchProcessor.shutdown();
+    }
+  }
+
+  /**
+   * Check if the plugin is properly initialized
+   */
+  public boolean isInitialized() {
+    return initialized;
+  }
+
+  /**
+   * Reload configuration from file
+   *
+   * @return true if reload was successful, false otherwise
+   */
+  public boolean reloadConfig() {
+    try {
+      // Load new configuration
+      Path configPath = bootstrap.getDataFolder().resolve("config.yml");
+      Config newConfig = YamlConfigurations.update(configPath, Config.class);
+
+      // Validate the new configuration
+      if (!isValidConfig(newConfig)) {
+        log.warning("[MineAdsMonitor] Reload failed: Invalid configuration. Plugin key is required.");
+        return false;
+      }
+
+      // Check if plugin key changed - if so, we need to restart the batch processor
+      boolean pluginKeyChanged = !config.getPluginKey().equals(newConfig.getPluginKey());
+
+      // Update configuration
+      this.config = newConfig;
+
+      if (pluginKeyChanged && batchProcessor != null) {
+        // Restart batch processor with new plugin key
+        batchProcessor.shutdown();
+        batchProcessor = new BatchProcessor(config.getPluginKey());
+        bootstrap.getScheduler().scheduleAsync(batchProcessor, 10, 10, java.util.concurrent.TimeUnit.SECONDS);
+        log.info("[MineAdsMonitor] Batch processor restarted with new plugin key");
+      }
+
+      log.info("[MineAdsMonitor] Configuration reloaded successfully");
+      return true;
+
+    } catch (Exception e) {
+      log.log(Level.SEVERE, "[MineAdsMonitor] Failed to reload configuration", e);
+      return false;
+    }
+  }
+
+  /**
+   * Validate that required configuration is present
+   */
+  private boolean isValidConfig(Config config) {
+    return config != null && config.getPluginKey() != null && !config.getPluginKey().isEmpty();
   }
 }

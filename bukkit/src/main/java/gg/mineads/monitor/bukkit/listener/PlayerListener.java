@@ -17,7 +17,9 @@
  */
 package gg.mineads.monitor.bukkit.listener;
 
-import gg.mineads.monitor.shared.batch.BatchProcessor;
+import gg.mineads.monitor.shared.config.Config;
+import gg.mineads.monitor.shared.event.BatchProcessor;
+import gg.mineads.monitor.shared.event.model.EventType;
 import gg.mineads.monitor.shared.event.model.MineAdsEvent;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
@@ -35,13 +37,19 @@ import java.util.UUID;
 public class PlayerListener implements Listener {
 
   private final BatchProcessor batchProcessor;
+  private final Config config;
 
-  public PlayerListener(BatchProcessor batchProcessor) {
+  public PlayerListener(BatchProcessor batchProcessor, Config config) {
     this.batchProcessor = batchProcessor;
+    this.config = config;
   }
 
   @EventHandler
   public void onPlayerJoin(PlayerJoinEvent event) {
+    if (!isEventEnabled(EventType.JOIN)) {
+      return;
+    }
+
     Player player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.createSession(player.getUniqueId());
     String rank = LuckPermsUtil.getPrimaryGroup(player.getUniqueId());
@@ -59,6 +67,10 @@ public class PlayerListener implements Listener {
 
   @EventHandler
   public void onPlayerQuit(PlayerQuitEvent event) {
+    if (!isEventEnabled(EventType.LEAVE)) {
+      return;
+    }
+
     Player player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.removeSession(player.getUniqueId());
     if (sessionId != null) {
@@ -68,6 +80,10 @@ public class PlayerListener implements Listener {
 
   @EventHandler
   public void onPlayerChat(AsyncPlayerChatEvent event) {
+    if (!isEventEnabled(EventType.CHAT)) {
+      return;
+    }
+
     Player player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
     if (sessionId != null) {
@@ -77,10 +93,18 @@ public class PlayerListener implements Listener {
 
   @EventHandler
   public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
+    if (!isEventEnabled(EventType.COMMAND)) {
+      return;
+    }
+
     Player player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
     if (sessionId != null) {
       batchProcessor.addEvent(MineAdsEvent.playerCommand(sessionId, event.getMessage()));
     }
+  }
+
+  private boolean isEventEnabled(EventType eventType) {
+    return config.getEnabledEvents().contains(eventType);
   }
 }

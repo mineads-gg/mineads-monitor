@@ -17,52 +17,11 @@
  */
 package gg.mineads.monitor.shared;
 
-import de.exlll.configlib.YamlConfigurations;
-import gg.mineads.monitor.shared.batch.BatchProcessor;
-import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
-import gg.mineads.monitor.shared.update.UpdateChecker;
-import lombok.Getter;
 
 import java.nio.file.Path;
-import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractMineAdsMonitorBootstrap implements PlatformBootstrap {
-
-  @Getter
-  private BatchProcessor batchProcessor;
-  private Config config;
-
-  protected void loadConfig() {
-    Path configPath = getDataFolder().resolve("config.yml");
-    config = YamlConfigurations.update(configPath, Config.class);
-  }
-
-  protected void initializeCoreServices() {
-    if (config.getPluginKey() == null || config.getPluginKey().isEmpty()) {
-      // Log message to configure plugin key
-      return;
-    }
-
-    batchProcessor = new BatchProcessor(config.getPluginKey());
-
-    getScheduler().scheduleAsync(batchProcessor, 10, 10, TimeUnit.SECONDS); // 10 seconds
-
-    // Initialize platform-specific services
-    initializeLuckPerms();
-
-    // Check for updates asynchronously
-    UpdateChecker.checkForUpdates();
-  }
-
-  protected void shutdownCoreServices() {
-    if (batchProcessor != null) {
-      batchProcessor.run(); // Process any remaining events
-      batchProcessor.shutdown();
-    }
-  }
-
-
   public abstract MineAdsScheduler getScheduler();
 
   public abstract Path getDataFolder();

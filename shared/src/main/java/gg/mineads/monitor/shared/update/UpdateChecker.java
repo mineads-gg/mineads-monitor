@@ -19,6 +19,7 @@ package gg.mineads.monitor.shared.update;
 
 import com.google.gson.Gson;
 import gg.mineads.monitor.data.BuildData;
+import lombok.extern.java.Log;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -30,6 +31,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Handles checking for plugin updates from GitHub releases.
  */
+@Log
 public class UpdateChecker {
 
   private static final String GITHUB_API_URL = "https://api.github.com/repos/mineads-gg/mineads-monitor/releases/latest";
@@ -54,7 +56,7 @@ public class UpdateChecker {
       .thenApply(HttpResponse::body)
       .thenAccept(UpdateChecker::processUpdateResponse)
       .exceptionally(throwable -> {
-        System.out.println("[MineAdsMonitor] Failed to check for updates: " + throwable.getMessage());
+        log.warning("[MineAdsMonitor] Failed to check for updates: " + throwable.getMessage());
         return null;
       });
   }
@@ -67,13 +69,13 @@ public class UpdateChecker {
       GitHubRelease latestRelease = GSON.fromJson(jsonResponse, GitHubRelease.class);
 
       if (latestRelease == null) {
-        System.out.println("[MineAdsMonitor] Failed to parse update response");
+        log.warning("[MineAdsMonitor] Failed to parse update response");
         return;
       }
 
       String latestVersion = latestRelease.getTag_name();
       if (latestVersion == null || latestVersion.isEmpty()) {
-        System.out.println("[MineAdsMonitor] No version information found in update response");
+        log.warning("[MineAdsMonitor] No version information found in update response");
         return;
       }
 
@@ -84,30 +86,30 @@ public class UpdateChecker {
 
       String currentVersion = BuildData.VERSION;
 
-      System.out.println("[MineAdsMonitor] Current version: " + currentVersion);
-      System.out.println("[MineAdsMonitor] Latest version: " + latestVersion);
+      log.info("[MineAdsMonitor] Current version: " + currentVersion);
+      log.info("[MineAdsMonitor] Latest version: " + latestVersion);
 
       if (isNewerVersion(latestVersion, currentVersion)) {
-        System.out.println("[MineAdsMonitor] =========================================");
-        System.out.println("[MineAdsMonitor] A new version is available!");
-        System.out.println("[MineAdsMonitor] Current: " + currentVersion);
-        System.out.println("[MineAdsMonitor] Latest: " + latestVersion);
+        log.info("[MineAdsMonitor] =========================================");
+        log.info("[MineAdsMonitor] A new version is available!");
+        log.info("[MineAdsMonitor] Current: " + currentVersion);
+        log.info("[MineAdsMonitor] Latest: " + latestVersion);
         if (latestRelease.getHtml_url() != null) {
-          System.out.println("[MineAdsMonitor] Download: " + latestRelease.getHtml_url());
+          log.info("[MineAdsMonitor] Download: " + latestRelease.getHtml_url());
         }
         if (latestRelease.getBody() != null && !latestRelease.getBody().isEmpty()) {
-          System.out.println("[MineAdsMonitor] Release notes:");
-          System.out.println("[MineAdsMonitor] " + latestRelease.getBody().replace("\n", "\n[MineAdsMonitor] "));
+          log.info("[MineAdsMonitor] Release notes:");
+          log.info("[MineAdsMonitor] " + latestRelease.getBody().replace("\n", "\n[MineAdsMonitor] "));
         }
-        System.out.println("[MineAdsMonitor] =========================================");
+        log.info("[MineAdsMonitor] =========================================");
       } else if (latestVersion.equals(currentVersion)) {
-        System.out.println("[MineAdsMonitor] You are running the latest version!");
+        log.info("[MineAdsMonitor] You are running the latest version!");
       } else {
-        System.out.println("[MineAdsMonitor] You are running a development/pre-release version.");
+        log.info("[MineAdsMonitor] You are running a development/pre-release version.");
       }
 
     } catch (Exception e) {
-      System.out.println("[MineAdsMonitor] Failed to process update response: " + e.getMessage());
+      log.severe("[MineAdsMonitor] Failed to process update response: " + e.getMessage());
     }
   }
 

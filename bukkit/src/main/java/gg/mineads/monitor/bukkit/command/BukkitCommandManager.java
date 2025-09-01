@@ -18,6 +18,7 @@
 package gg.mineads.monitor.bukkit.command;
 
 import gg.mineads.monitor.bukkit.MineAdsMonitorBukkit;
+import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import org.incendo.cloud.CommandManager;
@@ -27,8 +28,8 @@ import org.incendo.cloud.paper.LegacyPaperCommandManager;
 
 public class BukkitCommandManager extends MineAdsCommandManager<MineAdsMonitorBukkit.Bootstrap> {
 
-  public BukkitCommandManager(final MineAdsMonitorBukkit plugin) {
-    super(plugin.getBootstrap());
+  public BukkitCommandManager(final MineAdsMonitorBukkit.Bootstrap bootstrap, final MineAdsMonitorPlugin plugin) {
+    super(bootstrap, plugin);
   }
 
   @Override

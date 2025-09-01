@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package gg.mineads.monitor.shared.batch;
+package gg.mineads.monitor.shared.event;
 
 /**
  * Constants for HTTP communication with the MineAds API.

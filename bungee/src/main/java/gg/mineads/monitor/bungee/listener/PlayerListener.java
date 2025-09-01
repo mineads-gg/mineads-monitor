@@ -17,7 +17,9 @@
  */
 package gg.mineads.monitor.bungee.listener;
 
-import gg.mineads.monitor.shared.batch.BatchProcessor;
+import gg.mineads.monitor.shared.config.Config;
+import gg.mineads.monitor.shared.event.BatchProcessor;
+import gg.mineads.monitor.shared.event.model.EventType;
 import gg.mineads.monitor.shared.event.model.MineAdsEvent;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
@@ -33,13 +35,19 @@ import java.util.UUID;
 public class PlayerListener implements Listener {
 
   private final BatchProcessor batchProcessor;
+  private final Config config;
 
-  public PlayerListener(BatchProcessor batchProcessor) {
+  public PlayerListener(BatchProcessor batchProcessor, Config config) {
     this.batchProcessor = batchProcessor;
+    this.config = config;
   }
 
   @EventHandler
   public void onPostLogin(PostLoginEvent event) {
+    if (!isEventEnabled(EventType.JOIN)) {
+      return;
+    }
+
     ProxiedPlayer player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.createSession(player.getUniqueId());
     String rank = LuckPermsUtil.getPrimaryGroup(player.getUniqueId());
@@ -57,6 +65,10 @@ public class PlayerListener implements Listener {
 
   @EventHandler
   public void onPlayerDisconnect(PlayerDisconnectEvent event) {
+    if (!isEventEnabled(EventType.LEAVE)) {
+      return;
+    }
+
     ProxiedPlayer player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.removeSession(player.getUniqueId());
     if (sessionId != null) {
@@ -76,9 +88,17 @@ public class PlayerListener implements Listener {
     }
 
     if (event.isCommand() || event.isProxyCommand()) {
-      batchProcessor.addEvent(MineAdsEvent.playerCommand(sessionId, event.getMessage()));
+      if (isEventEnabled(EventType.COMMAND)) {
+        batchProcessor.addEvent(MineAdsEvent.playerCommand(sessionId, event.getMessage()));
+      }
     } else {
-      batchProcessor.addEvent(MineAdsEvent.playerChat(sessionId, event.getMessage()));
+      if (isEventEnabled(EventType.CHAT)) {
+        batchProcessor.addEvent(MineAdsEvent.playerChat(sessionId, event.getMessage()));
+      }
     }
+  }
+
+  private boolean isEventEnabled(EventType eventType) {
+    return config.getEnabledEvents().contains(eventType);
   }
 }

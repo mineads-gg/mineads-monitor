@@ -15,10 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package gg.mineads.monitor.shared.batch;
+package gg.mineads.monitor.shared.event;
 
 import com.google.gson.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessagePack;
 
@@ -36,6 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
 @RequiredArgsConstructor
+@Log
 public class BatchProcessor implements Runnable {
   private static final int BATCH_SIZE_THRESHOLD = 100;
   private static final int MAX_RETRY_ATTEMPTS = 3;
@@ -133,7 +135,7 @@ public class BatchProcessor implements Runnable {
           isProcessing.set(false);
           if (throwable != null) {
             // Log error but don't rethrow to avoid crashing the executor
-            System.err.println("Error processing batch: " + throwable.getMessage());
+            log.severe("Error processing batch: " + throwable.getMessage());
           }
         });
     } finally {
@@ -189,7 +191,7 @@ public class BatchProcessor implements Runnable {
       byte[] messagePack = serializeToMessagePack(currentEvents);
       sendBatchWithRetry(messagePack, 0);
     } catch (Exception e) {
-      System.err.println("Failed to process batch: " + e.getMessage());
+      log.severe("Failed to process batch: " + e.getMessage());
       // Re-queue events on failure
       events.addAll(currentEvents);
     }
@@ -217,25 +219,25 @@ public class BatchProcessor implements Runnable {
 
     if (statusCode >= 200 && statusCode < 300) {
       // Success
-      System.out.println("Successfully sent batch of " + batch.length + " bytes");
+      log.info("Successfully sent batch of " + batch.length + " bytes");
     } else if (shouldRetry(statusCode) && attempt < MAX_RETRY_ATTEMPTS) {
       // Retry on server errors or rate limiting
       long delayMs = calculateRetryDelay(attempt);
-      System.err.println("Batch send failed with status " + statusCode + ", retrying in " + delayMs + "ms (attempt " + (attempt + 1) + ")");
+      log.warning("Batch send failed with status " + statusCode + ", retrying in " + delayMs + "ms (attempt " + (attempt + 1) + ")");
       retryExecutor.schedule(() -> sendBatchWithRetry(batch, attempt + 1), delayMs, TimeUnit.MILLISECONDS);
     } else {
       // Final failure
-      System.err.println("Batch send failed with status " + statusCode + " after " + (attempt + 1) + " attempts");
+      log.severe("Batch send failed with status " + statusCode + " after " + (attempt + 1) + " attempts");
     }
   }
 
   private void handleSendError(Throwable throwable, byte[] batch, int attempt) {
     if (shouldRetryOnException(throwable) && attempt < MAX_RETRY_ATTEMPTS) {
       long delayMs = calculateRetryDelay(attempt);
-      System.err.println("Batch send failed with exception: " + throwable.getMessage() + ", retrying in " + delayMs + "ms (attempt " + (attempt + 1) + ")");
+      log.warning("Batch send failed with exception: " + throwable.getMessage() + ", retrying in " + delayMs + "ms (attempt " + (attempt + 1) + ")");
       retryExecutor.schedule(() -> sendBatchWithRetry(batch, attempt + 1), delayMs, TimeUnit.MILLISECONDS);
     } else {
-      System.err.println("Batch send failed after " + (attempt + 1) + " attempts: " + throwable.getMessage());
+      log.severe("Batch send failed after " + (attempt + 1) + " attempts: " + throwable.getMessage());
     }
   }
 

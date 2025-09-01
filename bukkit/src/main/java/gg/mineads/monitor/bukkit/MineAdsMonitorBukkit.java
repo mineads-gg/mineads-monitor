@@ -23,8 +23,9 @@ import gg.mineads.monitor.bukkit.listener.PlayerListener;
 import gg.mineads.monitor.bukkit.scheduler.BukkitMineAdsScheduler;
 import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
-import gg.mineads.monitor.shared.batch.BatchProcessor;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
+import gg.mineads.monitor.shared.config.Config;
+import gg.mineads.monitor.shared.event.BatchProcessor;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import lombok.Getter;
@@ -85,13 +86,13 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
     }
 
     @Override
-    public MineAdsCommandManager<?> createCommandManager() {
-      return new BukkitCommandManager(plugin);
+    public MineAdsCommandManager<?> createCommandManager(MineAdsMonitorPlugin mineAdsPlugin) {
+      return new BukkitCommandManager(plugin.getBootstrap(), mineAdsPlugin);
     }
 
     @Override
-    public void registerListeners(BatchProcessor batchProcessor) {
-      plugin.getServer().getPluginManager().registerEvents(new PlayerListener(batchProcessor), plugin);
+    public void registerListeners(BatchProcessor batchProcessor, Config config) {
+      plugin.getServer().getPluginManager().registerEvents(new PlayerListener(batchProcessor, config), plugin);
     }
 
     @Override

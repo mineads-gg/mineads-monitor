@@ -46,6 +46,20 @@ public class MineAdsCommand {
     sender.sendMessage(Component.text("Current plugin version: " + BuildData.VERSION, NamedTextColor.GREEN));
   }
 
+  @Command("reload")
+  @Permission("mineadsmonitor.admin")
+  public void onReload(final WrappedCommandSender sender) {
+    sender.sendMessage(Component.text("Reloading MineAds Monitor configuration...", NamedTextColor.YELLOW));
+
+    boolean success = plugin.reloadConfig();
+
+    if (success) {
+      sender.sendMessage(Component.text("Configuration reloaded successfully!", NamedTextColor.GREEN));
+    } else {
+      sender.sendMessage(Component.text("Failed to reload configuration. Check console for details.", NamedTextColor.RED));
+    }
+  }
+
   @Command("tebex <id> <username> <transaction> <price> <currency> <packageName> [server] [date] [email] [ip] [packageId] [packagePrice] [packageExpiry] [purchaserName] [purchaserUuid] [purchaseQuantity]")
   @Permission("mineadsmonitor.purchase")
   public void onTebexPurchase(
@@ -78,11 +92,11 @@ public class MineAdsCommand {
     MineAdsPurchaseEvent purchaseEvent = new MineAdsPurchaseEvent(PurchaseType.TEBEX, tebexData);
 
     // Add event to batch processor
-    if (plugin.getBatchProcessor() != null) {
+    if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
       plugin.getBatchProcessor().addEvent(purchaseEvent);
       sender.sendMessage(Component.text("Tebex purchase event recorded successfully", NamedTextColor.GREEN));
     } else {
-      sender.sendMessage(Component.text("Batch processor not initialized - check plugin configuration", NamedTextColor.RED));
+      sender.sendMessage(Component.text("Plugin not properly initialized - check plugin configuration", NamedTextColor.RED));
     }
   }
 
@@ -114,11 +128,11 @@ public class MineAdsCommand {
     MineAdsPurchaseEvent purchaseEvent = new MineAdsPurchaseEvent(PurchaseType.CRAFTING_STORE, craftingStoreData);
 
     // Add event to batch processor
-    if (plugin.getBatchProcessor() != null) {
+    if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
       plugin.getBatchProcessor().addEvent(purchaseEvent);
       sender.sendMessage(Component.text("CraftingStore purchase event recorded successfully", NamedTextColor.GREEN));
     } else {
-      sender.sendMessage(Component.text("Batch processor not initialized - check plugin configuration", NamedTextColor.RED));
+      sender.sendMessage(Component.text("Plugin not properly initialized - check plugin configuration", NamedTextColor.RED));
     }
   }
 }

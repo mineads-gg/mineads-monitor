@@ -18,6 +18,7 @@
 package gg.mineads.monitor.bungee.command;
 
 import gg.mineads.monitor.bungee.MineAdsMonitorBungee;
+import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import org.incendo.cloud.CommandManager;
@@ -25,8 +26,8 @@ import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.execution.ExecutionCoordinator;
 
 public class BungeeCommandManager extends MineAdsCommandManager<MineAdsMonitorBungee.Bootstrap> {
-  public BungeeCommandManager(final MineAdsMonitorBungee plugin) {
-    super(plugin.getBootstrap());
+  public BungeeCommandManager(final MineAdsMonitorBungee.Bootstrap bootstrap, final MineAdsMonitorPlugin plugin) {
+    super(bootstrap, plugin);
   }
 
   @Override

@@ -19,11 +19,17 @@ package gg.mineads.monitor.shared.config;
 
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
+import gg.mineads.monitor.shared.event.model.EventType;
 import lombok.Getter;
+
+import java.util.Set;
 
 @Getter
 @Configuration
 public class Config {
   @Comment("The plugin key for your server. You can get this from the MineAds dashboard.")
   private String pluginKey = "";
+
+  @Comment("Enable/disable tracking of specific event types. By default, all events are enabled.")
+  private Set<EventType> enabledEvents = Set.of(EventType.values());
 }
