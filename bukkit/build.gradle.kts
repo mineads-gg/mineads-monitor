@@ -1,6 +1,7 @@
 plugins {
   id("mm.platform-conventions")
   id("mm.kyori-conventions")
+  id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
 dependencies {
@@ -16,4 +17,22 @@ dependencies {
   compileOnly("net.luckperms:api:5.5")
 
   implementation("org.incendo:cloud-paper:2.0.0-beta.11")
+}
+
+runPaper {
+  folia {
+    registerTask {
+      minecraftVersion("1.21.8")
+
+      jvmArgs = listOf("-Dcom.mojang.eula.agree=true")
+      args = listOf("--nogui")
+    }
+  }
+}
+
+tasks {
+  runServer {
+    minecraftVersion("1.21.8")
+    jvmArgs = listOf("-Dcom.mojang.eula.agree=true")
+  }
 }
