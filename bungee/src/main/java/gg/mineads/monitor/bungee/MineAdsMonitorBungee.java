@@ -17,10 +17,13 @@
  */
 package gg.mineads.monitor.bungee;
 
+import gg.mineads.monitor.bungee.command.BungeeCommandManager;
 import gg.mineads.monitor.bungee.listener.PlayerListener;
 import gg.mineads.monitor.bungee.scheduler.BungeeScheduler;
 import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
+import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.scheduler.Scheduler;
+import lombok.Getter;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.bstats.bungeecord.Metrics;
@@ -29,7 +32,10 @@ import java.nio.file.Path;
 
 public class MineAdsMonitorBungee extends Plugin {
 
-  private final AbstractMineAdsMonitorBootstrap bootstrap;
+  @Getter
+  private final Bootstrap bootstrap;
+  private MineAdsMonitorPlugin plugin;
+  private BungeeCommandManager commandManager;
   private BungeeAudiences adventure;
 
   public MineAdsMonitorBungee() {
@@ -41,14 +47,18 @@ public class MineAdsMonitorBungee extends Plugin {
     this.adventure = BungeeAudiences.create(this);
     new Metrics(this, 27109);
 
-    this.bootstrap.onEnable();
+    this.plugin = new MineAdsMonitorPlugin(bootstrap);
+    this.plugin.onEnable();
 
-    getProxy().getPluginManager().registerListener(this, new PlayerListener(bootstrap.getEventCollector()));
+    this.commandManager = new BungeeCommandManager(this);
+    this.commandManager.registerCommands();
+
+    getProxy().getPluginManager().registerListener(this, new PlayerListener(plugin.getEventCollector()));
   }
 
   @Override
   public void onDisable() {
-    this.bootstrap.onDisable();
+    this.plugin.onDisable();
 
     if (this.adventure != null) {
       this.adventure.close();
@@ -56,7 +66,7 @@ public class MineAdsMonitorBungee extends Plugin {
     }
   }
 
-  private static class Bootstrap extends AbstractMineAdsMonitorBootstrap {
+  public static class Bootstrap extends AbstractMineAdsMonitorBootstrap {
 
     private final MineAdsMonitorBungee plugin;
 
@@ -75,8 +85,8 @@ public class MineAdsMonitorBungee extends Plugin {
     }
 
     @Override
-    public String getPluginVersion() {
-      return plugin.getDescription().getVersion();
+    public MineAdsMonitorBungee getOwningPlugin() {
+      return plugin;
     }
   }
 }

@@ -22,6 +22,7 @@ import gg.mineads.monitor.bukkit.listener.PlayerListener;
 import gg.mineads.monitor.bukkit.scheduler.BukkitScheduler;
 import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
 import gg.mineads.monitor.shared.scheduler.Scheduler;
+import lombok.Getter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -30,7 +31,9 @@ import java.nio.file.Path;
 
 public class MineAdsMonitorBukkit extends JavaPlugin {
 
-  private final AbstractMineAdsMonitorBootstrap bootstrap;
+  @Getter
+  private final Bootstrap bootstrap;
+  @Getter
   private FoliaLib foliaLib;
   private BukkitAudiences adventure;
 
@@ -59,11 +62,7 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
     }
   }
 
-  public FoliaLib getFoliaLib() {
-    return foliaLib;
-  }
-
-  private static class Bootstrap extends AbstractMineAdsMonitorBootstrap {
+  public static class Bootstrap extends AbstractMineAdsMonitorBootstrap {
 
     private final MineAdsMonitorBukkit plugin;
 
@@ -82,8 +81,8 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
     }
 
     @Override
-    public String getPluginVersion() {
-      return plugin.getDescription().getVersion();
+    public MineAdsMonitorBukkit getOwningPlugin() {
+      return plugin;
     }
   }
 }

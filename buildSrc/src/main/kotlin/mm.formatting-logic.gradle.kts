@@ -17,7 +17,7 @@ spotless {
     target("**/gg/mineads/**")
 
     trimTrailingWhitespace()
-    leadingTabsToSpaces(4)
+    leadingTabsToSpaces(2)
     endWithNewline()
 
     licenseHeaderFile(rootProject.file("file_header.txt"))

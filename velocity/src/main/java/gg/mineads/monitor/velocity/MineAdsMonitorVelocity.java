@@ -25,22 +25,27 @@ import com.velocitypowered.api.plugin.PluginContainer;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
+import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.scheduler.Scheduler;
+import gg.mineads.monitor.velocity.command.VelocityCommandManager;
 import gg.mineads.monitor.velocity.listener.PlayerListener;
 import gg.mineads.monitor.velocity.scheduler.VelocityScheduler;
+import lombok.Getter;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
 
+@Getter
 public class MineAdsMonitorVelocity {
-
   private final ProxyServer proxyServer;
   private final Logger log;
   private final Path pluginDir;
   private final PluginContainer container;
   private final Metrics.Factory metricsFactory;
-  private final AbstractMineAdsMonitorBootstrap bootstrap;
+  private final Bootstrap bootstrap;
+  private MineAdsMonitorPlugin plugin;
+  private VelocityCommandManager commandManager;
 
   @Inject
   public MineAdsMonitorVelocity(ProxyServer proxyServer, Logger log, @DataDirectory Path pluginDir, PluginContainer container, Metrics.Factory metricsFactory) {
@@ -55,16 +60,22 @@ public class MineAdsMonitorVelocity {
   @Subscribe
   public void onProxyInitialization(ProxyInitializeEvent event) {
     metricsFactory.make(this, 27110);
-    bootstrap.onEnable();
-    proxyServer.getEventManager().register(this, new PlayerListener(bootstrap.getEventCollector()));
+
+    this.plugin = new MineAdsMonitorPlugin(bootstrap);
+    this.plugin.onEnable();
+
+    this.commandManager = new VelocityCommandManager(this);
+    this.commandManager.registerCommands();
+
+    proxyServer.getEventManager().register(this, new PlayerListener(plugin.getEventCollector()));
   }
 
   @Subscribe
   public void onProxyShutdown(ProxyShutdownEvent event) {
-    bootstrap.onDisable();
+    this.plugin.onDisable();
   }
 
-  private class Bootstrap extends AbstractMineAdsMonitorBootstrap {
+  public static class Bootstrap extends AbstractMineAdsMonitorBootstrap {
 
     private final MineAdsMonitorVelocity plugin;
 
@@ -83,8 +94,8 @@ public class MineAdsMonitorVelocity {
     }
 
     @Override
-    public String getPluginVersion() {
-      return plugin.container.getDescription().getVersion().orElse("Unknown");
+    public MineAdsMonitorVelocity getOwningPlugin() {
+      return plugin;
     }
   }
 }

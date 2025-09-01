@@ -18,6 +18,7 @@
 package gg.mineads.monitor.shared;
 
 import de.exlll.configlib.YamlConfigurations;
+import gg.mineads.monitor.data.BuildData;
 import gg.mineads.monitor.shared.batch.BatchProcessor;
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.EventCollector;
@@ -77,7 +78,7 @@ public abstract class AbstractMineAdsMonitorBootstrap implements PlatformBootstr
       .thenApply(HttpResponse::body)
       .thenAccept(body -> {
         // very basic update checker, just checking if the version is the same
-        if (!body.contains(getPluginVersion())) {
+        if (!body.contains(BuildData.VERSION)) {
           // Log message about new version
         }
       });
@@ -87,7 +88,7 @@ public abstract class AbstractMineAdsMonitorBootstrap implements PlatformBootstr
 
   public abstract Path getDataFolder();
 
-  public abstract String getPluginVersion();
+  public abstract Object getOwningPlugin();
 
   public EventCollector getEventCollector() {
     return eventCollector;

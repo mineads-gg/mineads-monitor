@@ -5,14 +5,14 @@ plugins {
 }
 
 dependencies {
-  implementation(project(":mineadsmonitor-api", "shadow"))
   implementation(projects.mineadsmonitorShared)
-  compileOnly(projects.mineadsmonitorBuildData)
 
   implementation("org.bstats:bstats-velocity:3.1.0")
 
   compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
   compileOnly("net.luckperms:api:5.5")
+
+  implementation("org.incendo:cloud-velocity:2.0.0-beta.11")
 }
 
 tasks {

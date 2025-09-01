@@ -11,12 +11,12 @@ allprojects {
     mavenCentral()
     maven("https://central.sonatype.com/repository/maven-snapshots/") {
       name = "Sonatype"
+      mavenContent {
+        snapshotsOnly()
+      }
     }
     maven("https://repo.papermc.io/repository/maven-public/") {
       name = "PaperMC"
-    }
-    maven("https://nexus.velocitypowered.com/repository/maven-public/") {
-      name = "VelocityPowered"
     }
     maven("https://repo.codemc.org/repository/maven-public") {
       name = "CodeMC"
