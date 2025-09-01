@@ -53,10 +53,10 @@ public class PlayerListener implements Listener {
 
     PlayerJoinData data = new PlayerJoinData(
       sessionId,
-      player.getLocale() != null ? player.getLocale().toString() : "en_US",
+      player.getLocale() != null ? player.getLocale().toString() : null,
       player.getAddress() != null && player.getAddress().getAddress() != null
-        ? player.getAddress().getAddress().getHostAddress() : "unknown",
-      "Unknown",
+        ? player.getAddress().getAddress().getHostAddress() : null,
+      null,
       String.valueOf(player.getPendingConnection().getVersion()),
       player.getPendingConnection().isOnlineMode(),
       rank

@@ -53,10 +53,10 @@ public class PlayerListener {
 
     PlayerJoinData data = new PlayerJoinData(
       sessionId,
-      player.getEffectiveLocale() != null ? player.getEffectiveLocale().toString() : "en_US",
+      player.getEffectiveLocale() != null ? player.getEffectiveLocale().toString() : null,
       player.getRemoteAddress() != null && player.getRemoteAddress().getAddress() != null
-        ? player.getRemoteAddress().getAddress().getHostAddress() : "unknown",
-      player.getClientBrand() != null ? player.getClientBrand() : "Unknown",
+        ? player.getRemoteAddress().getAddress().getHostAddress() : null,
+      player.getClientBrand(),
       String.valueOf(player.getProtocolVersion().getProtocol()),
       player.isOnlineMode(),
       rank

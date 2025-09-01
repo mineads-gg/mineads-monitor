@@ -57,8 +57,8 @@ public class PlayerListener implements Listener {
       sessionId,
       player.getLocale(),
       player.getAddress() != null && player.getAddress().getAddress() != null
-        ? player.getAddress().getAddress().getHostAddress() : "unknown",
-      "Unknown", // Client brand is not available on Bukkit
+        ? player.getAddress().getAddress().getHostAddress() : null,
+      null, // Client brand is not available on Bukkit
       Bukkit.getBukkitVersion(),
       Bukkit.getOnlineMode(),
       rank
