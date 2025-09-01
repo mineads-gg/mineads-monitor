@@ -19,7 +19,7 @@ package gg.mineads.monitor.shared.scheduler;
 
 import java.util.concurrent.TimeUnit;
 
-public interface Scheduler {
+public interface MineAdsScheduler {
 
   void scheduleAsync(Runnable task, long delay, long period, TimeUnit timeUnit);
 

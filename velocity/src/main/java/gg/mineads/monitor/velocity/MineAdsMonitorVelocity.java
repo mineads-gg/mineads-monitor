@@ -29,10 +29,10 @@ import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.event.EventCollector;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
-import gg.mineads.monitor.shared.scheduler.Scheduler;
+import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import gg.mineads.monitor.velocity.command.VelocityCommandManager;
 import gg.mineads.monitor.velocity.listener.PlayerListener;
-import gg.mineads.monitor.velocity.scheduler.VelocityScheduler;
+import gg.mineads.monitor.velocity.scheduler.VelocityMineAdsScheduler;
 import lombok.Getter;
 import net.luckperms.api.LuckPermsProvider;
 import org.bstats.velocity.Metrics;
@@ -92,8 +92,8 @@ public class MineAdsMonitorVelocity {
     }
 
     @Override
-    public Scheduler getScheduler() {
-      return new VelocityScheduler(plugin, plugin.proxyServer);
+    public MineAdsScheduler getScheduler() {
+      return new VelocityMineAdsScheduler(plugin, plugin.proxyServer);
     }
 
     @Override

@@ -17,18 +17,18 @@
  */
 package gg.mineads.monitor.bungee.scheduler;
 
-import gg.mineads.monitor.shared.scheduler.Scheduler;
+import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.scheduler.TaskScheduler;
 
 import java.util.concurrent.TimeUnit;
 
-public class BungeeScheduler implements Scheduler {
+public class BungeeMineAdsScheduler implements MineAdsScheduler {
 
   private final Plugin plugin;
   private final TaskScheduler scheduler;
 
-  public BungeeScheduler(Plugin plugin) {
+  public BungeeMineAdsScheduler(Plugin plugin) {
     this.plugin = plugin;
     this.scheduler = plugin.getProxy().getScheduler();
   }

@@ -20,13 +20,13 @@ package gg.mineads.monitor.bukkit;
 import com.tcoded.folialib.FoliaLib;
 import gg.mineads.monitor.bukkit.command.BukkitCommandManager;
 import gg.mineads.monitor.bukkit.listener.PlayerListener;
-import gg.mineads.monitor.bukkit.scheduler.BukkitScheduler;
+import gg.mineads.monitor.bukkit.scheduler.BukkitMineAdsScheduler;
 import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.event.EventCollector;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
-import gg.mineads.monitor.shared.scheduler.Scheduler;
+import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import lombok.Getter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.luckperms.api.LuckPerms;
@@ -82,8 +82,8 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
     }
 
     @Override
-    public Scheduler getScheduler() {
-      return new BukkitScheduler(foliaLib);
+    public MineAdsScheduler getScheduler() {
+      return new BukkitMineAdsScheduler(foliaLib);
     }
 
     @Override

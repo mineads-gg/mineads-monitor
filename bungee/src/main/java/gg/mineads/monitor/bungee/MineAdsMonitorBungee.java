@@ -19,13 +19,13 @@ package gg.mineads.monitor.bungee;
 
 import gg.mineads.monitor.bungee.command.BungeeCommandManager;
 import gg.mineads.monitor.bungee.listener.PlayerListener;
-import gg.mineads.monitor.bungee.scheduler.BungeeScheduler;
+import gg.mineads.monitor.bungee.scheduler.BungeeMineAdsScheduler;
 import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.event.EventCollector;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
-import gg.mineads.monitor.shared.scheduler.Scheduler;
+import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import lombok.Getter;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.luckperms.api.LuckPermsProvider;
@@ -76,8 +76,8 @@ public class MineAdsMonitorBungee extends Plugin {
     }
 
     @Override
-    public Scheduler getScheduler() {
-      return new BungeeScheduler(plugin);
+    public MineAdsScheduler getScheduler() {
+      return new BungeeMineAdsScheduler(plugin);
     }
 
     @Override

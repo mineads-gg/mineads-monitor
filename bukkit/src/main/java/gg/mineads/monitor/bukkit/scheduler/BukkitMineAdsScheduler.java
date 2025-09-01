@@ -15,29 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package gg.mineads.monitor.velocity.scheduler;
+package gg.mineads.monitor.bukkit.scheduler;
 
-import com.velocitypowered.api.proxy.ProxyServer;
-import com.velocitypowered.api.scheduler.Scheduler;
-import gg.mineads.monitor.velocity.MineAdsMonitorVelocity;
+import com.tcoded.folialib.FoliaLib;
+import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 
 import java.util.concurrent.TimeUnit;
 
-public class VelocityScheduler implements gg.mineads.monitor.shared.scheduler.Scheduler {
+public class BukkitMineAdsScheduler implements MineAdsScheduler {
 
-  private final MineAdsMonitorVelocity plugin;
-  private final Scheduler scheduler;
+  private final FoliaLib foliaLib;
 
-  public VelocityScheduler(MineAdsMonitorVelocity plugin, ProxyServer proxyServer) {
-    this.plugin = plugin;
-    this.scheduler = proxyServer.getScheduler();
+  public BukkitMineAdsScheduler(FoliaLib foliaLib) {
+    this.foliaLib = foliaLib;
   }
 
   @Override
   public void scheduleAsync(Runnable task, long delay, long period, TimeUnit timeUnit) {
-    scheduler.buildTask(plugin, task)
-      .delay(delay, timeUnit)
-      .repeat(period, timeUnit)
-      .schedule();
+    foliaLib.getScheduler().runTimerAsync(task, delay, period, timeUnit);
   }
 }

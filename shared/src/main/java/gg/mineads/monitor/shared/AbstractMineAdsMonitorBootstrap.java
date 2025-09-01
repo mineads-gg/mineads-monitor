@@ -22,7 +22,7 @@ import gg.mineads.monitor.data.BuildData;
 import gg.mineads.monitor.shared.batch.BatchProcessor;
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.EventCollector;
-import gg.mineads.monitor.shared.scheduler.Scheduler;
+import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import lombok.Getter;
 
 import java.net.URI;
@@ -82,7 +82,7 @@ public abstract class AbstractMineAdsMonitorBootstrap implements PlatformBootstr
       });
   }
 
-  public abstract Scheduler getScheduler();
+  public abstract MineAdsScheduler getScheduler();
 
   public abstract Path getDataFolder();
 
