@@ -15,6 +15,7 @@ dependencies {
 
   implementation("org.incendo:cloud-core:2.0.0")
   implementation("org.incendo:cloud-annotations:2.0.0")
+  annotationProcessor("org.incendo:cloud-annotations:2.0.0")
 
   implementation("net.kyori:adventure-api:4.24.0")
   implementation("net.kyori:adventure-text-serializer-legacy:4.24.0")
