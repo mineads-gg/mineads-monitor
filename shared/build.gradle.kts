@@ -8,6 +8,7 @@ dependencies {
   implementation(projects.mineadsmonitorBuildData)
 
   compileOnly("net.luckperms:api:5.5")
+  testImplementation("net.luckperms:api:5.5")
 
   implementation("de.exlll:configlib-yaml:4.6.1")
   implementation("org.msgpack:msgpack-core:0.9.10")
