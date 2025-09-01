@@ -20,9 +20,8 @@ package gg.mineads.monitor.shared.event.model;
 import lombok.Data;
 
 @Data
-public class PlayerChatEvent {
+public class MineAdsPlayerLeaveEvent {
 
   private final long time = System.currentTimeMillis();
-  private final String message;
 
 }

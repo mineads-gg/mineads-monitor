@@ -20,14 +20,9 @@ package gg.mineads.monitor.shared.event.model;
 import lombok.Data;
 
 @Data
-public class PlayerJoinEvent {
+public class MineAdsPlayerChatEvent {
 
   private final long time = System.currentTimeMillis();
-  private final String locale;
-  private final String ip;
-  private final String clientBrand;
-  private final String minecraftVersion;
-  private final boolean onlineMode;
-  private final String luckPermsRank;
+  private final String message;
 
 }

@@ -28,11 +28,13 @@ import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.event.EventCollector;
+import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.Scheduler;
 import gg.mineads.monitor.velocity.command.VelocityCommandManager;
 import gg.mineads.monitor.velocity.listener.PlayerListener;
 import gg.mineads.monitor.velocity.scheduler.VelocityScheduler;
 import lombok.Getter;
+import net.luckperms.api.LuckPermsProvider;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
 
@@ -61,9 +63,9 @@ public class MineAdsMonitorVelocity {
   @Subscribe
   public void onProxyInitialization(ProxyInitializeEvent event) {
     // Initialize LuckPerms utility if available
-    gg.mineads.monitor.shared.permission.LuckPermsUtil.initialize(() -> {
+    LuckPermsUtil.initialize(() -> {
       try {
-        return net.luckperms.api.LuckPermsProvider.get();
+        return LuckPermsProvider.get();
       } catch (Exception | NoClassDefFoundError e) {
         return null;
       }

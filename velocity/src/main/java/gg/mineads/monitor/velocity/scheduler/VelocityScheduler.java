@@ -18,15 +18,15 @@
 package gg.mineads.monitor.velocity.scheduler;
 
 import com.velocitypowered.api.proxy.ProxyServer;
-import gg.mineads.monitor.shared.scheduler.Scheduler;
+import com.velocitypowered.api.scheduler.Scheduler;
 import gg.mineads.monitor.velocity.MineAdsMonitorVelocity;
 
 import java.util.concurrent.TimeUnit;
 
-public class VelocityScheduler implements Scheduler {
+public class VelocityScheduler implements gg.mineads.monitor.shared.scheduler.Scheduler {
 
   private final MineAdsMonitorVelocity plugin;
-  private final com.velocitypowered.api.scheduler.Scheduler scheduler;
+  private final Scheduler scheduler;
 
   public VelocityScheduler(MineAdsMonitorVelocity plugin, ProxyServer proxyServer) {
     this.plugin = plugin;

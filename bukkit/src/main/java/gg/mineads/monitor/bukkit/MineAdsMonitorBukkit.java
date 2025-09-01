@@ -25,9 +25,11 @@ import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.event.EventCollector;
+import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.Scheduler;
 import lombok.Getter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.luckperms.api.LuckPerms;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -46,10 +48,10 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
   @Override
   public void onEnable() {
     // Initialize LuckPerms utility if available
-    gg.mineads.monitor.shared.permission.LuckPermsUtil.initialize(() -> {
+    LuckPermsUtil.initialize(() -> {
       try {
-        RegisteredServiceProvider<net.luckperms.api.LuckPerms> provider =
-          getServer().getServicesManager().getRegistration(net.luckperms.api.LuckPerms.class);
+        RegisteredServiceProvider<LuckPerms> provider =
+          getServer().getServicesManager().getRegistration(LuckPerms.class);
         return provider != null ? provider.getProvider() : null;
       } catch (Exception | NoClassDefFoundError e) {
         return null;

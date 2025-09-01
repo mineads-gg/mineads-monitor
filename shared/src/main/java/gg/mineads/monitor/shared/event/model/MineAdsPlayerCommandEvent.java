@@ -20,7 +20,7 @@ package gg.mineads.monitor.shared.event.model;
 import lombok.Data;
 
 @Data
-public class PlayerCommandEvent {
+public class MineAdsPlayerCommandEvent {
 
   private final long time = System.currentTimeMillis();
   private final String command;

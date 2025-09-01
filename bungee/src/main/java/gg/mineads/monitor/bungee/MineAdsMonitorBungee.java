@@ -24,9 +24,11 @@ import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.event.EventCollector;
+import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.Scheduler;
 import lombok.Getter;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
+import net.luckperms.api.LuckPermsProvider;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.bstats.bungeecord.Metrics;
 
@@ -44,9 +46,9 @@ public class MineAdsMonitorBungee extends Plugin {
   @Override
   public void onEnable() {
     // Initialize LuckPerms utility if available
-    gg.mineads.monitor.shared.permission.LuckPermsUtil.initialize(() -> {
+    LuckPermsUtil.initialize(() -> {
       try {
-        return net.luckperms.api.LuckPermsProvider.get();
+        return LuckPermsProvider.get();
       } catch (Exception | NoClassDefFoundError e) {
         return null;
       }

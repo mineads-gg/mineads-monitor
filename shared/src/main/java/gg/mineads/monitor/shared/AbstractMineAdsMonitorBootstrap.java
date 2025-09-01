@@ -23,6 +23,7 @@ import gg.mineads.monitor.shared.batch.BatchProcessor;
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.EventCollector;
 import gg.mineads.monitor.shared.scheduler.Scheduler;
+import lombok.Getter;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -35,6 +36,7 @@ public abstract class AbstractMineAdsMonitorBootstrap implements PlatformBootstr
 
   private static final String GITHUB_API_URL = "https://api.github.com/repos/mineads-gg/mineads-monitor/releases/latest";
 
+  @Getter
   private EventCollector eventCollector;
   private BatchProcessor batchProcessor;
   private Config config;
@@ -85,8 +87,4 @@ public abstract class AbstractMineAdsMonitorBootstrap implements PlatformBootstr
   public abstract Path getDataFolder();
 
   public abstract Object getOwningPlugin();
-
-  public EventCollector getEventCollector() {
-    return eventCollector;
-  }
 }

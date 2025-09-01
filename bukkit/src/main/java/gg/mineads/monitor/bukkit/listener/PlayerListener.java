@@ -18,9 +18,10 @@
 package gg.mineads.monitor.bukkit.listener;
 
 import gg.mineads.monitor.shared.event.EventCollector;
-import gg.mineads.monitor.shared.event.model.PlayerChatEvent;
-import gg.mineads.monitor.shared.event.model.PlayerCommandEvent;
-import gg.mineads.monitor.shared.event.model.PlayerLeaveEvent;
+import gg.mineads.monitor.shared.event.model.MineAdsPlayerChatEvent;
+import gg.mineads.monitor.shared.event.model.MineAdsPlayerCommandEvent;
+import gg.mineads.monitor.shared.event.model.MineAdsPlayerJoinEvent;
+import gg.mineads.monitor.shared.event.model.MineAdsPlayerLeaveEvent;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -28,6 +29,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerListener implements Listener {
@@ -39,11 +41,11 @@ public class PlayerListener implements Listener {
   }
 
   @EventHandler
-  public void onPlayerJoin(org.bukkit.event.player.PlayerJoinEvent event) {
+  public void onPlayerJoin(PlayerJoinEvent event) {
     Player player = event.getPlayer();
     String rank = LuckPermsUtil.getPrimaryGroup(player.getUniqueId());
 
-    eventCollector.addEvent(new gg.mineads.monitor.shared.event.model.PlayerJoinEvent(
+    eventCollector.addEvent(new MineAdsPlayerJoinEvent(
       player.getLocale(),
       player.getAddress().getAddress().getHostAddress(),
       "Unknown", // Client brand is not available on Bukkit
@@ -55,16 +57,16 @@ public class PlayerListener implements Listener {
 
   @EventHandler
   public void onPlayerQuit(PlayerQuitEvent event) {
-    eventCollector.addEvent(new PlayerLeaveEvent());
+    eventCollector.addEvent(new MineAdsPlayerLeaveEvent());
   }
 
   @EventHandler
   public void onPlayerChat(AsyncPlayerChatEvent event) {
-    eventCollector.addEvent(new PlayerChatEvent(event.getMessage()));
+    eventCollector.addEvent(new MineAdsPlayerChatEvent(event.getMessage()));
   }
 
   @EventHandler
   public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
-    eventCollector.addEvent(new PlayerCommandEvent(event.getMessage()));
+    eventCollector.addEvent(new MineAdsPlayerCommandEvent(event.getMessage()));
   }
 }

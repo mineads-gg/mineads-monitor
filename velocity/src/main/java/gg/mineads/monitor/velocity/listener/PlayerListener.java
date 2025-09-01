@@ -24,8 +24,10 @@ import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
 import gg.mineads.monitor.shared.event.EventCollector;
-import gg.mineads.monitor.shared.event.model.PlayerCommandEvent;
-import gg.mineads.monitor.shared.event.model.PlayerLeaveEvent;
+import gg.mineads.monitor.shared.event.model.MineAdsPlayerChatEvent;
+import gg.mineads.monitor.shared.event.model.MineAdsPlayerCommandEvent;
+import gg.mineads.monitor.shared.event.model.MineAdsPlayerJoinEvent;
+import gg.mineads.monitor.shared.event.model.MineAdsPlayerLeaveEvent;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 
 public class PlayerListener {
@@ -41,7 +43,7 @@ public class PlayerListener {
     Player player = event.getPlayer();
     String rank = LuckPermsUtil.getPrimaryGroup(player.getUniqueId());
 
-    eventCollector.addEvent(new gg.mineads.monitor.shared.event.model.PlayerJoinEvent(
+    eventCollector.addEvent(new MineAdsPlayerJoinEvent(
       player.getEffectiveLocale().toString(),
       player.getRemoteAddress().getAddress().getHostAddress(),
       player.getClientBrand(),
@@ -53,16 +55,16 @@ public class PlayerListener {
 
   @Subscribe
   public void onDisconnect(DisconnectEvent event) {
-    eventCollector.addEvent(new PlayerLeaveEvent());
+    eventCollector.addEvent(new MineAdsPlayerLeaveEvent());
   }
 
   @Subscribe
   public void onPlayerChat(PlayerChatEvent event) {
-    eventCollector.addEvent(new gg.mineads.monitor.shared.event.model.PlayerChatEvent(event.getMessage()));
+    eventCollector.addEvent(new MineAdsPlayerChatEvent(event.getMessage()));
   }
 
   @Subscribe
   public void onCommandExecute(CommandExecuteEvent event) {
-    eventCollector.addEvent(new PlayerCommandEvent(event.getCommand()));
+    eventCollector.addEvent(new MineAdsPlayerCommandEvent(event.getCommand()));
   }
 }
