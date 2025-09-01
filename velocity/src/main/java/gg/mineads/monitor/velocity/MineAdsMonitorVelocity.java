@@ -62,15 +62,6 @@ public class MineAdsMonitorVelocity {
 
   @Subscribe
   public void onProxyInitialization(ProxyInitializeEvent event) {
-    // Initialize LuckPerms utility if available
-    LuckPermsUtil.initialize(() -> {
-      try {
-        return LuckPermsProvider.get();
-      } catch (Exception | NoClassDefFoundError e) {
-        return null;
-      }
-    });
-
     this.plugin = new MineAdsMonitorPlugin(bootstrap);
     this.plugin.onEnable();
   }
@@ -124,6 +115,29 @@ public class MineAdsMonitorVelocity {
     @Override
     public void shutdownPlatform() {
       // Velocity doesn't require specific shutdown operations for metrics
+    }
+
+    @Override
+    public boolean isPluginEnabled(String pluginName) {
+      return plugin.proxyServer.getPluginManager().getPlugin(pluginName).isPresent();
+    }
+
+    @Override
+    public String getLuckPermsPlatformName() {
+      return "luckperms";
+    }
+
+    @Override
+    public void initializeLuckPerms() {
+      if (isLuckPermsEnabled()) {
+        LuckPermsUtil.initialize(() -> {
+          try {
+            return LuckPermsProvider.get();
+          } catch (Exception | NoClassDefFoundError e) {
+            return null;
+          }
+        });
+      }
     }
   }
 }

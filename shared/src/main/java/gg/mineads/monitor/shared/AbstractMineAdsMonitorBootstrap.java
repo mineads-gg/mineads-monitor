@@ -54,12 +54,16 @@ public abstract class AbstractMineAdsMonitorBootstrap implements PlatformBootstr
 
     getScheduler().scheduleAsync(batchProcessor, 10, 10, TimeUnit.SECONDS); // 10 seconds
 
+    // Initialize platform-specific services
+    initializeLuckPerms();
+
     checkForUpdates();
   }
 
   protected void shutdownCoreServices() {
     if (batchProcessor != null) {
-      batchProcessor.run();
+      batchProcessor.run(); // Process any remaining events
+      batchProcessor.shutdown();
     }
   }
 

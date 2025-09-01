@@ -28,4 +28,14 @@ public interface PlatformBootstrap {
   void initializePlatform();
 
   void shutdownPlatform();
+
+  boolean isPluginEnabled(String pluginName);
+
+  String getLuckPermsPlatformName();
+
+  default boolean isLuckPermsEnabled() {
+    return isPluginEnabled(getLuckPermsPlatformName());
+  }
+
+  void initializeLuckPerms();
 }

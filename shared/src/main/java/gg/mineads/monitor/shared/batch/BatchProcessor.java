@@ -28,60 +28,38 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class BatchProcessor implements Runnable {
 
   private static final String API_ENDPOINT = "https://ingest.mineads.gg/event";
   private static final int BATCH_SIZE_THRESHOLD = 100;
-
+  private static final int MAX_RETRY_ATTEMPTS = 3;
+  private static final long INITIAL_RETRY_DELAY_MS = 1000; // 1 second
+  private static final long MAX_RETRY_DELAY_MS = 30000; // 30 seconds
+  private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(30);
+  private static final Gson GSON = new Gson();
   private final Queue<Object> events = new ConcurrentLinkedQueue<>();
   private final String pluginKey;
   private final HttpClient httpClient;
-  private static final Gson GSON = new Gson();
+  private final ScheduledExecutorService retryExecutor;
+  private final ReentrantLock processingLock = new ReentrantLock();
+  private final AtomicBoolean isProcessing = new AtomicBoolean(false);
 
   public BatchProcessor(String pluginKey) {
     this.pluginKey = pluginKey;
-    this.httpClient = HttpClient.newHttpClient();
-  }
-
-  @Override
-  public void run() {
-    if (events.size() > 0) {
-      processQueue();
-    }
-  }
-
-  public void processIfNecessary() {
-    if (events.size() >= BATCH_SIZE_THRESHOLD) {
-      processQueue();
-    }
-  }
-
-  public void addEvent(Object event) {
-    events.add(event);
-    processIfNecessary();
-  }
-
-  public int getQueueSize() {
-    return events.size();
-  }
-
-  private void processQueue() {
-    Queue<Object> currentEvents = new ConcurrentLinkedQueue<>(events);
-    events.clear();
-    if (currentEvents.isEmpty()) {
-      return;
-    }
-
-    try {
-      byte[] messagePack = serializeToMessagePack(currentEvents);
-      sendBatch(messagePack);
-    } catch (IOException e) {
-      // Handle exception
-      e.printStackTrace();
-    }
+    this.httpClient = HttpClient.newBuilder()
+      .connectTimeout(Duration.ofSeconds(10))
+      .build();
+    this.retryExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
+      Thread t = new Thread(r, "BatchProcessor-Retry");
+      t.setDaemon(true);
+      return t;
+    });
   }
 
   private static byte[] serializeToMessagePack(Queue<Object> events) throws IOException {
@@ -136,17 +114,148 @@ public class BatchProcessor implements Runnable {
     }
   }
 
-  private void sendBatch(byte[] batch) {
+  @Override
+  public void run() {
+    if (!events.isEmpty()) {
+      processQueueAsync();
+    }
+  }
+
+  private void processQueueAsync() {
+    if (!processingLock.tryLock()) {
+      // Another thread is already processing
+      return;
+    }
+
+    try {
+      if (isProcessing.getAndSet(true)) {
+        // Already processing
+        return;
+      }
+
+      // Process in background to avoid blocking
+      CompletableFuture.runAsync(this::processQueueSafely)
+        .whenComplete((result, throwable) -> {
+          isProcessing.set(false);
+          if (throwable != null) {
+            // Log error but don't rethrow to avoid crashing the executor
+            System.err.println("Error processing batch: " + throwable.getMessage());
+          }
+        });
+    } finally {
+      processingLock.unlock();
+    }
+  }
+
+  public void processIfNecessary() {
+    if (events.size() >= BATCH_SIZE_THRESHOLD && !isProcessing.get()) {
+      processQueueAsync();
+    }
+  }
+
+  public void addEvent(Object event) {
+    events.add(event);
+    processIfNecessary();
+  }
+
+  public int getQueueSize() {
+    return events.size();
+  }
+
+  public void shutdown() {
+    retryExecutor.shutdown();
+    try {
+      if (!retryExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+        retryExecutor.shutdownNow();
+      }
+    } catch (InterruptedException e) {
+      retryExecutor.shutdownNow();
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  private void processQueueSafely() {
+    Queue<Object> currentEvents = new ConcurrentLinkedQueue<>();
+    int drained = 0;
+
+    // Drain events safely
+    while (!events.isEmpty() && drained < BATCH_SIZE_THRESHOLD) {
+      Object event = events.poll();
+      if (event != null) {
+        currentEvents.add(event);
+        drained++;
+      }
+    }
+
+    if (currentEvents.isEmpty()) {
+      return;
+    }
+
+    try {
+      byte[] messagePack = serializeToMessagePack(currentEvents);
+      sendBatchWithRetry(messagePack, 0);
+    } catch (Exception e) {
+      System.err.println("Failed to process batch: " + e.getMessage());
+      // Re-queue events on failure
+      events.addAll(currentEvents);
+    }
+  }
+
+  private void sendBatchWithRetry(byte[] batch, int attempt) {
     HttpRequest request = HttpRequest.newBuilder()
       .uri(URI.create(API_ENDPOINT))
       .header("X-API-KEY", pluginKey)
       .header("Content-Type", "application/msgpack")
+      .timeout(REQUEST_TIMEOUT)
       .PUT(HttpRequest.BodyPublishers.ofByteArray(batch))
       .build();
 
     httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-      .thenAccept(response -> {
-        // Handle response
+      .thenAccept(response -> handleResponse(response, batch, attempt))
+      .exceptionally(throwable -> {
+        handleSendError(throwable, batch, attempt);
+        return null;
       });
+  }
+
+  private void handleResponse(HttpResponse<String> response, byte[] batch, int attempt) {
+    int statusCode = response.statusCode();
+
+    if (statusCode >= 200 && statusCode < 300) {
+      // Success
+      System.out.println("Successfully sent batch of " + batch.length + " bytes");
+    } else if (shouldRetry(statusCode) && attempt < MAX_RETRY_ATTEMPTS) {
+      // Retry on server errors or rate limiting
+      long delayMs = calculateRetryDelay(attempt);
+      System.err.println("Batch send failed with status " + statusCode + ", retrying in " + delayMs + "ms (attempt " + (attempt + 1) + ")");
+      retryExecutor.schedule(() -> sendBatchWithRetry(batch, attempt + 1), delayMs, TimeUnit.MILLISECONDS);
+    } else {
+      // Final failure
+      System.err.println("Batch send failed with status " + statusCode + " after " + (attempt + 1) + " attempts");
+    }
+  }
+
+  private void handleSendError(Throwable throwable, byte[] batch, int attempt) {
+    if (shouldRetryOnException(throwable) && attempt < MAX_RETRY_ATTEMPTS) {
+      long delayMs = calculateRetryDelay(attempt);
+      System.err.println("Batch send failed with exception: " + throwable.getMessage() + ", retrying in " + delayMs + "ms (attempt " + (attempt + 1) + ")");
+      retryExecutor.schedule(() -> sendBatchWithRetry(batch, attempt + 1), delayMs, TimeUnit.MILLISECONDS);
+    } else {
+      System.err.println("Batch send failed after " + (attempt + 1) + " attempts: " + throwable.getMessage());
+    }
+  }
+
+  private boolean shouldRetry(int statusCode) {
+    return statusCode == 429 || // Too Many Requests
+      statusCode >= 500;   // Server errors
+  }
+
+  private boolean shouldRetryOnException(Throwable throwable) {
+    return throwable instanceof IOException;
+  }
+
+  private long calculateRetryDelay(int attempt) {
+    long delay = INITIAL_RETRY_DELAY_MS * (1L << attempt); // Exponential backoff
+    return Math.min(delay, MAX_RETRY_DELAY_MS);
   }
 }

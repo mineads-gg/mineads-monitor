@@ -45,15 +45,6 @@ public class MineAdsMonitorBungee extends Plugin {
 
   @Override
   public void onEnable() {
-    // Initialize LuckPerms utility if available
-    LuckPermsUtil.initialize(() -> {
-      try {
-        return LuckPermsProvider.get();
-      } catch (Exception | NoClassDefFoundError e) {
-        return null;
-      }
-    });
-
     this.plugin = new MineAdsMonitorPlugin(bootstrap);
     this.plugin.onEnable();
   }
@@ -111,6 +102,29 @@ public class MineAdsMonitorBungee extends Plugin {
       if (this.adventure != null) {
         this.adventure.close();
         this.adventure = null;
+      }
+    }
+
+    @Override
+    public boolean isPluginEnabled(String pluginName) {
+      return plugin.getProxy().getPluginManager().getPlugin(pluginName) != null;
+    }
+
+    @Override
+    public String getLuckPermsPlatformName() {
+      return "LuckPerms";
+    }
+
+    @Override
+    public void initializeLuckPerms() {
+      if (isLuckPermsEnabled()) {
+        LuckPermsUtil.initialize(() -> {
+          try {
+            return LuckPermsProvider.get();
+          } catch (Exception | NoClassDefFoundError e) {
+            return null;
+          }
+        });
       }
     }
   }
