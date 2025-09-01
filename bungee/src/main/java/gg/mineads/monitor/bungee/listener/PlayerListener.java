@@ -17,7 +17,7 @@
  */
 package gg.mineads.monitor.bungee.listener;
 
-import gg.mineads.monitor.shared.event.EventCollector;
+import gg.mineads.monitor.shared.batch.BatchProcessor;
 import gg.mineads.monitor.shared.event.model.MineAdsPlayerChatEvent;
 import gg.mineads.monitor.shared.event.model.MineAdsPlayerCommandEvent;
 import gg.mineads.monitor.shared.event.model.MineAdsPlayerJoinEvent;
@@ -32,10 +32,10 @@ import net.md_5.bungee.event.EventHandler;
 
 public class PlayerListener implements Listener {
 
-  private final EventCollector eventCollector;
+  private final BatchProcessor batchProcessor;
 
-  public PlayerListener(EventCollector eventCollector) {
-    this.eventCollector = eventCollector;
+  public PlayerListener(BatchProcessor batchProcessor) {
+    this.batchProcessor = batchProcessor;
   }
 
   @EventHandler
@@ -43,7 +43,7 @@ public class PlayerListener implements Listener {
     ProxiedPlayer player = event.getPlayer();
     String rank = LuckPermsUtil.getPrimaryGroup(player.getUniqueId());
 
-    eventCollector.addEvent(new MineAdsPlayerJoinEvent(
+    batchProcessor.addEvent(new MineAdsPlayerJoinEvent(
       player.getLocale().toString(),
       player.getAddress().getAddress().getHostAddress(),
       "Unknown",
@@ -55,15 +55,15 @@ public class PlayerListener implements Listener {
 
   @EventHandler
   public void onPlayerDisconnect(PlayerDisconnectEvent event) {
-    eventCollector.addEvent(new MineAdsPlayerLeaveEvent());
+    batchProcessor.addEvent(new MineAdsPlayerLeaveEvent());
   }
 
   @EventHandler
   public void onChat(ChatEvent event) {
     if (event.isCommand() || event.isProxyCommand()) {
-      eventCollector.addEvent(new MineAdsPlayerCommandEvent(event.getMessage()));
+      batchProcessor.addEvent(new MineAdsPlayerCommandEvent(event.getMessage()));
     } else {
-      eventCollector.addEvent(new MineAdsPlayerChatEvent(event.getMessage()));
+      batchProcessor.addEvent(new MineAdsPlayerChatEvent(event.getMessage()));
     }
   }
 }

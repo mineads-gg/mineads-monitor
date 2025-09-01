@@ -21,7 +21,6 @@ import de.exlll.configlib.YamlConfigurations;
 import gg.mineads.monitor.data.BuildData;
 import gg.mineads.monitor.shared.batch.BatchProcessor;
 import gg.mineads.monitor.shared.config.Config;
-import gg.mineads.monitor.shared.event.EventCollector;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import lombok.Getter;
 
@@ -37,7 +36,6 @@ public abstract class AbstractMineAdsMonitorBootstrap implements PlatformBootstr
   private static final String GITHUB_API_URL = "https://api.github.com/repos/mineads-gg/mineads-monitor/releases/latest";
 
   @Getter
-  private EventCollector eventCollector;
   private BatchProcessor batchProcessor;
   private Config config;
 
@@ -52,8 +50,7 @@ public abstract class AbstractMineAdsMonitorBootstrap implements PlatformBootstr
       return;
     }
 
-    eventCollector = new EventCollector();
-    batchProcessor = new BatchProcessor(eventCollector, config.getPluginKey());
+    batchProcessor = new BatchProcessor(config.getPluginKey());
 
     getScheduler().scheduleAsync(batchProcessor, 10, 10, TimeUnit.SECONDS); // 10 seconds
 

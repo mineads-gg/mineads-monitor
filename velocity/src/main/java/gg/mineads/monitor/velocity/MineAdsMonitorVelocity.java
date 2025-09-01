@@ -26,8 +26,8 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
+import gg.mineads.monitor.shared.batch.BatchProcessor;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
-import gg.mineads.monitor.shared.event.EventCollector;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import gg.mineads.monitor.velocity.command.VelocityCommandManager;
@@ -112,8 +112,8 @@ public class MineAdsMonitorVelocity {
     }
 
     @Override
-    public void registerListeners(EventCollector eventCollector) {
-      plugin.proxyServer.getEventManager().register(plugin, new PlayerListener(eventCollector));
+    public void registerListeners(BatchProcessor batchProcessor) {
+      plugin.proxyServer.getEventManager().register(plugin, new PlayerListener(batchProcessor));
     }
 
     @Override

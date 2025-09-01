@@ -17,7 +17,7 @@
  */
 package gg.mineads.monitor.bukkit.listener;
 
-import gg.mineads.monitor.shared.event.EventCollector;
+import gg.mineads.monitor.shared.batch.BatchProcessor;
 import gg.mineads.monitor.shared.event.model.MineAdsPlayerChatEvent;
 import gg.mineads.monitor.shared.event.model.MineAdsPlayerCommandEvent;
 import gg.mineads.monitor.shared.event.model.MineAdsPlayerJoinEvent;
@@ -34,10 +34,10 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerListener implements Listener {
 
-  private final EventCollector eventCollector;
+  private final BatchProcessor batchProcessor;
 
-  public PlayerListener(EventCollector eventCollector) {
-    this.eventCollector = eventCollector;
+  public PlayerListener(BatchProcessor batchProcessor) {
+    this.batchProcessor = batchProcessor;
   }
 
   @EventHandler
@@ -45,7 +45,7 @@ public class PlayerListener implements Listener {
     Player player = event.getPlayer();
     String rank = LuckPermsUtil.getPrimaryGroup(player.getUniqueId());
 
-    eventCollector.addEvent(new MineAdsPlayerJoinEvent(
+    batchProcessor.addEvent(new MineAdsPlayerJoinEvent(
       player.getLocale(),
       player.getAddress().getAddress().getHostAddress(),
       "Unknown", // Client brand is not available on Bukkit
@@ -57,16 +57,16 @@ public class PlayerListener implements Listener {
 
   @EventHandler
   public void onPlayerQuit(PlayerQuitEvent event) {
-    eventCollector.addEvent(new MineAdsPlayerLeaveEvent());
+    batchProcessor.addEvent(new MineAdsPlayerLeaveEvent());
   }
 
   @EventHandler
   public void onPlayerChat(AsyncPlayerChatEvent event) {
-    eventCollector.addEvent(new MineAdsPlayerChatEvent(event.getMessage()));
+    batchProcessor.addEvent(new MineAdsPlayerChatEvent(event.getMessage()));
   }
 
   @EventHandler
   public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
-    eventCollector.addEvent(new MineAdsPlayerCommandEvent(event.getMessage()));
+    batchProcessor.addEvent(new MineAdsPlayerCommandEvent(event.getMessage()));
   }
 }

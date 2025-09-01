@@ -17,15 +17,15 @@
  */
 package gg.mineads.monitor.shared;
 
+import gg.mineads.monitor.shared.batch.BatchProcessor;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
-import gg.mineads.monitor.shared.event.EventCollector;
 import lombok.Getter;
 
 public class MineAdsMonitorPlugin {
 
   private final AbstractMineAdsMonitorBootstrap bootstrap;
   @Getter
-  private EventCollector eventCollector;
+  private BatchProcessor batchProcessor;
   private MineAdsCommandManager<?> commandManager;
 
   public MineAdsMonitorPlugin(AbstractMineAdsMonitorBootstrap bootstrap) {
@@ -42,16 +42,16 @@ public class MineAdsMonitorPlugin {
     // Initialize core services
     bootstrap.initializeCoreServices();
 
-    // Get the event collector after initialization
-    this.eventCollector = bootstrap.getEventCollector();
+    // Get the batch processor after initialization
+    this.batchProcessor = bootstrap.getBatchProcessor();
 
     // Create and register commands
     this.commandManager = bootstrap.createCommandManager();
     this.commandManager.registerCommands();
 
     // Register platform-specific listeners
-    if (this.eventCollector != null) {
-      bootstrap.registerListeners(this.eventCollector);
+    if (this.batchProcessor != null) {
+      bootstrap.registerListeners(this.batchProcessor);
     }
   }
 

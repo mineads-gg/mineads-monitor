@@ -17,13 +17,13 @@
  */
 package gg.mineads.monitor.shared;
 
+import gg.mineads.monitor.shared.batch.BatchProcessor;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
-import gg.mineads.monitor.shared.event.EventCollector;
 
 public interface PlatformBootstrap {
   MineAdsCommandManager<?> createCommandManager();
 
-  void registerListeners(EventCollector eventCollector);
+  void registerListeners(BatchProcessor batchProcessor);
 
   void initializePlatform();
 

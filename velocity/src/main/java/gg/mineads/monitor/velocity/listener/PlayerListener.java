@@ -23,7 +23,7 @@ import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
-import gg.mineads.monitor.shared.event.EventCollector;
+import gg.mineads.monitor.shared.batch.BatchProcessor;
 import gg.mineads.monitor.shared.event.model.MineAdsPlayerChatEvent;
 import gg.mineads.monitor.shared.event.model.MineAdsPlayerCommandEvent;
 import gg.mineads.monitor.shared.event.model.MineAdsPlayerJoinEvent;
@@ -32,10 +32,10 @@ import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 
 public class PlayerListener {
 
-  private final EventCollector eventCollector;
+  private final BatchProcessor batchProcessor;
 
-  public PlayerListener(EventCollector eventCollector) {
-    this.eventCollector = eventCollector;
+  public PlayerListener(BatchProcessor batchProcessor) {
+    this.batchProcessor = batchProcessor;
   }
 
   @Subscribe
@@ -43,7 +43,7 @@ public class PlayerListener {
     Player player = event.getPlayer();
     String rank = LuckPermsUtil.getPrimaryGroup(player.getUniqueId());
 
-    eventCollector.addEvent(new MineAdsPlayerJoinEvent(
+    batchProcessor.addEvent(new MineAdsPlayerJoinEvent(
       player.getEffectiveLocale().toString(),
       player.getRemoteAddress().getAddress().getHostAddress(),
       player.getClientBrand(),
@@ -55,16 +55,16 @@ public class PlayerListener {
 
   @Subscribe
   public void onDisconnect(DisconnectEvent event) {
-    eventCollector.addEvent(new MineAdsPlayerLeaveEvent());
+    batchProcessor.addEvent(new MineAdsPlayerLeaveEvent());
   }
 
   @Subscribe
   public void onPlayerChat(PlayerChatEvent event) {
-    eventCollector.addEvent(new MineAdsPlayerChatEvent(event.getMessage()));
+    batchProcessor.addEvent(new MineAdsPlayerChatEvent(event.getMessage()));
   }
 
   @Subscribe
   public void onCommandExecute(CommandExecuteEvent event) {
-    eventCollector.addEvent(new MineAdsPlayerCommandEvent(event.getCommand()));
+    batchProcessor.addEvent(new MineAdsPlayerCommandEvent(event.getCommand()));
   }
 }
