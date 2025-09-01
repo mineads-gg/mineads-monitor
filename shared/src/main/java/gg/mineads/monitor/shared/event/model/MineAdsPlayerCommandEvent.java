@@ -22,8 +22,12 @@ import lombok.Data;
 @Data
 public class MineAdsPlayerCommandEvent {
 
-  private final long time = System.currentTimeMillis();
-  private final String sessionId;
-  private final String command;
+  private final MineAdsEvent event;
+
+  // Convenience constructor
+  public MineAdsPlayerCommandEvent(String sessionId, String command) {
+    PlayerCommandData data = new PlayerCommandData(sessionId, command);
+    this.event = new MineAdsEvent("command", data);
+  }
 
 }

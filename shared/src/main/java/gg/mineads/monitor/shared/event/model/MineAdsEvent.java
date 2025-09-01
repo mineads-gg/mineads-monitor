@@ -20,17 +20,8 @@ package gg.mineads.monitor.shared.event.model;
 import lombok.Data;
 
 @Data
-public class MineAdsPlayerJoinEvent {
-
-  private final MineAdsEvent event;
-
-  // Convenience constructor
-  public MineAdsPlayerJoinEvent(String sessionId, String locale, String ip,
-                                String clientBrand, String minecraftVersion,
-                                boolean onlineMode, String luckPermsRank) {
-    PlayerJoinData data = new PlayerJoinData(sessionId, locale, ip, clientBrand,
-      minecraftVersion, onlineMode, luckPermsRank);
-    this.event = new MineAdsEvent("join", data);
-  }
-
+public class MineAdsEvent {
+  private final String eventType; // "purchase", "chat", "command", "join", "leave"
+  private final long time = System.currentTimeMillis();
+  private final Object data; // Event-specific data
 }

@@ -22,7 +22,12 @@ import lombok.Data;
 @Data
 public class MineAdsPlayerLeaveEvent {
 
-  private final long time = System.currentTimeMillis();
-  private final String sessionId;
+  private final MineAdsEvent event;
+
+  // Convenience constructor
+  public MineAdsPlayerLeaveEvent(String sessionId) {
+    PlayerLeaveData data = new PlayerLeaveData(sessionId);
+    this.event = new MineAdsEvent("leave", data);
+  }
 
 }

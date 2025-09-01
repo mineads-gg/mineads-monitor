@@ -20,7 +20,9 @@ package gg.mineads.monitor.shared.command;
 import gg.mineads.monitor.data.BuildData;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
+import gg.mineads.monitor.shared.event.model.CraftingStorePurchaseData;
 import gg.mineads.monitor.shared.event.model.MineAdsPurchaseEvent;
+import gg.mineads.monitor.shared.event.model.TebexPurchaseData;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -64,17 +66,15 @@ public class MineAdsCommand {
     @Argument(value = "purchaserUuid") @Nullable final String purchaserUuid,
     @Argument(value = "purchaseQuantity") @Nullable final String purchaseQuantity
   ) {
-    // Create purchase event with Tebex-specific details
-    MineAdsPurchaseEvent purchaseEvent = new MineAdsPurchaseEvent(
-      id, username, "", "", "", "", transaction,
-      server != null ? server : "", price, "", currency,
-      date != null ? date : "", email != null ? email : "", ip != null ? ip : "",
-      packageId != null ? packageId : "", packageName, "",
-      "", packagePrice != null ? packagePrice : "", packageExpiry != null ? packageExpiry : "",
-      purchaserName != null ? purchaserName : "", purchaserUuid != null ? purchaserUuid : "",
-      purchaseQuantity != null ? purchaseQuantity : "", "", "", "",
-      "", ""
+    // Create Tebex-specific data
+    TebexPurchaseData tebexData = new TebexPurchaseData(
+      id, username, transaction, price, currency, packageName,
+      server, date, email, ip, packageId, packagePrice, packageExpiry,
+      purchaserName, purchaserUuid, purchaseQuantity
     );
+
+    // Create purchase event with type discriminator
+    MineAdsPurchaseEvent purchaseEvent = new MineAdsPurchaseEvent("tebex", tebexData);
 
     // Add event to batch processor
     if (plugin.getBatchProcessor() != null) {
@@ -102,16 +102,15 @@ public class MineAdsCommand {
     @Argument(value = "discord_id") @Nullable final String discordId,
     @Argument(value = "discord_name") @Nullable final String discordName
   ) {
-    // Create purchase event with CraftingStore-specific details
-    MineAdsPurchaseEvent purchaseEvent = new MineAdsPurchaseEvent(
-      uuid, player, player, "", uuid, uuidDashed != null ? uuidDashed : "",
-      transactionId != null ? transactionId : "", "", "", cost, "",
-      "", "", "", "", packageName,
-      ingamePackageName != null ? ingamePackageName : "", packages != null ? packages : "", "", "",
-      "", "", "", amount != null ? amount : "",
-      steamId != null ? steamId : "", transactionId != null ? transactionId : "",
-      discordId != null ? discordId : "", discordName != null ? discordName : ""
+    // Create CraftingStore-specific data
+    CraftingStorePurchaseData craftingStoreData = new CraftingStorePurchaseData(
+      player, uuid, packageName, cost,
+      uuidDashed, packages, ingamePackageName, steamId, amount,
+      transactionId, discordId, discordName
     );
+
+    // Create purchase event with type discriminator
+    MineAdsPurchaseEvent purchaseEvent = new MineAdsPurchaseEvent("craftingstore", craftingStoreData);
 
     // Add event to batch processor
     if (plugin.getBatchProcessor() != null) {

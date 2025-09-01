@@ -22,34 +22,18 @@ import lombok.Data;
 @Data
 public class MineAdsPurchaseEvent {
 
-  private final long time = System.currentTimeMillis();
-  private final String id; // Game-specific primary ID (Steam64, Xbox XUID, UUID, etc.)
-  private final String username; // Username used during login or purchase
-  private final String player; // For CraftingStore, username (alphanumeric)
-  private final String playerUnsafe; // Raw player name for CraftingStore
-  private final String uuid; // UUID or SteamID
-  private final String uuidDashed; // Dashed UUID
-  private final String transaction; // Unique transaction ID
-  private final String server; // Server name
-  private final String price; // Purchase amount
-  private final String cost; // Price paid (CraftingStore)
-  private final String currency; // Currency used
-  private final String date; // Date of purchase
-  private final String email; // Customer's email
-  private final String ip; // Customer's IP
-  private final String packageId; // Package identifier
-  private final String packageName; // Package name
-  private final String ingamePackageName; // Formatted package name (CraftingStore)
-  private final String packages; // Comma separated list of packages (CraftingStore)
-  private final String packagePrice; // Price of package
-  private final String packageExpiry; // Expiration period
-  private final String purchaserName; // For gift givers
-  private final String purchaserUuid; // For gift givers
-  private final String purchaseQuantity; // Quantity of items purchased
-  private final String amount; // Quantity selected (CraftingStore)
-  private final String steamId; // Steam ID
-  private final String transactionId; // Transaction ID (CraftingStore)
-  private final String discordId; // Discord user ID
-  private final String discordName; // Discord user name
+  private final MineAdsEvent event;
+
+  // Convenience constructor for Tebex
+  public MineAdsPurchaseEvent(String type, Object data) {
+    this.event = new MineAdsEvent("purchase", new PurchaseWrapper(type, data));
+  }
+
+  // Inner wrapper class for purchase data
+  @Data
+  public static class PurchaseWrapper {
+    private final String type; // "tebex" or "craftingstore"
+    private final Object data; // TebexPurchaseData or CraftingStorePurchaseData
+  }
 
 }

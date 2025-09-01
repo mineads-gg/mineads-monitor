@@ -22,8 +22,12 @@ import lombok.Data;
 @Data
 public class MineAdsPlayerChatEvent {
 
-  private final long time = System.currentTimeMillis();
-  private final String sessionId;
-  private final String message;
+  private final MineAdsEvent event;
+
+  // Convenience constructor
+  public MineAdsPlayerChatEvent(String sessionId, String message) {
+    PlayerChatData data = new PlayerChatData(sessionId, message);
+    this.event = new MineAdsEvent("chat", data);
+  }
 
 }
