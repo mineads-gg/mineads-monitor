@@ -19,8 +19,7 @@ package gg.mineads.monitor.bungee.listener;
 
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.BatchProcessor;
-import gg.mineads.monitor.shared.event.model.EventType;
-import gg.mineads.monitor.shared.event.model.MineAdsEvent;
+import gg.mineads.monitor.shared.event.model.*;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -52,7 +51,7 @@ public class PlayerListener implements Listener {
     UUID sessionId = PlayerSessionManager.createSession(player.getUniqueId());
     String rank = LuckPermsUtil.getPrimaryGroup(player.getUniqueId());
 
-    batchProcessor.addEvent(MineAdsEvent.playerJoin(
+    PlayerJoinData data = new PlayerJoinData(
       sessionId,
       player.getLocale() != null ? player.getLocale().toString() : "en_US",
       player.getAddress() != null && player.getAddress().getAddress() != null
@@ -61,7 +60,8 @@ public class PlayerListener implements Listener {
       String.valueOf(player.getPendingConnection().getVersion()),
       player.getPendingConnection().isOnlineMode(),
       rank
-    ));
+    );
+    batchProcessor.addEvent(MineAdsEvent.from(data));
   }
 
   @EventHandler
@@ -73,7 +73,7 @@ public class PlayerListener implements Listener {
     ProxiedPlayer player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.removeSession(player.getUniqueId());
     if (sessionId != null) {
-      batchProcessor.addEvent(MineAdsEvent.playerLeave(sessionId));
+      batchProcessor.addEvent(MineAdsEvent.from(new PlayerLeaveData(sessionId)));
     }
   }
 
@@ -90,11 +90,11 @@ public class PlayerListener implements Listener {
 
     if (event.isCommand() || event.isProxyCommand()) {
       if (isEventEnabled(EventType.COMMAND)) {
-        batchProcessor.addEvent(MineAdsEvent.playerCommand(sessionId, event.getMessage()));
+        batchProcessor.addEvent(MineAdsEvent.from(new PlayerCommandData(sessionId, event.getMessage())));
       }
     } else {
       if (isEventEnabled(EventType.CHAT)) {
-        batchProcessor.addEvent(MineAdsEvent.playerChat(sessionId, event.getMessage()));
+        batchProcessor.addEvent(MineAdsEvent.from(new PlayerChatData(sessionId, event.getMessage())));
       }
     }
   }

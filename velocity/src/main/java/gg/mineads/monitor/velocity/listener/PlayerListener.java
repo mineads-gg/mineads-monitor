@@ -25,8 +25,7 @@ import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.BatchProcessor;
-import gg.mineads.monitor.shared.event.model.EventType;
-import gg.mineads.monitor.shared.event.model.MineAdsEvent;
+import gg.mineads.monitor.shared.event.model.*;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
 
@@ -52,7 +51,7 @@ public class PlayerListener {
     UUID sessionId = PlayerSessionManager.createSession(player.getUniqueId());
     String rank = LuckPermsUtil.getPrimaryGroup(player.getUniqueId());
 
-    batchProcessor.addEvent(MineAdsEvent.playerJoin(
+    PlayerJoinData data = new PlayerJoinData(
       sessionId,
       player.getEffectiveLocale() != null ? player.getEffectiveLocale().toString() : "en_US",
       player.getRemoteAddress() != null && player.getRemoteAddress().getAddress() != null
@@ -61,7 +60,8 @@ public class PlayerListener {
       String.valueOf(player.getProtocolVersion().getProtocol()),
       player.isOnlineMode(),
       rank
-    ));
+    );
+    batchProcessor.addEvent(MineAdsEvent.from(data));
   }
 
   @Subscribe
@@ -73,7 +73,7 @@ public class PlayerListener {
     Player player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.removeSession(player.getUniqueId());
     if (sessionId != null) {
-      batchProcessor.addEvent(MineAdsEvent.playerLeave(sessionId));
+      batchProcessor.addEvent(MineAdsEvent.from(new PlayerLeaveData(sessionId)));
     }
   }
 
@@ -86,7 +86,7 @@ public class PlayerListener {
     Player player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
     if (sessionId != null) {
-      batchProcessor.addEvent(MineAdsEvent.playerChat(sessionId, event.getMessage()));
+      batchProcessor.addEvent(MineAdsEvent.from(new PlayerChatData(sessionId, event.getMessage())));
     }
   }
 
@@ -102,7 +102,7 @@ public class PlayerListener {
 
     UUID sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
     if (sessionId != null) {
-      batchProcessor.addEvent(MineAdsEvent.playerCommand(sessionId, event.getCommand()));
+      batchProcessor.addEvent(MineAdsEvent.from(new PlayerCommandData(sessionId, event.getCommand())));
     }
   }
 

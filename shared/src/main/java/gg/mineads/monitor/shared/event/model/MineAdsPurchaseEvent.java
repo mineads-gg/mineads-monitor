@@ -26,7 +26,8 @@ public class MineAdsPurchaseEvent {
 
   // Convenience constructor for Tebex
   public MineAdsPurchaseEvent(PurchaseType type, PurchaseData data) {
-    this.event = MineAdsEvent.purchase(type, data);
+    PurchaseWrapper wrapper = new PurchaseWrapper(type, data);
+    this.event = MineAdsEvent.from(wrapper);
   }
 
 

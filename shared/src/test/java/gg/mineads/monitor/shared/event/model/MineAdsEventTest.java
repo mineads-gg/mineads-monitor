@@ -35,7 +35,8 @@ class MineAdsEventTest {
     boolean onlineMode = true;
     String luckPermsRank = "vip";
 
-    MineAdsEvent event = MineAdsEvent.playerJoin(sessionId, locale, ip, clientBrand, minecraftVersion, onlineMode, luckPermsRank);
+    PlayerJoinData data = new PlayerJoinData(sessionId, locale, ip, clientBrand, minecraftVersion, onlineMode, luckPermsRank);
+    MineAdsEvent event = MineAdsEvent.from(data);
 
     assertEquals(EventType.JOIN, event.getEventType());
     assertNotNull(event.getJoinData());
@@ -53,7 +54,8 @@ class MineAdsEventTest {
   @Test
   void testTimeIsSetToCurrentTime() {
     long beforeCreation = System.currentTimeMillis();
-    MineAdsEvent event = MineAdsEvent.playerJoin(UUID.randomUUID(), null, null, null, null, true, null);
+    PlayerJoinData data = new PlayerJoinData(UUID.randomUUID(), null, null, null, null, true, null);
+    MineAdsEvent event = MineAdsEvent.from(data);
     long afterCreation = System.currentTimeMillis();
 
     assertTrue(event.getTime() >= beforeCreation);
@@ -65,13 +67,15 @@ class MineAdsEventTest {
     UUID sessionId = UUID.randomUUID();
 
     // Test all factory methods work correctly
-    MineAdsEvent joinEvent = MineAdsEvent.playerJoin(sessionId, null, null, null, null, true, null);
-    MineAdsEvent leaveEvent = MineAdsEvent.playerLeave(sessionId);
-    MineAdsEvent chatEvent = MineAdsEvent.playerChat(sessionId, "hello world");
-    MineAdsEvent commandEvent = MineAdsEvent.playerCommand(sessionId, "/help");
+    PlayerJoinData joinData = new PlayerJoinData(sessionId, null, null, null, null, true, null);
+    MineAdsEvent joinEvent = MineAdsEvent.from(joinData);
+    MineAdsEvent leaveEvent = MineAdsEvent.from(new PlayerLeaveData(sessionId));
+    MineAdsEvent chatEvent = MineAdsEvent.from(new PlayerChatData(sessionId, "hello world"));
+    MineAdsEvent commandEvent = MineAdsEvent.from(new PlayerCommandData(sessionId, "/help"));
 
     TebexPurchaseData purchaseData = new TebexPurchaseData("id", "user", "txn", "10.00", "USD", "VIP", null, null, null, null, null, null, null, null, null, null);
-    MineAdsEvent purchaseEvent = MineAdsEvent.purchase(PurchaseType.TEBEX, purchaseData);
+    MineAdsPurchaseEvent.PurchaseWrapper wrapper = new MineAdsPurchaseEvent.PurchaseWrapper(PurchaseType.TEBEX, purchaseData);
+    MineAdsEvent purchaseEvent = MineAdsEvent.from(wrapper);
 
     assertEquals(EventType.JOIN, joinEvent.getEventType());
     assertEquals(EventType.LEAVE, leaveEvent.getEventType());
@@ -96,7 +100,7 @@ class MineAdsEventTest {
   @Test
   void testFactoryMethodPlayerLeave() {
     UUID sessionId = UUID.randomUUID();
-    MineAdsEvent event = MineAdsEvent.playerLeave(sessionId);
+    MineAdsEvent event = MineAdsEvent.from(new PlayerLeaveData(sessionId));
 
     assertEquals(EventType.LEAVE, event.getEventType());
     assertNotNull(event.getLeaveData());
@@ -107,7 +111,7 @@ class MineAdsEventTest {
   void testFactoryMethodPlayerChat() {
     UUID sessionId = UUID.randomUUID();
     String message = "Hello world!";
-    MineAdsEvent event = MineAdsEvent.playerChat(sessionId, message);
+    MineAdsEvent event = MineAdsEvent.from(new PlayerChatData(sessionId, message));
 
     assertEquals(EventType.CHAT, event.getEventType());
     assertNotNull(event.getChatData());

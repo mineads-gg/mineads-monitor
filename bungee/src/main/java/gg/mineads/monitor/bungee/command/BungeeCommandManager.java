@@ -32,7 +32,6 @@ public class BungeeCommandManager extends MineAdsCommandManager<MineAdsMonitorBu
 
   @Override
   protected CommandManager<WrappedCommandSender> createCommandManager(MineAdsMonitorBungee.Bootstrap platformBootstrap) {
-    // Return null for now to get the build working
     return new org.incendo.cloud.bungee.BungeeCommandManager<>(
       platformBootstrap.getOwningPlugin(),
       ExecutionCoordinator.asyncCoordinator(),

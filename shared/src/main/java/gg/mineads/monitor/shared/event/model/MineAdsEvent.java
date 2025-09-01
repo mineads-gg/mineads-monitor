@@ -20,8 +20,6 @@ package gg.mineads.monitor.shared.event.model;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
-
 @Data
 public class MineAdsEvent {
   private final EventType eventType;
@@ -59,78 +57,61 @@ public class MineAdsEvent {
   }
 
   /**
-   * Create a player join event.
+   * Create a MineAdsEvent from player join data.
    *
-   * @param sessionId        the player session ID
-   * @param locale           the player locale
-   * @param ip               the player IP address
-   * @param clientBrand      the client brand
-   * @param minecraftVersion the Minecraft version
-   * @param onlineMode       whether online mode is enabled
-   * @param luckPermsRank    the LuckPerms rank
+   * @param data the player join data
    * @return a new MineAdsEvent for player join
    */
-  public static MineAdsEvent playerJoin(UUID sessionId, String locale, String ip,
-                                        String clientBrand, String minecraftVersion,
-                                        boolean onlineMode, String luckPermsRank) {
-    PlayerJoinData data = new PlayerJoinData(sessionId, locale, ip, clientBrand,
-      minecraftVersion, onlineMode, luckPermsRank);
+  public static MineAdsEvent from(PlayerJoinData data) {
     MineAdsEvent event = new MineAdsEvent(EventType.JOIN, data, null, null, null, null);
     event.validate();
     return event;
   }
 
   /**
-   * Create a player leave event.
+   * Create a MineAdsEvent from player leave data.
    *
-   * @param sessionId the player session ID
+   * @param data the player leave data
    * @return a new MineAdsEvent for player leave
    */
-  public static MineAdsEvent playerLeave(UUID sessionId) {
-    PlayerLeaveData data = new PlayerLeaveData(sessionId);
+  public static MineAdsEvent from(PlayerLeaveData data) {
     MineAdsEvent event = new MineAdsEvent(EventType.LEAVE, null, data, null, null, null);
     event.validate();
     return event;
   }
 
   /**
-   * Create a player chat event.
+   * Create a MineAdsEvent from player chat data.
    *
-   * @param sessionId the player session ID
-   * @param message   the chat message
+   * @param data the player chat data
    * @return a new MineAdsEvent for player chat
    */
-  public static MineAdsEvent playerChat(UUID sessionId, String message) {
-    PlayerChatData data = new PlayerChatData(sessionId, message);
+  public static MineAdsEvent from(PlayerChatData data) {
     MineAdsEvent event = new MineAdsEvent(EventType.CHAT, null, null, data, null, null);
     event.validate();
     return event;
   }
 
   /**
-   * Create a player command event.
+   * Create a MineAdsEvent from player command data.
    *
-   * @param sessionId the player session ID
-   * @param command   the command executed
+   * @param data the player command data
    * @return a new MineAdsEvent for player command
    */
-  public static MineAdsEvent playerCommand(UUID sessionId, String command) {
-    PlayerCommandData data = new PlayerCommandData(sessionId, command);
+  public static MineAdsEvent from(PlayerCommandData data) {
     MineAdsEvent event = new MineAdsEvent(EventType.COMMAND, null, null, null, data, null);
     event.validate();
     return event;
   }
 
   /**
-   * Create a purchase event.
+   * Create a MineAdsEvent from purchase data.
    *
-   * @param type the purchase type
-   * @param data the purchase data
+   * @param data the purchase wrapper data
    * @return a new MineAdsEvent for purchase
    */
-  public static MineAdsEvent purchase(PurchaseType type, PurchaseData data) {
-    MineAdsPurchaseEvent.PurchaseWrapper wrapper = new MineAdsPurchaseEvent.PurchaseWrapper(type, data);
-    MineAdsEvent event = new MineAdsEvent(EventType.PURCHASE, null, null, null, null, wrapper);
+  public static MineAdsEvent from(MineAdsPurchaseEvent.PurchaseWrapper data) {
+    MineAdsEvent event = new MineAdsEvent(EventType.PURCHASE, null, null, null, null, data);
     event.validate();
     return event;
   }
