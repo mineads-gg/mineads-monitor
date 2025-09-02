@@ -17,6 +17,7 @@
  */
 package gg.mineads.monitor.shared.event.model;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -25,6 +26,8 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 public final class PlayerChatData {
+  @SerializedName("session_id")
   private final UUID sessionId;
+  @SerializedName("message")
   private final String message;
 }

@@ -17,6 +17,7 @@
  */
 package gg.mineads.monitor.shared.event.model;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
@@ -26,16 +27,23 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 public final class PlayerJoinData {
+  @SerializedName("session_id")
   private final UUID sessionId;
+  @SerializedName("locale")
   @Nullable
   private final String locale;
+  @SerializedName("ip")
   @Nullable
   private final String ip;
+  @SerializedName("client_brand")
   @Nullable
   private final String clientBrand;
+  @SerializedName("minecraft_version")
   @Nullable
   private final String minecraftVersion;
+  @SerializedName("online_mode")
   private final boolean onlineMode;
+  @SerializedName("luck_perms_rank")
   @Nullable
   private final String luckPermsRank;
 }

@@ -17,25 +17,33 @@
  */
 package gg.mineads.monitor.shared.event.model;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
 
 @Data
 public class MineAdsEvent {
+  @SerializedName("event_type")
   private final EventType eventType;
+  @SerializedName("time")
   private final long time = System.currentTimeMillis();
 
   // Player event data (nullable - only one should be non-null based on eventType)
+  @SerializedName("join_data")
   @Nullable
   private final PlayerJoinData joinData;
+  @SerializedName("leave_data")
   @Nullable
   private final PlayerLeaveData leaveData;
+  @SerializedName("chat_data")
   @Nullable
   private final PlayerChatData chatData;
+  @SerializedName("command_data")
   @Nullable
   private final PlayerCommandData commandData;
 
   // Purchase event data (nullable)
+  @SerializedName("purchase_data")
   @Nullable
   private final MineAdsPurchaseEvent.PurchaseWrapper purchaseData;
 

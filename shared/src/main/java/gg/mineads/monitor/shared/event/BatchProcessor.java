@@ -19,6 +19,7 @@ package gg.mineads.monitor.shared.event;
 
 import com.google.gson.*;
 import gg.mineads.monitor.shared.config.Config;
+import gg.mineads.monitor.shared.event.model.MineAdsEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.msgpack.core.MessageBufferPacker;
@@ -32,10 +33,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Log
@@ -210,6 +213,16 @@ public class BatchProcessor implements Runnable {
 
     if (config.isDebug()) {
       log.info("[DEBUG] Processing batch of " + drained + " events");
+
+      // Log event type breakdown
+      Map<String, Long> eventTypes = currentEvents.stream()
+        .filter(e -> e instanceof MineAdsEvent)
+        .map(e -> (MineAdsEvent) e)
+        .collect(Collectors.groupingBy(
+          event -> event.getEventType().toString(),
+          Collectors.counting()
+        ));
+      log.info("[DEBUG] Event types in batch: " + eventTypes);
     }
 
     try {

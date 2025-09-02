@@ -17,6 +17,7 @@
  */
 package gg.mineads.monitor.shared.event.model;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -25,5 +26,6 @@ import java.util.UUID;
 @Data
 @RequiredArgsConstructor
 public final class PlayerLeaveData {
+  @SerializedName("session_id")
   private final UUID sessionId;
 }

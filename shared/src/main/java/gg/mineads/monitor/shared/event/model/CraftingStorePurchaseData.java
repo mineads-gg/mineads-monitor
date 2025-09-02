@@ -17,6 +17,7 @@
  */
 package gg.mineads.monitor.shared.event.model;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
@@ -24,26 +25,36 @@ import org.jetbrains.annotations.Nullable;
 @Data
 @AllArgsConstructor
 public final class CraftingStorePurchaseData implements PurchaseData {
+  @SerializedName("player")
   private final String player; // Username (alphanumeric)
+  @SerializedName("uuid")
   private final String uuid; // UUID (steamid64 for Steam games)
+  @SerializedName("package_name")
   private final String packageName; // Package name
+  @SerializedName("cost")
   private final String cost; // Price paid
 
   // Optional fields
+  @SerializedName("uuid_dashed")
   @Nullable
   private final String uuidDashed; // Dashed UUID
-  @Nullable
+  @SerializedName("packages")
   private final String packages; // Comma separated list of packages
+  @SerializedName("ingame_package_name")
   @Nullable
   private final String ingamePackageName; // Formatted package name
+  @SerializedName("steam_id")
   @Nullable
   private final String steamId; // Steam ID
-  @Nullable
+  @SerializedName("amount")
   private final String amount; // Quantity selected
+  @SerializedName("transaction_id")
   @Nullable
   private final String transactionId; // Transaction ID
+  @SerializedName("discord_id")
   @Nullable
   private final String discordId; // Discord user ID
+  @SerializedName("discord_name")
   @Nullable
   private final String discordName; // Discord user name
 }
