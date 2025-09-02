@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Data
 @AllArgsConstructor
-public final class CraftingStorePurchaseData implements PurchaseData {
+public final class CraftingStorePurchaseData implements PurchaseProviderData {
   @SerializedName("player")
   private final String player; // Username (alphanumeric)
   @SerializedName("uuid")

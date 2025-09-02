@@ -26,7 +26,7 @@ import java.util.UUID;
 
 @Data
 @AllArgsConstructor
-public final class PlayerJoinData {
+public final class PlayerJoinData implements EventData {
   @SerializedName("session_id")
   private final UUID sessionId;
   @SerializedName("locale")

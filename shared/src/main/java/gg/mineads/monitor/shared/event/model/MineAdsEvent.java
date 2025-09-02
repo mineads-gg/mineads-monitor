@@ -43,19 +43,18 @@ public class MineAdsEvent {
   private final PlayerCommandData commandData;
 
   // Purchase event data (nullable)
-  @SerializedName("purchase_data")
   @Nullable
-  private final MineAdsPurchaseEvent.PurchaseWrapper purchaseData;
+  private final PurchaseData purchaseData;
 
   /**
    * Private constructor for internal use.
    */
   private MineAdsEvent(EventType eventType,
-                       @Nullable PlayerJoinData joinData,
-                       @Nullable PlayerLeaveData leaveData,
-                       @Nullable PlayerChatData chatData,
-                       @Nullable PlayerCommandData commandData,
-                       @Nullable MineAdsPurchaseEvent.PurchaseWrapper purchaseData) {
+                        @Nullable PlayerJoinData joinData,
+                        @Nullable PlayerLeaveData leaveData,
+                        @Nullable PlayerChatData chatData,
+                        @Nullable PlayerCommandData commandData,
+                        @Nullable PurchaseData purchaseData) {
     this.eventType = eventType;
     this.joinData = joinData;
     this.leaveData = leaveData;
@@ -115,10 +114,10 @@ public class MineAdsEvent {
   /**
    * Create a MineAdsEvent from purchase data.
    *
-   * @param data the purchase wrapper data
+   * @param data the purchase data
    * @return a new MineAdsEvent for purchase
    */
-  public static MineAdsEvent from(MineAdsPurchaseEvent.PurchaseWrapper data) {
+  public static MineAdsEvent from(PurchaseData data) {
     MineAdsEvent event = new MineAdsEvent(EventType.PURCHASE, null, null, null, null, data);
     event.validate();
     return event;
@@ -160,6 +159,5 @@ public class MineAdsEvent {
       }
     }
   }
-
 
 }

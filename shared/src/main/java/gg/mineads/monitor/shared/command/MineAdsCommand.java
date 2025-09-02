@@ -21,7 +21,9 @@ import gg.mineads.monitor.data.BuildData;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import gg.mineads.monitor.shared.event.model.CraftingStorePurchaseData;
-import gg.mineads.monitor.shared.event.model.MineAdsPurchaseEvent;
+import gg.mineads.monitor.shared.event.model.MineAdsEvent;
+import gg.mineads.monitor.shared.event.model.PurchaseData;
+import gg.mineads.monitor.shared.event.model.PurchaseProviderData;
 import gg.mineads.monitor.shared.event.model.PurchaseType;
 import gg.mineads.monitor.shared.event.model.TebexPurchaseData;
 import lombok.RequiredArgsConstructor;
@@ -103,7 +105,8 @@ public class MineAdsCommand {
     );
 
     // Create purchase event with type discriminator
-    MineAdsPurchaseEvent purchaseEvent = new MineAdsPurchaseEvent(PurchaseType.TEBEX, tebexData);
+    PurchaseData purchaseData = new PurchaseData(PurchaseType.TEBEX, tebexData);
+    MineAdsEvent purchaseEvent = MineAdsEvent.from(purchaseData);
 
     // Add event to batch processor
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
@@ -145,7 +148,8 @@ public class MineAdsCommand {
     );
 
     // Create purchase event with type discriminator
-    MineAdsPurchaseEvent purchaseEvent = new MineAdsPurchaseEvent(PurchaseType.CRAFTING_STORE, craftingStoreData);
+    PurchaseData purchaseData = new PurchaseData(PurchaseType.CRAFTING_STORE, craftingStoreData);
+    MineAdsEvent purchaseEvent = MineAdsEvent.from(purchaseData);
 
     // Add event to batch processor
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {

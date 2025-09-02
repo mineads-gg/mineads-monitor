@@ -25,7 +25,7 @@ import java.util.UUID;
 
 @Data
 @AllArgsConstructor
-public final class PlayerCommandData {
+public final class PlayerCommandData implements EventData {
   @SerializedName("session_id")
   private final UUID sessionId;
   @SerializedName("command")

@@ -17,18 +17,14 @@
  */
 package gg.mineads.monitor.shared.event.model;
 
-import com.google.gson.annotations.SerializedName;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 /**
- * Data class for purchase event data containing the purchase type and data.
+ * Sealed interface for all event data types.
+ * This ensures type safety for event-specific data.
  */
-@Data
-@AllArgsConstructor
-public final class PurchaseData implements EventData {
-  @SerializedName("type")
-  private final PurchaseType type;
-  @SerializedName("data")
-  private final PurchaseProviderData data; // TebexPurchaseData or CraftingStorePurchaseData
+public sealed interface EventData permits
+  PlayerJoinData,
+  PlayerLeaveData,
+  PlayerChatData,
+  PlayerCommandData,
+  PurchaseData {
 }

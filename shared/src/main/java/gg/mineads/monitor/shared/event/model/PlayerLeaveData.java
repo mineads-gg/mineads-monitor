@@ -25,7 +25,7 @@ import java.util.UUID;
 
 @Data
 @RequiredArgsConstructor
-public final class PlayerLeaveData {
+public final class PlayerLeaveData implements EventData {
   @SerializedName("session_id")
   private final UUID sessionId;
 }

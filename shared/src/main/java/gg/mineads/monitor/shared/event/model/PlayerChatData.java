@@ -25,7 +25,7 @@ import java.util.UUID;
 
 @Data
 @AllArgsConstructor
-public final class PlayerChatData {
+public final class PlayerChatData implements EventData {
   @SerializedName("session_id")
   private final UUID sessionId;
   @SerializedName("message")

@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Data
 @AllArgsConstructor
-public final class TebexPurchaseData implements PurchaseData {
+public final class TebexPurchaseData implements PurchaseProviderData {
   @SerializedName("id")
   private final String id; // Game-specific primary ID (Steam64, Xbox XUID, UUID, etc.)
   @SerializedName("username")

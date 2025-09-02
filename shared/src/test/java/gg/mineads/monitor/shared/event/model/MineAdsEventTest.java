@@ -74,8 +74,8 @@ class MineAdsEventTest {
     MineAdsEvent commandEvent = MineAdsEvent.from(new PlayerCommandData(sessionId, "/help"));
 
     TebexPurchaseData purchaseData = new TebexPurchaseData("id", "user", "txn", "10.00", "USD", "VIP", null, null, null, null, null, null, null, null, null, null);
-    MineAdsPurchaseEvent.PurchaseWrapper wrapper = new MineAdsPurchaseEvent.PurchaseWrapper(PurchaseType.TEBEX, purchaseData);
-    MineAdsEvent purchaseEvent = MineAdsEvent.from(wrapper);
+    PurchaseData purchaseEventData = new PurchaseData(PurchaseType.TEBEX, purchaseData);
+    MineAdsEvent purchaseEvent = MineAdsEvent.from(purchaseEventData);
 
     assertEquals(EventType.JOIN, joinEvent.getEventType());
     assertEquals(EventType.LEAVE, leaveEvent.getEventType());
