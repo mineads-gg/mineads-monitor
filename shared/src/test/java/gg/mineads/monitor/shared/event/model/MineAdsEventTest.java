@@ -17,11 +17,19 @@
  */
 package gg.mineads.monitor.shared.event.model;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.reflect.TypeToken;
 import gg.mineads.monitor.shared.event.model.data.*;
 import gg.mineads.monitor.shared.event.model.purchase.PurchaseType;
 import gg.mineads.monitor.shared.event.model.purchase.TebexPurchaseData;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -122,5 +130,32 @@ class MineAdsEventTest {
     assertEquals(message, event.getChatData().getMessage());
   }
 
+  @Test
+  void testJsonRoundTripDeserialization() throws IOException {
+    // Test complete round-trip: JSON file -> JsonElement -> List<MineAdsEvent> -> JsonElement -> equals
 
+    // Step 1: Read JSON file and parse to JsonElement
+    try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("event-batch-examples.json")) {
+      assertNotNull(inputStream, "JSON test file should exist");
+
+      String jsonContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+      Gson gson = new Gson();
+
+      // Parse original JSON to JsonElement
+      JsonElement originalJsonElement = gson.fromJson(jsonContent, JsonElement.class);
+      assertNotNull(originalJsonElement, "Original JSON should parse successfully");
+
+      // Step 2: Deserialize JsonElement to List<MineAdsEvent>
+      Type eventListType = new TypeToken<List<MineAdsEvent>>() {}.getType();
+      List<MineAdsEvent> events = gson.fromJson(originalJsonElement, eventListType);
+      assertNotNull(events, "Events list should not be null");
+      assertNotEquals(0, events.size(), "Should deserialize at least on1 event");
+
+      // Step 3: Serialize List<MineAdsEvent> back to JsonElement
+      JsonElement serializedJsonElement = gson.toJsonTree(events);
+
+      // Step 4: Compare original and serialized JsonElements for structural equality
+      assertEquals(originalJsonElement, serializedJsonElement, "Serialized JSON should match original JSON structurally");
+    }
+  }
 }

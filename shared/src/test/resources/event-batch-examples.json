@@ -1,0 +1,105 @@
+[
+  {
+    "event_type": "join",
+    "time": 1703123456789,
+    "join_data": {
+      "session_id": "f238ac72-33db-4e77-bfd7-e24c82c67958",
+      "locale": "en_us",
+      "ip": "127.0.0.1",
+      "client_brand": "vanilla",
+      "minecraft_version": "1.21.8-R0.1-SNAPSHOT",
+      "online_mode": true,
+      "luck_perms_rank": "default"
+    }
+  },
+  {
+    "event_type": "leave",
+    "time": 1703123456790,
+    "leave_data": {
+      "session_id": "f238ac72-33db-4e77-bfd7-e24c82c67958"
+    }
+  },
+  {
+    "event_type": "chat",
+    "time": 1703123456791,
+    "chat_data": {
+      "session_id": "f238ac72-33db-4e77-bfd7-e24c82c67958",
+      "message": "Hello, world!"
+    }
+  },
+  {
+    "event_type": "command",
+    "time": 1703123456792,
+    "command_data": {
+      "session_id": "f238ac72-33db-4e77-bfd7-e24c82c67958",
+      "command": "/help"
+    }
+  },
+  {
+    "event_type": "purchase",
+    "time": 1703123456793,
+    "purchase_data": {
+      "type": "tebex",
+      "data": {
+        "id": "steam_123456789",
+        "username": "player123",
+        "transaction": "txn_abc123",
+        "price": "9.99",
+        "currency": "USD",
+        "package_name": "VIP Rank",
+        "server": "main",
+        "date": "2024-01-15",
+        "email": "player@example.com",
+        "ip": "192.168.1.100",
+        "package_id": "vip_package_001",
+        "package_price": "9.99",
+        "package_expiry": "30",
+        "purchaser_name": "player123",
+        "purchaser_uuid": "f238ac72-33db-4e77-bfd7-e24c82c67958",
+        "purchase_quantity": "1"
+      }
+    }
+  },
+  {
+    "event_type": "purchase",
+    "time": 1703123456794,
+    "purchase_data": {
+      "type": "crafting_store",
+      "data": {
+        "player": "player456",
+        "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "package_name": "Diamond Pack",
+        "cost": "4.99",
+        "uuid_dashed": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "packages": "diamond_pack,bonus_items",
+        "ingame_package_name": "Diamond Package",
+        "steam_id": "76561198012345678",
+        "amount": "1",
+        "transaction_id": "cs_txn_789",
+        "discord_id": "123456789012345678",
+        "discord_name": "Player#1234"
+      }
+    }
+  },
+  {
+    "event_type": "join",
+    "time": 1703123456795,
+    "join_data": {
+      "session_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "locale": null,
+      "ip": null,
+      "client_brand": null,
+      "minecraft_version": null,
+      "online_mode": false,
+      "luck_perms_rank": null
+    }
+  },
+  {
+    "event_type": "chat",
+    "time": 1703123456796,
+    "chat_data": {
+      "session_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "message": "This is a test message with special characters: àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"
+    }
+  }
+]
