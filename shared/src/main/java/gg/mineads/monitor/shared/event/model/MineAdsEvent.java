@@ -18,6 +18,7 @@
 package gg.mineads.monitor.shared.event.model;
 
 import com.google.gson.annotations.SerializedName;
+import gg.mineads.monitor.shared.event.model.data.*;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
 

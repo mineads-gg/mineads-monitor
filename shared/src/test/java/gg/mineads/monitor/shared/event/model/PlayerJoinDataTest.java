@@ -17,6 +17,7 @@
  */
 package gg.mineads.monitor.shared.event.model;
 
+import gg.mineads.monitor.shared.event.model.data.PlayerJoinData;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;

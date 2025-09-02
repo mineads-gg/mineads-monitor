@@ -15,17 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package gg.mineads.monitor.shared.event.model;
+package gg.mineads.monitor.shared.event.model.data;
 
-import com.google.gson.annotations.SerializedName;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-
-import java.util.UUID;
-
-@Data
-@RequiredArgsConstructor
-public final class PlayerLeaveData implements EventData {
-  @SerializedName("session_id")
-  private final UUID sessionId;
+/**
+ * Sealed interface for all event data types.
+ * This ensures type safety for event-specific data.
+ */
+public sealed interface EventData permits
+  PlayerJoinData,
+  PlayerLeaveData,
+  PlayerChatData,
+  PlayerCommandData,
+  PurchaseData {
 }

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package gg.mineads.monitor.shared.event.model;
+package gg.mineads.monitor.shared.event.model.purchase;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;

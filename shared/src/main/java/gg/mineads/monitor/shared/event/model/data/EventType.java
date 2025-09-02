@@ -15,20 +15,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package gg.mineads.monitor.shared.event.model;
+package gg.mineads.monitor.shared.event.model.data;
 
 import com.google.gson.annotations.SerializedName;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
 /**
- * Data class for purchase event data containing the purchase type and data.
+ * Enum representing different types of events that can be tracked.
  */
-@Data
-@AllArgsConstructor
-public final class PurchaseData implements EventData {
-  @SerializedName("type")
-  private final PurchaseType type;
-  @SerializedName("data")
-  private final PurchaseProviderData data; // TebexPurchaseData or CraftingStorePurchaseData
+public enum EventType {
+  @SerializedName("purchase")
+  PURCHASE,
+
+  @SerializedName("chat")
+  CHAT,
+
+  @SerializedName("command")
+  COMMAND,
+
+  @SerializedName("join")
+  JOIN,
+
+  @SerializedName("leave")
+  LEAVE;
 }

@@ -17,6 +17,9 @@
  */
 package gg.mineads.monitor.shared.event.model;
 
+import gg.mineads.monitor.shared.event.model.data.*;
+import gg.mineads.monitor.shared.event.model.purchase.PurchaseType;
+import gg.mineads.monitor.shared.event.model.purchase.TebexPurchaseData;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;

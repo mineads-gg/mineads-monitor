@@ -15,26 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package gg.mineads.monitor.shared.event.model;
+package gg.mineads.monitor.shared.event.model.data;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
-/**
- * Enum representing different types of events that can be tracked.
- */
-public enum EventType {
-  @SerializedName("purchase")
-  PURCHASE,
+import java.util.UUID;
 
-  @SerializedName("chat")
-  CHAT,
-
-  @SerializedName("command")
-  COMMAND,
-
-  @SerializedName("join")
-  JOIN,
-
-  @SerializedName("leave")
-  LEAVE;
+@Data
+@RequiredArgsConstructor
+public final class PlayerLeaveData implements EventData {
+  @SerializedName("session_id")
+  private final UUID sessionId;
 }

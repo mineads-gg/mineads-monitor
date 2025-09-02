@@ -15,17 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package gg.mineads.monitor.shared.event.model;
-
-import com.google.gson.annotations.SerializedName;
+package gg.mineads.monitor.shared.event.model.purchase;
 
 /**
- * Enum representing different types of purchase providers.
+ * Sealed interface for purchase provider data types.
+ * This ensures type safety for purchase-specific data from different providers.
  */
-public enum PurchaseType {
-  @SerializedName("tebex")
-  TEBEX,
-
-  @SerializedName("craftingstore")
-  CRAFTING_STORE;
+public sealed interface PurchaseProviderData permits
+  TebexPurchaseData,
+  CraftingStorePurchaseData {
 }

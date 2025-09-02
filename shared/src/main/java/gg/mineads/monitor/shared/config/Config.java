@@ -19,7 +19,7 @@ package gg.mineads.monitor.shared.config;
 
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
-import gg.mineads.monitor.shared.event.model.EventType;
+import gg.mineads.monitor.shared.event.model.data.EventType;
 import lombok.Getter;
 
 import java.util.Set;

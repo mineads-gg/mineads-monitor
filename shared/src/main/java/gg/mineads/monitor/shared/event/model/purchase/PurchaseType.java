@@ -15,19 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package gg.mineads.monitor.shared.event.model;
+package gg.mineads.monitor.shared.event.model.purchase;
 
 import com.google.gson.annotations.SerializedName;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
-import java.util.UUID;
+/**
+ * Enum representing different types of purchase providers.
+ */
+public enum PurchaseType {
+  @SerializedName("tebex")
+  TEBEX,
 
-@Data
-@AllArgsConstructor
-public final class PlayerCommandData implements EventData {
-  @SerializedName("session_id")
-  private final UUID sessionId;
-  @SerializedName("command")
-  private final String command;
+  @SerializedName("craftingstore")
+  CRAFTING_STORE;
 }
