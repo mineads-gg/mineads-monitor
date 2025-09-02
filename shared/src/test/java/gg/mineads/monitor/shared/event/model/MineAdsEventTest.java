@@ -153,6 +153,10 @@ class MineAdsEventTest {
       assertNotNull(events, "Events list should not be null");
       assertNotEquals(0, events.size(), "Should deserialize at least one event");
 
+      var testedEvents = events.stream().map(MineAdsEvent::getEventType).distinct().toList();
+      assertEquals(testedEvents.size(), EventType.values().length,
+        "Test payload should cover all event types: " + List.of(EventType.values()));
+
       // Step 3: Serialize List<MineAdsEvent> back to JsonElement
       JsonElement serializedJsonElement = gson.toJsonTree(events);
 
