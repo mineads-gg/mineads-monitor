@@ -37,4 +37,9 @@ public class BungeeMineAdsScheduler implements MineAdsScheduler {
   public void scheduleAsync(Runnable task, long delay, long period, TimeUnit timeUnit) {
     scheduler.schedule(plugin, task, delay, period, timeUnit);
   }
+
+  @Override
+  public void runAsync(Runnable task) {
+    scheduler.runAsync(plugin, task);
+  }
 }

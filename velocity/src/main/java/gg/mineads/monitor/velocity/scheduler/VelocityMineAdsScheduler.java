@@ -41,4 +41,9 @@ public class VelocityMineAdsScheduler implements MineAdsScheduler {
       .repeat(period, timeUnit)
       .schedule();
   }
+
+  @Override
+  public void runAsync(Runnable task) {
+    scheduler.buildTask(plugin, task).schedule();
+  }
 }

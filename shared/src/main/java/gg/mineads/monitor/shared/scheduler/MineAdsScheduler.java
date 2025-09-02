@@ -23,4 +23,6 @@ public interface MineAdsScheduler {
 
   void scheduleAsync(Runnable task, long delay, long period, TimeUnit timeUnit);
 
+  void runAsync(Runnable task);
+
 }
