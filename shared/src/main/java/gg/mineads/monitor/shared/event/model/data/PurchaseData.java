@@ -18,19 +18,55 @@
 package gg.mineads.monitor.shared.event.model.data;
 
 import com.google.gson.annotations.SerializedName;
-import gg.mineads.monitor.shared.event.model.purchase.PurchaseProviderData;
+import gg.mineads.monitor.shared.event.model.purchase.CraftingStorePurchaseData;
 import gg.mineads.monitor.shared.event.model.purchase.PurchaseType;
-import lombok.AllArgsConstructor;
+import gg.mineads.monitor.shared.event.model.purchase.TebexPurchaseData;
 import lombok.Data;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Data class for purchase event data containing the purchase type and data.
  */
 @Data
-@AllArgsConstructor
 public final class PurchaseData implements EventData {
   @SerializedName("type")
   private final PurchaseType type;
-  @SerializedName("data")
-  private final PurchaseProviderData data; // TebexPurchaseData or CraftingStorePurchaseData
+
+  // Purchase data fields (nullable - only one should be non-null based on type)
+  @SerializedName("tebex_data")
+  @Nullable
+  private final TebexPurchaseData tebexData;
+
+  @SerializedName("crafting_store_data")
+  @Nullable
+  private final CraftingStorePurchaseData craftingStoreData;
+
+  /**
+   * Private constructor - use factory methods instead.
+   */
+  private PurchaseData(PurchaseType type, @Nullable TebexPurchaseData tebexData, @Nullable CraftingStorePurchaseData craftingStoreData) {
+    this.type = type;
+    this.tebexData = tebexData;
+    this.craftingStoreData = craftingStoreData;
+  }
+
+  /**
+   * Create a PurchaseData for Tebex purchases.
+   *
+   * @param data the Tebex purchase data
+   * @return a new PurchaseData instance
+   */
+  public static PurchaseData tebex(TebexPurchaseData data) {
+    return new PurchaseData(PurchaseType.TEBEX, data, null);
+  }
+
+  /**
+   * Create a PurchaseData for CraftingStore purchases.
+   *
+   * @param data the CraftingStore purchase data
+   * @return a new PurchaseData instance
+   */
+  public static PurchaseData craftingStore(CraftingStorePurchaseData data) {
+    return new PurchaseData(PurchaseType.CRAFTING_STORE, null, data);
+  }
 }

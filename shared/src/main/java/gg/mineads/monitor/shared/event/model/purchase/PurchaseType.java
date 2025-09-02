@@ -26,6 +26,6 @@ public enum PurchaseType {
   @SerializedName("tebex")
   TEBEX,
 
-  @SerializedName("craftingstore")
+  @SerializedName("crafting_store")
   CRAFTING_STORE;
 }

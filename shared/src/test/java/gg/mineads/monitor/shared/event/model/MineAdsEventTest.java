@@ -18,10 +18,10 @@
 package gg.mineads.monitor.shared.event.model;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 import gg.mineads.monitor.shared.event.model.data.*;
-import gg.mineads.monitor.shared.event.model.purchase.PurchaseType;
 import gg.mineads.monitor.shared.event.model.purchase.TebexPurchaseData;
 import org.junit.jupiter.api.Test;
 
@@ -84,8 +84,8 @@ class MineAdsEventTest {
     MineAdsEvent chatEvent = MineAdsEvent.from(new PlayerChatData(sessionId, "hello world"));
     MineAdsEvent commandEvent = MineAdsEvent.from(new PlayerCommandData(sessionId, "/help"));
 
-    TebexPurchaseData purchaseData = new TebexPurchaseData("id", "user", "txn", "10.00", "USD", "VIP", null, null, null, null, null, null, null, null, null, null);
-    PurchaseData purchaseEventData = new PurchaseData(PurchaseType.TEBEX, purchaseData);
+    TebexPurchaseData tebexPurchaseData = new TebexPurchaseData("id", "user", "txn", "10.00", "USD", "VIP", null, null, null, null, null, null, null, null, null, null);
+    PurchaseData purchaseEventData = PurchaseData.tebex(tebexPurchaseData);
     MineAdsEvent purchaseEvent = MineAdsEvent.from(purchaseEventData);
 
     assertEquals(EventType.JOIN, joinEvent.getEventType());
@@ -139,7 +139,9 @@ class MineAdsEventTest {
       assertNotNull(inputStream, "JSON test file should exist");
 
       String jsonContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-      Gson gson = new Gson();
+      Gson gson = new GsonBuilder()
+        .setPrettyPrinting()
+        .create();
 
       // Parse original JSON to JsonElement
       JsonElement originalJsonElement = gson.fromJson(jsonContent, JsonElement.class);
@@ -149,13 +151,14 @@ class MineAdsEventTest {
       Type eventListType = new TypeToken<List<MineAdsEvent>>() {}.getType();
       List<MineAdsEvent> events = gson.fromJson(originalJsonElement, eventListType);
       assertNotNull(events, "Events list should not be null");
-      assertNotEquals(0, events.size(), "Should deserialize at least on1 event");
+      assertNotEquals(0, events.size(), "Should deserialize at least one event");
 
       // Step 3: Serialize List<MineAdsEvent> back to JsonElement
       JsonElement serializedJsonElement = gson.toJsonTree(events);
 
-      // Step 4: Compare original and serialized JsonElements for structural equality
-      assertEquals(originalJsonElement, serializedJsonElement, "Serialized JSON should match original JSON structurally");
+      // Step 4: Compare the original and round-trip JsonElements
+      assertEquals(gson.toJson(originalJsonElement), gson.toJson(serializedJsonElement),
+        "Original and round-trip JSON should be identical");
     }
   }
 }

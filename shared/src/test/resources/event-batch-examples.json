@@ -40,7 +40,7 @@
     "time": 1703123456793,
     "purchase_data": {
       "type": "tebex",
-      "data": {
+      "tebex_data": {
         "id": "steam_123456789",
         "username": "player123",
         "transaction": "txn_abc123",
@@ -65,7 +65,7 @@
     "time": 1703123456794,
     "purchase_data": {
       "type": "crafting_store",
-      "data": {
+      "crafting_store_data": {
         "player": "player456",
         "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
         "package_name": "Diamond Pack",

@@ -29,7 +29,7 @@ public class MineAdsEvent {
   @SerializedName("time")
   private final long time = System.currentTimeMillis();
 
-  // Player event data (nullable - only one should be non-null based on eventType)
+  // Event data (nullable - only one should be non-null based on eventType)
   @SerializedName("join_data")
   @Nullable
   private final PlayerJoinData joinData;
@@ -42,8 +42,7 @@ public class MineAdsEvent {
   @SerializedName("command_data")
   @Nullable
   private final PlayerCommandData commandData;
-
-  // Purchase event data (nullable)
+  @SerializedName("purchase_data")
   @Nullable
   private final PurchaseData purchaseData;
 
