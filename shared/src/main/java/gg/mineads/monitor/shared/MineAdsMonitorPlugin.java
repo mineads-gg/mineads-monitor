@@ -24,6 +24,8 @@ import gg.mineads.monitor.shared.event.BatchProcessor;
 import lombok.Getter;
 import lombok.extern.java.Log;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.logging.Level;
 
@@ -115,6 +117,22 @@ public class MineAdsMonitorPlugin {
     config = YamlConfigurations.update(configPath, Config.class);
     if (config != null && config.isDebug()) {
       log.info("[DEBUG] Configuration file loaded from: " + configPath.toAbsolutePath());
+    }
+
+    // Export config to string, read exiting file string, if not matching, overwrite file
+    try {
+      String currentConfigContent = Files.readString(configPath);
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      YamlConfigurations.write(outputStream, Config.class, config);
+      String newConfigContent = outputStream.toString();
+      if (!currentConfigContent.equals(newConfigContent)) {
+        Files.writeString(configPath, newConfigContent);
+        if (config.isDebug()) {
+          log.info("[DEBUG] Configuration file updated with new defaults");
+        }
+      }
+    } catch (Exception e) {
+      log.log(Level.WARNING, "[MineAdsMonitor] Failed to update configuration file", e);
     }
   }
 
