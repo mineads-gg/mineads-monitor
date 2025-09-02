@@ -17,10 +17,13 @@
  */
 package gg.mineads.monitor.shared.session;
 
+import lombok.extern.java.Log;
+
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Log
 public class PlayerSessionManager {
 
   private static final Map<UUID, UUID> playerSessions = new ConcurrentHashMap<>();
@@ -34,6 +37,7 @@ public class PlayerSessionManager {
   public static UUID createSession(UUID playerUuid) {
     UUID sessionId = UUID.randomUUID();
     playerSessions.put(playerUuid, sessionId);
+    // Note: We don't log here as this is called frequently during player joins
     return sessionId;
   }
 

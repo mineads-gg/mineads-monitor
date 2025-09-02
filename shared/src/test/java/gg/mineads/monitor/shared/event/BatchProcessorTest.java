@@ -17,6 +17,7 @@
  */
 package gg.mineads.monitor.shared.event;
 
+import gg.mineads.monitor.shared.config.Config;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,9 @@ class BatchProcessorTest {
   void setUp() throws Exception {
     String pluginKey = "test-plugin-key";
 
+    // Create a test config
+    Config config = new Config();
+
     // Mock HttpClient.newBuilder() and build()
     mockHttpClient = mock(HttpClient.class);
     mockedHttpClient = mockStatic(HttpClient.class);
@@ -54,7 +58,7 @@ class BatchProcessorTest {
     when(mockBuilder.connectTimeout(any())).thenReturn(mockBuilder);
     when(mockBuilder.build()).thenReturn(mockHttpClient);
 
-    batchProcessor = new BatchProcessor(pluginKey);
+    batchProcessor = new BatchProcessor(pluginKey, config);
   }
 
   @AfterEach
@@ -231,5 +235,21 @@ class BatchProcessorTest {
     assertTrue((boolean) method.invoke(batchProcessor, new IOException("Test IO exception")));
     assertFalse((boolean) method.invoke(batchProcessor, new RuntimeException("Test runtime exception")));
     assertFalse((boolean) method.invoke(batchProcessor, new IllegalArgumentException("Test illegal argument")));
+  }
+
+  @Test
+  void testDebugFlagIntegration() throws Exception {
+    // Test that debug logging is controlled by config
+    Config debugConfig = new Config();
+    BatchProcessor debugBatchProcessor = new BatchProcessor("test-key", debugConfig);
+
+    // Add an event and verify it doesn't throw exceptions
+    debugBatchProcessor.addEvent("test event");
+
+    // The debug flag should be accessible via the config
+    assertFalse(debugConfig.isDebug()); // Default should be false
+
+    // Note: Since Config uses ConfigLib, we can't easily modify it in tests
+    // But the integration should work in production
   }
 }

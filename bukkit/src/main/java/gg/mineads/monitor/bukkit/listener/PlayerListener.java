@@ -22,6 +22,7 @@ import gg.mineads.monitor.shared.event.BatchProcessor;
 import gg.mineads.monitor.shared.event.model.*;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
+import lombok.extern.java.Log;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -33,6 +34,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.UUID;
 
+@Log
 public class PlayerListener implements Listener {
 
   private final BatchProcessor batchProcessor;
@@ -46,12 +48,19 @@ public class PlayerListener implements Listener {
   @EventHandler
   public void onPlayerJoin(PlayerJoinEvent event) {
     if (!isEventEnabled(EventType.JOIN)) {
+      if (config.isDebug()) {
+        log.info("[DEBUG] Player join event ignored - JOIN events disabled");
+      }
       return;
     }
 
     Player player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.createSession(player.getUniqueId());
     String rank = LuckPermsUtil.getPrimaryGroup(player.getUniqueId());
+
+    if (config.isDebug()) {
+      log.info("[DEBUG] Player joined: " + player.getName() + " (" + player.getUniqueId() + "), session: " + sessionId + ", rank: " + rank);
+    }
 
     PlayerJoinData data = new PlayerJoinData(
       sessionId,
@@ -69,39 +78,63 @@ public class PlayerListener implements Listener {
   @EventHandler
   public void onPlayerQuit(PlayerQuitEvent event) {
     if (!isEventEnabled(EventType.LEAVE)) {
+      if (config.isDebug()) {
+        log.info("[DEBUG] Player quit event ignored - LEAVE events disabled");
+      }
       return;
     }
 
     Player player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.removeSession(player.getUniqueId());
     if (sessionId != null) {
+      if (config.isDebug()) {
+        log.info("[DEBUG] Player quit: " + player.getName() + " (" + player.getUniqueId() + "), session: " + sessionId);
+      }
       batchProcessor.addEvent(MineAdsEvent.from(new PlayerLeaveData(sessionId)));
+    } else if (config.isDebug()) {
+      log.info("[DEBUG] Player quit: " + player.getName() + " - no active session found");
     }
   }
 
   @EventHandler
   public void onPlayerChat(AsyncPlayerChatEvent event) {
     if (!isEventEnabled(EventType.CHAT)) {
+      if (config.isDebug()) {
+        log.info("[DEBUG] Player chat event ignored - CHAT events disabled");
+      }
       return;
     }
 
     Player player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
     if (sessionId != null) {
+      if (config.isDebug()) {
+        log.info("[DEBUG] Player chat: " + player.getName() + " - " + event.getMessage().substring(0, Math.min(50, event.getMessage().length())) + (event.getMessage().length() > 50 ? "..." : ""));
+      }
       batchProcessor.addEvent(MineAdsEvent.from(new PlayerChatData(sessionId, event.getMessage())));
+    } else if (config.isDebug()) {
+      log.info("[DEBUG] Player chat ignored: " + player.getName() + " - no active session");
     }
   }
 
   @EventHandler
   public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
     if (!isEventEnabled(EventType.COMMAND)) {
+      if (config.isDebug()) {
+        log.info("[DEBUG] Player command event ignored - COMMAND events disabled");
+      }
       return;
     }
 
     Player player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
     if (sessionId != null) {
+      if (config.isDebug()) {
+        log.info("[DEBUG] Player command: " + player.getName() + " - " + event.getMessage().substring(0, Math.min(50, event.getMessage().length())) + (event.getMessage().length() > 50 ? "..." : ""));
+      }
       batchProcessor.addEvent(MineAdsEvent.from(new PlayerCommandData(sessionId, event.getMessage())));
+    } else if (config.isDebug()) {
+      log.info("[DEBUG] Player command ignored: " + player.getName() + " - no active session");
     }
   }
 

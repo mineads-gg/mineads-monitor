@@ -44,6 +44,7 @@ public class UpdateChecker {
    * Checks for updates asynchronously and logs results to console.
    */
   public static CompletableFuture<Void> checkForUpdates() {
+    log.info("[MineAdsMonitor] Checking for updates...");
     HttpRequest request = HttpRequest.newBuilder()
       .uri(URI.create(GITHUB_API_URL))
       .header("Accept", "application/vnd.github.v3+json")
@@ -66,6 +67,7 @@ public class UpdateChecker {
    */
   private static void processUpdateResponse(String jsonResponse) {
     try {
+      log.info("[MineAdsMonitor] Processing update response...");
       GitHubRelease latestRelease = GSON.fromJson(jsonResponse, GitHubRelease.class);
 
       if (latestRelease == null) {

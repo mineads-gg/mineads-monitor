@@ -32,4 +32,7 @@ public class Config {
 
   @Comment("Enable/disable tracking of specific event types. By default, all events are enabled.")
   private Set<EventType> enabledEvents = Set.of(EventType.values());
+
+  @Comment("Enable debug logging for batch processing events. Useful for troubleshooting.")
+  private boolean debug = false;
 }

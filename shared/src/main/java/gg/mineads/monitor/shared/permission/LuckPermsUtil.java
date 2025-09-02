@@ -17,6 +17,7 @@
  */
 package gg.mineads.monitor.shared.permission;
 
+import lombok.extern.java.Log;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.model.user.User;
 import org.jetbrains.annotations.Nullable;
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+@Log
 public class LuckPermsUtil {
   private static LuckPerms luckPerms = null;
   private static boolean initialized = false;
@@ -36,14 +38,21 @@ public class LuckPermsUtil {
    */
   public static void initialize(Supplier<@Nullable LuckPerms> luckPermsProvider) {
     if (initialized) {
+      log.info("[MineAdsMonitor] LuckPerms already initialized, skipping");
       return;
     }
 
     try {
       luckPerms = luckPermsProvider.get();
+      if (luckPerms != null) {
+        log.info("[MineAdsMonitor] LuckPerms integration initialized successfully");
+      } else {
+        log.info("[MineAdsMonitor] LuckPerms not found, permission features will be limited");
+      }
     } catch (Exception | NoClassDefFoundError e) {
       // LuckPerms is not available
       luckPerms = null;
+      log.info("[MineAdsMonitor] LuckPerms not available, permission features will be limited");
     }
 
     initialized = true;
@@ -75,7 +84,9 @@ public class LuckPermsUtil {
         return null;
       }
 
-      return user.getPrimaryGroup();
+      String primaryGroup = user.getPrimaryGroup();
+      // Note: We don't log here as this is called frequently during player joins
+      return primaryGroup;
     } catch (Exception e) {
       return null;
     }

@@ -25,6 +25,7 @@ import gg.mineads.monitor.shared.event.model.MineAdsPurchaseEvent;
 import gg.mineads.monitor.shared.event.model.PurchaseType;
 import gg.mineads.monitor.shared.event.model.TebexPurchaseData;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.incendo.cloud.CommandManager;
@@ -35,6 +36,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Command("mineadsmonitor")
 @RequiredArgsConstructor
+@Log
 public class MineAdsCommand {
 
   private final MineAdsMonitorPlugin plugin;
@@ -43,20 +45,32 @@ public class MineAdsCommand {
   @Command("version")
   @Permission("mineadsmonitor.admin")
   public void onVersion(final WrappedCommandSender sender) {
+    if (plugin.getConfig().isDebug()) {
+      log.info("[DEBUG] Version command executed");
+    }
     sender.sendMessage(Component.text("Current plugin version: " + BuildData.VERSION, NamedTextColor.GREEN));
   }
 
   @Command("reload")
   @Permission("mineadsmonitor.admin")
   public void onReload(final WrappedCommandSender sender) {
+    if (plugin.getConfig().isDebug()) {
+      log.info("[DEBUG] Reload command executed");
+    }
     sender.sendMessage(Component.text("Reloading MineAds Monitor configuration...", NamedTextColor.YELLOW));
 
     boolean success = plugin.reloadConfig();
 
     if (success) {
       sender.sendMessage(Component.text("Configuration reloaded successfully!", NamedTextColor.GREEN));
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Configuration reloaded successfully");
+      }
     } else {
       sender.sendMessage(Component.text("Failed to reload configuration. Check console for details.", NamedTextColor.RED));
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Configuration reload failed");
+      }
     }
   }
 
@@ -95,8 +109,14 @@ public class MineAdsCommand {
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
       plugin.getBatchProcessor().addEvent(purchaseEvent);
       sender.sendMessage(Component.text("Tebex purchase event recorded successfully", NamedTextColor.GREEN));
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Tebex purchase event recorded for player: " + username + ", package: " + packageName);
+      }
     } else {
       sender.sendMessage(Component.text("Plugin not properly initialized - check plugin configuration", NamedTextColor.RED));
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Failed to record Tebex purchase - plugin not initialized");
+      }
     }
   }
 
@@ -131,8 +151,14 @@ public class MineAdsCommand {
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
       plugin.getBatchProcessor().addEvent(purchaseEvent);
       sender.sendMessage(Component.text("CraftingStore purchase event recorded successfully", NamedTextColor.GREEN));
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] CraftingStore purchase event recorded for player: " + player + ", package: " + packageName);
+      }
     } else {
       sender.sendMessage(Component.text("Plugin not properly initialized - check plugin configuration", NamedTextColor.RED));
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Failed to record CraftingStore purchase - plugin not initialized");
+      }
     }
   }
 }

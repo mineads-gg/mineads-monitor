@@ -43,6 +43,10 @@ public class MineAdsMonitorPlugin {
 
   public void onEnable() {
     try {
+      if (config != null && config.isDebug()) {
+        log.info("[DEBUG] Starting plugin enable process");
+      }
+
       // Initialize platform-specific components
       bootstrap.initializePlatform();
 
@@ -55,6 +59,10 @@ public class MineAdsMonitorPlugin {
         return;
       }
 
+      if (config != null && config.isDebug()) {
+        log.info("[DEBUG] Configuration loaded successfully");
+      }
+
       // Initialize core services
       initializeCoreServices();
 
@@ -65,6 +73,9 @@ public class MineAdsMonitorPlugin {
       // Register platform-specific listeners
       if (this.batchProcessor != null) {
         bootstrap.registerListeners(this.batchProcessor, this.config);
+        if (config != null && config.isDebug()) {
+          log.info("[DEBUG] Event listeners registered");
+        }
       }
 
       initialized = true;
@@ -78,6 +89,10 @@ public class MineAdsMonitorPlugin {
 
   public void onDisable() {
     try {
+      if (config != null && config.isDebug()) {
+        log.info("[DEBUG] Starting plugin disable process");
+      }
+
       // Shutdown core services
       shutdownCoreServices();
 
@@ -98,6 +113,9 @@ public class MineAdsMonitorPlugin {
   private void loadConfig() {
     Path configPath = bootstrap.getDataFolder().resolve("config.yml");
     config = YamlConfigurations.update(configPath, Config.class);
+    if (config != null && config.isDebug()) {
+      log.info("[DEBUG] Configuration file loaded from: " + configPath.toAbsolutePath());
+    }
   }
 
   /**
@@ -111,9 +129,13 @@ public class MineAdsMonitorPlugin {
    * Initialize core services
    */
   private void initializeCoreServices() {
-    batchProcessor = new BatchProcessor(config.getPluginKey());
+    batchProcessor = new BatchProcessor(config.getPluginKey(), config);
 
     bootstrap.getScheduler().scheduleAsync(batchProcessor, 10, 10, java.util.concurrent.TimeUnit.SECONDS);
+
+    if (config.isDebug()) {
+      log.info("[DEBUG] Batch processor scheduled to run every 10 seconds");
+    }
 
     // Initialize platform-specific services
     bootstrap.initializeLuckPerms();
@@ -165,7 +187,7 @@ public class MineAdsMonitorPlugin {
       if (pluginKeyChanged && batchProcessor != null) {
         // Restart batch processor with new plugin key
         batchProcessor.shutdown();
-        batchProcessor = new BatchProcessor(config.getPluginKey());
+        batchProcessor = new BatchProcessor(config.getPluginKey(), config);
         bootstrap.getScheduler().scheduleAsync(batchProcessor, 10, 10, java.util.concurrent.TimeUnit.SECONDS);
         log.info("[MineAdsMonitor] Batch processor restarted with new plugin key");
       }

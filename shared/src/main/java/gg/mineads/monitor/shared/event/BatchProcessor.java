@@ -18,6 +18,7 @@
 package gg.mineads.monitor.shared.event;
 
 import com.google.gson.*;
+import gg.mineads.monitor.shared.config.Config;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.msgpack.core.MessageBufferPacker;
@@ -47,6 +48,7 @@ public class BatchProcessor implements Runnable {
   private static final Gson GSON = new Gson();
   private final Queue<Object> events = new ConcurrentLinkedQueue<>();
   private final String pluginKey;
+  private final Config config;
   private final HttpClient httpClient = HttpClient.newBuilder()
     .connectTimeout(Duration.ofSeconds(10))
     .build();
@@ -112,6 +114,9 @@ public class BatchProcessor implements Runnable {
 
   @Override
   public void run() {
+    if (config.isDebug()) {
+      log.info("[DEBUG] BatchProcessor run() called, events in queue: " + events.size());
+    }
     if (!events.isEmpty()) {
       processQueueAsync();
     }
@@ -120,13 +125,23 @@ public class BatchProcessor implements Runnable {
   private void processQueueAsync() {
     if (!processingLock.tryLock()) {
       // Another thread is already processing
+      if (config.isDebug()) {
+        log.info("[DEBUG] Another thread is already processing batch, skipping");
+      }
       return;
     }
 
     try {
       if (isProcessing.getAndSet(true)) {
         // Already processing
+        if (config.isDebug()) {
+          log.info("[DEBUG] Batch processing already in progress, skipping");
+        }
         return;
+      }
+
+      if (config.isDebug()) {
+        log.info("[DEBUG] Starting async batch processing");
       }
 
       // Process in background to avoid blocking
@@ -151,6 +166,9 @@ public class BatchProcessor implements Runnable {
 
   public void addEvent(Object event) {
     events.add(event);
+    if (config.isDebug()) {
+      log.info("[DEBUG] Added event to queue, new size: " + events.size());
+    }
     processIfNecessary();
   }
 
@@ -184,16 +202,29 @@ public class BatchProcessor implements Runnable {
     }
 
     if (currentEvents.isEmpty()) {
+      if (config.isDebug()) {
+        log.info("[DEBUG] No events to process");
+      }
       return;
+    }
+
+    if (config.isDebug()) {
+      log.info("[DEBUG] Processing batch of " + drained + " events");
     }
 
     try {
       byte[] messagePack = serializeToMessagePack(currentEvents);
+      if (config.isDebug()) {
+        log.info("[DEBUG] Serialized batch to " + messagePack.length + " bytes");
+      }
       sendBatchWithRetry(messagePack, 0);
     } catch (Exception e) {
       log.severe("Failed to process batch: " + e.getMessage());
       // Re-queue events on failure
       events.addAll(currentEvents);
+      if (config.isDebug()) {
+        log.info("[DEBUG] Re-queued " + currentEvents.size() + " events due to processing failure");
+      }
     }
   }
 
@@ -220,14 +251,23 @@ public class BatchProcessor implements Runnable {
     if (statusCode >= 200 && statusCode < 300) {
       // Success
       log.info("Successfully sent batch of " + batch.length + " bytes");
+      if (config.isDebug()) {
+        log.info("[DEBUG] Batch sent successfully with status " + statusCode);
+      }
     } else if (shouldRetry(statusCode) && attempt < MAX_RETRY_ATTEMPTS) {
       // Retry on server errors or rate limiting
       long delayMs = calculateRetryDelay(attempt);
       log.warning("Batch send failed with status " + statusCode + ", retrying in " + delayMs + "ms (attempt " + (attempt + 1) + ")");
+      if (config.isDebug()) {
+        log.info("[DEBUG] Scheduling retry attempt " + (attempt + 1) + " in " + delayMs + "ms");
+      }
       retryExecutor.schedule(() -> sendBatchWithRetry(batch, attempt + 1), delayMs, TimeUnit.MILLISECONDS);
     } else {
       // Final failure
       log.severe("Batch send failed with status " + statusCode + " after " + (attempt + 1) + " attempts");
+      if (config.isDebug()) {
+        log.info("[DEBUG] Final failure for batch after " + (attempt + 1) + " attempts");
+      }
     }
   }
 
@@ -235,9 +275,15 @@ public class BatchProcessor implements Runnable {
     if (shouldRetryOnException(throwable) && attempt < MAX_RETRY_ATTEMPTS) {
       long delayMs = calculateRetryDelay(attempt);
       log.warning("Batch send failed with exception: " + throwable.getMessage() + ", retrying in " + delayMs + "ms (attempt " + (attempt + 1) + ")");
+      if (config.isDebug()) {
+        log.info("[DEBUG] Scheduling retry attempt " + (attempt + 1) + " in " + delayMs + "ms due to exception");
+      }
       retryExecutor.schedule(() -> sendBatchWithRetry(batch, attempt + 1), delayMs, TimeUnit.MILLISECONDS);
     } else {
       log.severe("Batch send failed after " + (attempt + 1) + " attempts: " + throwable.getMessage());
+      if (config.isDebug()) {
+        log.info("[DEBUG] Final failure for batch after " + (attempt + 1) + " attempts due to exception");
+      }
     }
   }
 
