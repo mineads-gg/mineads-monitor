@@ -260,6 +260,10 @@ public class BatchProcessor implements Runnable {
       log.warning("Batch send failed with status " + statusCode + ", retrying in " + delayMs + "ms (attempt " + (attempt + 1) + ")");
       if (config.isDebug()) {
         log.info("[DEBUG] Scheduling retry attempt " + (attempt + 1) + " in " + delayMs + "ms");
+        String responseBody = response.body();
+        if (responseBody != null && !responseBody.trim().isEmpty()) {
+          log.info("[DEBUG] Error response body: " + responseBody);
+        }
       }
       retryExecutor.schedule(() -> sendBatchWithRetry(batch, attempt + 1), delayMs, TimeUnit.MILLISECONDS);
     } else {
@@ -267,6 +271,10 @@ public class BatchProcessor implements Runnable {
       log.severe("Batch send failed with status " + statusCode + " after " + (attempt + 1) + " attempts");
       if (config.isDebug()) {
         log.info("[DEBUG] Final failure for batch after " + (attempt + 1) + " attempts");
+        String responseBody = response.body();
+        if (responseBody != null && !responseBody.trim().isEmpty()) {
+          log.info("[DEBUG] Error response body: " + responseBody);
+        }
       }
     }
   }
@@ -277,12 +285,14 @@ public class BatchProcessor implements Runnable {
       log.warning("Batch send failed with exception: " + throwable.getMessage() + ", retrying in " + delayMs + "ms (attempt " + (attempt + 1) + ")");
       if (config.isDebug()) {
         log.info("[DEBUG] Scheduling retry attempt " + (attempt + 1) + " in " + delayMs + "ms due to exception");
+        log.info("[DEBUG] Exception details: " + throwable.toString());
       }
       retryExecutor.schedule(() -> sendBatchWithRetry(batch, attempt + 1), delayMs, TimeUnit.MILLISECONDS);
     } else {
       log.severe("Batch send failed after " + (attempt + 1) + " attempts: " + throwable.getMessage());
       if (config.isDebug()) {
         log.info("[DEBUG] Final failure for batch after " + (attempt + 1) + " attempts due to exception");
+        log.info("[DEBUG] Exception details: " + throwable.toString());
       }
     }
   }
