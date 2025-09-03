@@ -17,22 +17,17 @@
  */
 package gg.mineads.monitor.shared.config;
 
-import de.exlll.configlib.Comment;
-import de.exlll.configlib.Configuration;
-import gg.mineads.monitor.shared.event.model.data.EventType;
-import lombok.Getter;
+/**
+ * Enum representing different types of configuration errors
+ */
+public enum ConfigErrorType {
+  /**
+   * Plugin key is missing or empty
+   */
+  PLUGIN_KEY_MISSING,
 
-import java.util.Set;
-
-@Getter
-@Configuration
-public class Config {
-  @Comment("The plugin key for your server. You can get this from the MineAds dashboard. Must start with 'pluginkey_'.")
-  private String pluginKey = "";
-
-  @Comment("Enable/disable tracking of specific event types. By default, all events are enabled.")
-  private Set<EventType> enabledEvents = Set.of(EventType.values());
-
-  @Comment("Enable debug logging for batch processing events. Useful for troubleshooting.")
-  private boolean debug = false;
+  /**
+   * Plugin key does not have the correct format (must start with "pluginkey_")
+   */
+  PLUGIN_KEY_INVALID_FORMAT
 }

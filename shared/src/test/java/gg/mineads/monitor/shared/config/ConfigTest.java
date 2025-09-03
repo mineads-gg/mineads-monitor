@@ -43,4 +43,17 @@ class ConfigTest {
     // Test that the class has the Configuration annotation
     assertTrue(config.getClass().isAnnotationPresent(de.exlll.configlib.Configuration.class));
   }
+
+  @Test
+  void testConfigErrorTypeEnum() {
+    // Test that the enum values exist
+    assertNotNull(ConfigErrorType.PLUGIN_KEY_MISSING);
+    assertNotNull(ConfigErrorType.PLUGIN_KEY_INVALID_FORMAT);
+
+    // Test that we can get all enum values
+    ConfigErrorType[] values = ConfigErrorType.values();
+    assertEquals(2, values.length);
+    assertTrue(values[0] == ConfigErrorType.PLUGIN_KEY_MISSING || values[1] == ConfigErrorType.PLUGIN_KEY_MISSING);
+    assertTrue(values[0] == ConfigErrorType.PLUGIN_KEY_INVALID_FORMAT || values[1] == ConfigErrorType.PLUGIN_KEY_INVALID_FORMAT);
+  }
 }

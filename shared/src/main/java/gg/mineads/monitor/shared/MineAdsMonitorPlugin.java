@@ -20,6 +20,7 @@ package gg.mineads.monitor.shared;
 import de.exlll.configlib.YamlConfigurations;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.config.Config;
+import gg.mineads.monitor.shared.config.ConfigErrorType;
 import gg.mineads.monitor.shared.event.BatchProcessor;
 import lombok.Getter;
 import lombok.extern.java.Log;
@@ -56,8 +57,9 @@ public class MineAdsMonitorPlugin {
       loadConfig();
 
       // Validate configuration
-      if (!isConfigurationValid()) {
-        log.warning("[MineAdsMonitor] Plugin key not configured. Please set 'pluginKey' in config.yml");
+      ConfigErrorType error = validateConfiguration();
+      if (error != null) {
+        logConfigurationError(error);
         return;
       }
 
@@ -139,8 +141,14 @@ public class MineAdsMonitorPlugin {
   /**
    * Validate that required configuration is present
    */
-  private boolean isConfigurationValid() {
-    return config != null && config.getPluginKey() != null && !config.getPluginKey().isEmpty();
+  private ConfigErrorType validateConfiguration() {
+    if (config == null || config.getPluginKey() == null || config.getPluginKey().isEmpty()) {
+      return ConfigErrorType.PLUGIN_KEY_MISSING;
+    }
+    if (!config.getPluginKey().startsWith("pluginkey_")) {
+      return ConfigErrorType.PLUGIN_KEY_INVALID_FORMAT;
+    }
+    return null; // No error
   }
 
   /**
@@ -191,8 +199,9 @@ public class MineAdsMonitorPlugin {
       Config newConfig = YamlConfigurations.update(configPath, Config.class);
 
       // Validate the new configuration
-      if (!isValidConfig(newConfig)) {
-        log.warning("[MineAdsMonitor] Reload failed: Invalid configuration. Plugin key is required.");
+      ConfigErrorType error = validateConfig(newConfig);
+      if (error != null) {
+        logConfigurationError(error, true);
         return false;
       }
 
@@ -222,7 +231,36 @@ public class MineAdsMonitorPlugin {
   /**
    * Validate that required configuration is present
    */
-  private boolean isValidConfig(Config config) {
-    return config != null && config.getPluginKey() != null && !config.getPluginKey().isEmpty();
+  private ConfigErrorType validateConfig(Config config) {
+    if (config == null || config.getPluginKey() == null || config.getPluginKey().isEmpty()) {
+      return ConfigErrorType.PLUGIN_KEY_MISSING;
+    }
+    if (!config.getPluginKey().startsWith("pluginkey_")) {
+      return ConfigErrorType.PLUGIN_KEY_INVALID_FORMAT;
+    }
+    return null; // No error
+  }
+
+  /**
+   * Log configuration error messages
+   */
+  private void logConfigurationError(ConfigErrorType error) {
+    logConfigurationError(error, false);
+  }
+
+  /**
+   * Log configuration error messages
+   */
+  private void logConfigurationError(ConfigErrorType error, boolean isReload) {
+    String prefix = isReload ? "[MineAdsMonitor] Reload failed: " : "[MineAdsMonitor] ";
+
+    switch (error) {
+      case PLUGIN_KEY_MISSING:
+        log.warning(prefix + "Plugin key not configured. Please set 'pluginKey' in config.yml");
+        break;
+      case PLUGIN_KEY_INVALID_FORMAT:
+        log.warning(prefix + "Invalid plugin key. Plugin keys must start with 'pluginkey_'. Please check that you used the correct type of key from the MineAds dashboard.");
+        break;
+    }
   }
 }
