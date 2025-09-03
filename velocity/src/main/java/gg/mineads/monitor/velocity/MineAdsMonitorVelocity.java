@@ -98,7 +98,7 @@ public class MineAdsMonitorVelocity {
 
     @Override
     public void registerListeners(BatchProcessor batchProcessor, Config config) {
-      plugin.proxyServer.getEventManager().register(plugin, new PlayerListener(batchProcessor, config));
+      plugin.proxyServer.getEventManager().register(plugin, new PlayerListener(batchProcessor, config, getScheduler()));
     }
 
     @Override

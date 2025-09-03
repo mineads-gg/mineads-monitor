@@ -22,6 +22,7 @@ import gg.mineads.monitor.shared.event.BatchProcessor;
 import gg.mineads.monitor.shared.event.model.MineAdsEvent;
 import gg.mineads.monitor.shared.event.model.data.*;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
+import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
 import lombok.extern.java.Log;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -39,10 +40,12 @@ public class PlayerListener implements Listener {
 
   private final BatchProcessor batchProcessor;
   private final Config config;
+  private final MineAdsScheduler scheduler;
 
-  public PlayerListener(BatchProcessor batchProcessor, Config config) {
+  public PlayerListener(BatchProcessor batchProcessor, Config config, MineAdsScheduler scheduler) {
     this.batchProcessor = batchProcessor;
     this.config = config;
+    this.scheduler = scheduler;
   }
 
   @EventHandler
@@ -56,25 +59,29 @@ public class PlayerListener implements Listener {
 
     ProxiedPlayer player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.createSession(player.getUniqueId());
-    List<String> ranks = LuckPermsUtil.getAllGroups(player.getUniqueId());
 
-    if (config.isDebug()) {
-      log.info("[DEBUG] Player joined: " + player.getName() + " (" + player.getUniqueId() + "), session: " + sessionId + ", ranks: " + ranks);
-    }
+    // Process event asynchronously to avoid blocking main thread
+    scheduler.runAsync(() -> {
+      List<String> ranks = LuckPermsUtil.getAllGroups(player.getUniqueId());
 
-    PlayerJoinData data = new PlayerJoinData(
-      sessionId,
-      player.getLocale() != null ? player.getLocale().toString() : null,
-      player.getAddress() != null && player.getAddress().getAddress() != null
-        ? player.getAddress().getAddress().getHostAddress() : null,
-      null,
-      player.getPendingConnection().getVersion(),
-      player.getPendingConnection().isOnlineMode(),
-      ranks,
-      player.getPendingConnection().getVirtualHost() != null ? player.getPendingConnection().getVirtualHost().getHostString() : null,
-      player.getPendingConnection().getVirtualHost() != null ? player.getPendingConnection().getVirtualHost().getPort() : null
-    );
-    batchProcessor.addEvent(MineAdsEvent.from(data));
+      if (config.isDebug()) {
+        log.info("[DEBUG] Player joined: " + player.getName() + " (" + player.getUniqueId() + "), session: " + sessionId + ", ranks: " + ranks);
+      }
+
+      PlayerJoinData data = new PlayerJoinData(
+        sessionId,
+        player.getLocale() != null ? player.getLocale().toString() : null,
+        player.getAddress() != null && player.getAddress().getAddress() != null
+          ? player.getAddress().getAddress().getHostAddress() : null,
+        null,
+        player.getPendingConnection().getVersion(),
+        player.getPendingConnection().isOnlineMode(),
+        ranks,
+        player.getPendingConnection().getVirtualHost() != null ? player.getPendingConnection().getVirtualHost().getHostString() : null,
+        player.getPendingConnection().getVirtualHost() != null ? player.getPendingConnection().getVirtualHost().getPort() : null
+      );
+      batchProcessor.addEvent(MineAdsEvent.from(data));
+    });
   }
 
   @EventHandler
@@ -88,14 +95,18 @@ public class PlayerListener implements Listener {
 
     ProxiedPlayer player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.removeSession(player.getUniqueId());
-    if (sessionId != null) {
-      if (config.isDebug()) {
-        log.info("[DEBUG] Player quit: " + player.getName() + " (" + player.getUniqueId() + "), session: " + sessionId);
+
+    // Process event asynchronously to avoid blocking main thread
+    scheduler.runAsync(() -> {
+      if (sessionId != null) {
+        if (config.isDebug()) {
+          log.info("[DEBUG] Player quit: " + player.getName() + " (" + player.getUniqueId() + "), session: " + sessionId);
+        }
+        batchProcessor.addEvent(MineAdsEvent.from(new PlayerLeaveData(sessionId)));
+      } else if (config.isDebug()) {
+        log.info("[DEBUG] Player quit: " + player.getName() + " - no active session found");
       }
-      batchProcessor.addEvent(MineAdsEvent.from(new PlayerLeaveData(sessionId)));
-    } else if (config.isDebug()) {
-      log.info("[DEBUG] Player quit: " + player.getName() + " - no active session found");
-    }
+    });
   }
 
   @EventHandler
@@ -112,25 +123,32 @@ public class PlayerListener implements Listener {
       return;
     }
 
-    if (event.isCommand() || event.isProxyCommand()) {
-      if (isEventEnabled(EventType.COMMAND)) {
-        if (config.isDebug()) {
-          log.info("[DEBUG] Player command: " + player.getName() + " - " + event.getMessage().substring(0, Math.min(50, event.getMessage().length())) + (event.getMessage().length() > 50 ? "..." : ""));
+    boolean isCommand = event.isCommand() || event.isProxyCommand();
+    boolean isChatEnabled = isEventEnabled(EventType.CHAT);
+    boolean isCommandEnabled = isEventEnabled(EventType.COMMAND);
+
+    // Process event asynchronously to avoid blocking main thread
+    scheduler.runAsync(() -> {
+      if (isCommand) {
+        if (isCommandEnabled) {
+          if (config.isDebug()) {
+            log.info("[DEBUG] Player command: " + player.getName() + " - " + event.getMessage().substring(0, Math.min(50, event.getMessage().length())) + (event.getMessage().length() > 50 ? "..." : ""));
+          }
+          batchProcessor.addEvent(MineAdsEvent.from(new PlayerCommandData(sessionId, event.getMessage())));
+        } else if (config.isDebug()) {
+          log.info("[DEBUG] Player command event ignored - COMMAND events disabled");
         }
-        batchProcessor.addEvent(MineAdsEvent.from(new PlayerCommandData(sessionId, event.getMessage())));
-      } else if (config.isDebug()) {
-        log.info("[DEBUG] Player command event ignored - COMMAND events disabled");
-      }
-    } else {
-      if (isEventEnabled(EventType.CHAT)) {
-        if (config.isDebug()) {
-          log.info("[DEBUG] Player chat: " + player.getName() + " - " + event.getMessage().substring(0, Math.min(50, event.getMessage().length())) + (event.getMessage().length() > 50 ? "..." : ""));
+      } else {
+        if (isChatEnabled) {
+          if (config.isDebug()) {
+            log.info("[DEBUG] Player chat: " + player.getName() + " - " + event.getMessage().substring(0, Math.min(50, event.getMessage().length())) + (event.getMessage().length() > 50 ? "..." : ""));
+          }
+          batchProcessor.addEvent(MineAdsEvent.from(new PlayerChatData(sessionId, event.getMessage())));
+        } else if (config.isDebug()) {
+          log.info("[DEBUG] Player chat event ignored - CHAT events disabled");
         }
-        batchProcessor.addEvent(MineAdsEvent.from(new PlayerChatData(sessionId, event.getMessage())));
-      } else if (config.isDebug()) {
-        log.info("[DEBUG] Player chat event ignored - CHAT events disabled");
       }
-    }
+    });
   }
 
   private boolean isEventEnabled(EventType eventType) {

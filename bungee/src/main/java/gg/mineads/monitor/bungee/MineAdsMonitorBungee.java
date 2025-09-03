@@ -82,7 +82,7 @@ public class MineAdsMonitorBungee extends Plugin {
 
     @Override
     public void registerListeners(BatchProcessor batchProcessor, Config config) {
-      plugin.getProxy().getPluginManager().registerListener(plugin, new PlayerListener(batchProcessor, config));
+      plugin.getProxy().getPluginManager().registerListener(plugin, new PlayerListener(batchProcessor, config, getScheduler()));
     }
 
     @Override
