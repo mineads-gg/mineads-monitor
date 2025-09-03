@@ -75,7 +75,7 @@ public class PlayerListener implements Listener {
         player.getUniqueId(),
         player.getName(),
         Objects.toString(player.getLocale(), null),
-        TypeUtil.getHostString(player.getSocketAddress()),
+        TypeUtil.getIPString(player.getSocketAddress()),
         player.getClientBrand(),
         player.getPendingConnection().getVersion(),
         player.getPendingConnection().isOnlineMode(),

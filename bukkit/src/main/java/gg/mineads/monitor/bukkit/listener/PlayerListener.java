@@ -76,7 +76,7 @@ public class PlayerListener implements Listener {
         player.getUniqueId(),
         player.getName(),
         Objects.toString(player.locale(), null),
-        TypeUtil.getHostString(player.getAddress()),
+        TypeUtil.getIPString(player.getAddress()),
         player.getClientBrandName(),
         player.getProtocolVersion(),
         player.getServer().getOnlineMode(),

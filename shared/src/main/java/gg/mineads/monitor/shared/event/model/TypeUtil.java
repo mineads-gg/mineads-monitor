@@ -30,4 +30,17 @@ public class TypeUtil {
       return null;
     }
   }
+
+  public static String getIPString(SocketAddress address) {
+    if (address instanceof InetSocketAddress inetSocketAddress) {
+      var inetAddress = inetSocketAddress.getAddress();
+      if (inetAddress == null) {
+        return null;
+      } else {
+        return inetAddress.getHostAddress();
+      }
+    } else {
+      return null;
+    }
+  }
 }

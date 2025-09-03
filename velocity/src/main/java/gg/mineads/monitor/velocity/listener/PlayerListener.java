@@ -75,7 +75,7 @@ public class PlayerListener {
         player.getUniqueId(),
         player.getUsername(),
         Objects.toString(player.getEffectiveLocale(), null),
-        TypeUtil.getHostString(player.getRemoteAddress()),
+        TypeUtil.getIPString(player.getRemoteAddress()),
         player.getClientBrand(),
         player.getProtocolVersion().getProtocol(),
         player.isOnlineMode(),
