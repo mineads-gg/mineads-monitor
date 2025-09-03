@@ -19,9 +19,14 @@ package gg.mineads.monitor.shared.permission;
 
 import lombok.extern.java.Log;
 import net.luckperms.api.LuckPerms;
+import net.luckperms.api.model.group.Group;
 import net.luckperms.api.model.user.User;
+import net.luckperms.api.query.Flag;
+import net.luckperms.api.query.QueryOptions;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -68,12 +73,12 @@ public class LuckPermsUtil {
   }
 
   /**
-   * Gets the primary group of a user.
+   * Gets all groups that a user has.
    *
    * @param uuid The UUID of the user
-   * @return The primary group of the user, or null if not available
+   * @return A list of all group names the user has, or null if not available
    */
-  public static String getPrimaryGroup(UUID uuid) {
+  public static List<String> getAllGroups(UUID uuid) {
     if (!isAvailable()) {
       return null;
     }
@@ -84,9 +89,13 @@ public class LuckPermsUtil {
         return null;
       }
 
-      String primaryGroup = user.getPrimaryGroup();
-      // Note: We don't log here as this is called frequently during player joins
-      return primaryGroup;
+      return user.getInheritedGroups(QueryOptions.nonContextual(Set.of(
+          Flag.RESOLVE_INHERITANCE
+        )))
+        .stream()
+        .map(Group::getName)
+        .sorted()
+        .toList();
     } catch (Exception e) {
       return null;
     }

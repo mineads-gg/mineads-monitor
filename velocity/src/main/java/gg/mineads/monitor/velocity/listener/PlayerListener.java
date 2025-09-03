@@ -31,6 +31,8 @@ import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
 import lombok.extern.java.Log;
 
+import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.UUID;
 
 @Log
@@ -55,10 +57,10 @@ public class PlayerListener {
 
     Player player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.createSession(player.getUniqueId());
-    String rank = LuckPermsUtil.getPrimaryGroup(player.getUniqueId());
+    List<String> ranks = LuckPermsUtil.getAllGroups(player.getUniqueId());
 
     if (config.isDebug()) {
-      log.info("[DEBUG] Player joined: " + player.getUsername() + " (" + player.getUniqueId() + "), session: " + sessionId + ", rank: " + rank);
+      log.info("[DEBUG] Player joined: " + player.getUsername() + " (" + player.getUniqueId() + "), session: " + sessionId + ", ranks: " + ranks);
     }
 
     PlayerJoinData data = new PlayerJoinData(
@@ -67,9 +69,11 @@ public class PlayerListener {
       player.getRemoteAddress() != null && player.getRemoteAddress().getAddress() != null
         ? player.getRemoteAddress().getAddress().getHostAddress() : null,
       player.getClientBrand(),
-      String.valueOf(player.getProtocolVersion().getProtocol()),
+      player.getProtocolVersion().getProtocol(),
       player.isOnlineMode(),
-      rank
+      ranks,
+      player.getVirtualHost().map(InetSocketAddress::getHostString).orElse(null),
+      player.getVirtualHost().map(InetSocketAddress::getPort).orElse(null)
     );
     batchProcessor.addEvent(MineAdsEvent.from(data));
   }

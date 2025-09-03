@@ -31,6 +31,7 @@ import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
+import java.util.List;
 import java.util.UUID;
 
 @Log
@@ -55,10 +56,10 @@ public class PlayerListener implements Listener {
 
     ProxiedPlayer player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.createSession(player.getUniqueId());
-    String rank = LuckPermsUtil.getPrimaryGroup(player.getUniqueId());
+    List<String> ranks = LuckPermsUtil.getAllGroups(player.getUniqueId());
 
     if (config.isDebug()) {
-      log.info("[DEBUG] Player joined: " + player.getName() + " (" + player.getUniqueId() + "), session: " + sessionId + ", rank: " + rank);
+      log.info("[DEBUG] Player joined: " + player.getName() + " (" + player.getUniqueId() + "), session: " + sessionId + ", ranks: " + ranks);
     }
 
     PlayerJoinData data = new PlayerJoinData(
@@ -67,9 +68,11 @@ public class PlayerListener implements Listener {
       player.getAddress() != null && player.getAddress().getAddress() != null
         ? player.getAddress().getAddress().getHostAddress() : null,
       null,
-      String.valueOf(player.getPendingConnection().getVersion()),
+      player.getPendingConnection().getVersion(),
       player.getPendingConnection().isOnlineMode(),
-      rank
+      ranks,
+      player.getPendingConnection().getVirtualHost() != null ? player.getPendingConnection().getVirtualHost().getHostString() : null,
+      player.getPendingConnection().getVirtualHost() != null ? player.getPendingConnection().getVirtualHost().getPort() : null
     );
     batchProcessor.addEvent(MineAdsEvent.from(data));
   }

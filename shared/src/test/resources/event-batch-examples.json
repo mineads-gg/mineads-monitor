@@ -7,9 +7,11 @@
       "locale": "en_us",
       "ip": "127.0.0.1",
       "client_brand": "vanilla",
-      "minecraft_version": "1.21.8-R0.1-SNAPSHOT",
+      "protocol_version": 100,
       "online_mode": true,
-      "luck_perms_rank": "default"
+      "luckperms_ranks": [
+        "default"
+      ]
     }
   },
   {
@@ -89,9 +91,9 @@
       "locale": null,
       "ip": null,
       "client_brand": null,
-      "minecraft_version": null,
+      "protocol_version": -1,
       "online_mode": false,
-      "luck_perms_rank": null
+      "luckperms_ranks": null
     }
   },
   {

@@ -24,7 +24,6 @@ import gg.mineads.monitor.shared.event.model.data.*;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
 import lombok.extern.java.Log;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -33,6 +32,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.List;
 import java.util.UUID;
 
 @Log
@@ -46,6 +46,7 @@ public class PlayerListener implements Listener {
     this.config = config;
   }
 
+  @SuppressWarnings("deprecation")
   @EventHandler
   public void onPlayerJoin(PlayerJoinEvent event) {
     if (!isEventEnabled(EventType.JOIN)) {
@@ -57,10 +58,10 @@ public class PlayerListener implements Listener {
 
     Player player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.createSession(player.getUniqueId());
-    String rank = LuckPermsUtil.getPrimaryGroup(player.getUniqueId());
+    List<String> ranks = LuckPermsUtil.getAllGroups(player.getUniqueId());
 
     if (config.isDebug()) {
-      log.info("[DEBUG] Player joined: " + player.getName() + " (" + player.getUniqueId() + "), session: " + sessionId + ", rank: " + rank);
+      log.info("[DEBUG] Player joined: " + player.getName() + " (" + player.getUniqueId() + "), session: " + sessionId + ", ranks: " + ranks);
     }
 
     PlayerJoinData data = new PlayerJoinData(
@@ -69,9 +70,11 @@ public class PlayerListener implements Listener {
       player.getAddress() != null && player.getAddress().getAddress() != null
         ? player.getAddress().getAddress().getHostAddress() : null,
       null, // Client brand is not available on Bukkit
-      Bukkit.getBukkitVersion(),
-      Bukkit.getOnlineMode(),
-      rank
+      player.getProtocolVersion(),
+      player.getServer().getOnlineMode(),
+      ranks,
+      player.getVirtualHost() != null ? player.getVirtualHost().getHostString() : null,
+      player.getVirtualHost() != null ? player.getVirtualHost().getPort() : null
     );
     batchProcessor.addEvent(MineAdsEvent.from(data));
   }

@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -38,12 +39,17 @@ public final class PlayerJoinData implements EventData {
   @SerializedName("client_brand")
   @Nullable
   private final String clientBrand;
-  @SerializedName("minecraft_version")
-  @Nullable
-  private final String minecraftVersion;
+  @SerializedName("protocol_version")
+  private final int protocolVersion;
   @SerializedName("online_mode")
   private final boolean onlineMode;
-  @SerializedName("luck_perms_rank")
+  @SerializedName("luckperms_ranks")
   @Nullable
-  private final String luckPermsRank;
+  private final List<String> luckpermsRanks;
+  @SerializedName("virtual_host")
+  @Nullable
+  private final String virtualHost;
+  @SerializedName("virtual_port")
+  @Nullable
+  private final Integer virtualPort;
 }
