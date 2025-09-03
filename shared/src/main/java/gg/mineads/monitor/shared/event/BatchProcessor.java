@@ -50,7 +50,6 @@ public class BatchProcessor implements Runnable {
   private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(30);
   private static final Gson GSON = new Gson();
   private final Queue<Object> events = new ConcurrentLinkedQueue<>();
-  private final String pluginKey;
   private final Config config;
   private final HttpClient httpClient = HttpClient.newBuilder()
     .connectTimeout(Duration.ofSeconds(10))
@@ -244,7 +243,7 @@ public class BatchProcessor implements Runnable {
   private void sendBatchWithRetry(byte[] batch, int attempt) {
     HttpRequest request = HttpRequest.newBuilder()
       .uri(URI.create(HttpConstants.API_ENDPOINT))
-      .header(HttpConstants.HEADER_API_KEY, pluginKey)
+      .header(HttpConstants.HEADER_API_KEY, config.getPluginKey())
       .header(HttpConstants.HEADER_CONTENT_TYPE, HttpConstants.CONTENT_TYPE_MSGPACK)
       .timeout(REQUEST_TIMEOUT)
       .PUT(HttpRequest.BodyPublishers.ofByteArray(batch))

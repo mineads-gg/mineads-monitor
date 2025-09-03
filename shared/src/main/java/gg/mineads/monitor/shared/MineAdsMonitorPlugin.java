@@ -28,6 +28,7 @@ import lombok.extern.java.Log;
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 @Log
@@ -38,6 +39,7 @@ public class MineAdsMonitorPlugin {
   private BatchProcessor batchProcessor;
   @Getter
   private Config config;
+  @Getter
   private boolean initialized = false;
 
   public MineAdsMonitorPlugin(AbstractMineAdsMonitorBootstrap bootstrap) {
@@ -155,7 +157,7 @@ public class MineAdsMonitorPlugin {
    * Initialize core services
    */
   private void initializeCoreServices() {
-    batchProcessor = new BatchProcessor(config.getPluginKey(), config);
+    batchProcessor = new BatchProcessor(config);
 
     bootstrap.getScheduler().scheduleAsync(batchProcessor, 10, 10, java.util.concurrent.TimeUnit.SECONDS);
 
@@ -178,13 +180,6 @@ public class MineAdsMonitorPlugin {
       batchProcessor.run(); // Process any remaining events
       batchProcessor.shutdown();
     }
-  }
-
-  /**
-   * Check if the plugin is properly initialized
-   */
-  public boolean isInitialized() {
-    return initialized;
   }
 
   /**
@@ -214,14 +209,13 @@ public class MineAdsMonitorPlugin {
       if (pluginKeyChanged && batchProcessor != null) {
         // Restart batch processor with new plugin key
         batchProcessor.shutdown();
-        batchProcessor = new BatchProcessor(config.getPluginKey(), config);
-        bootstrap.getScheduler().scheduleAsync(batchProcessor, 10, 10, java.util.concurrent.TimeUnit.SECONDS);
+        batchProcessor = new BatchProcessor(config);
+        bootstrap.getScheduler().scheduleAsync(batchProcessor, 10, 10, TimeUnit.SECONDS);
         log.info("[MineAdsMonitor] Batch processor restarted with new plugin key");
       }
 
       log.info("[MineAdsMonitor] Configuration reloaded successfully");
       return true;
-
     } catch (Exception e) {
       log.log(Level.SEVERE, "[MineAdsMonitor] Failed to reload configuration", e);
       return false;
