@@ -4,14 +4,17 @@
     "time": 1703123456789,
     "join_data": {
       "session_id": "f238ac72-33db-4e77-bfd7-e24c82c67958",
+      "uuid": "f238ac72-33db-4e77-bfd7-e24c82c67958",
+      "username": "player123",
       "locale": "en_us",
-      "ip": "127.0.0.1",
+      "host": "127.0.0.1",
       "client_brand": "vanilla",
       "protocol_version": 100,
       "online_mode": true,
       "luckperms_ranks": [
         "default"
-      ]
+      ],
+      "virtual_host": null
     }
   },
   {
@@ -88,12 +91,15 @@
     "time": 1703123456795,
     "join_data": {
       "session_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "username": "player456",
       "locale": null,
-      "ip": null,
+      "host": null,
       "client_brand": null,
       "protocol_version": -1,
       "online_mode": false,
-      "luckperms_ranks": null
+      "luckperms_ranks": null,
+      "virtual_host": null
     }
   },
   {
