@@ -116,7 +116,7 @@ jobs:
 
       - uses: Kir-Antipov/mc-publish@v3.3
         with:
-          modrinth-id: mineadsmonitor
+          modrinth-id: mineads-monitor
           modrinth-featured: true
           modrinth-unfeature-mode: subset
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
@@ -137,7 +137,7 @@ jobs:
           changelog: ${{ steps.github_release.outputs.changelog }}
 
           github-changelog: |
-            [![modrinth](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/modrinth_vector.svg)](https://modrinth.com/plugin/mineadsmonitor/version/${{ inputs.version }}) [![hangar](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/hangar_vector.svg)](https://hangar.papermc.io/Pistonmaster/MineAdsMonitor/versions/${{ inputs.version }})
+            [![modrinth](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/modrinth_vector.svg)](https://modrinth.com/plugin/mineads-monitor/version/${{ inputs.version }}) [![hangar](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/hangar_vector.svg)](https://hangar.papermc.io/MineAds/MineAdsMonitor/versions/${{ inputs.version }})
 
             ${{ steps.github_release.outputs.changelog }}
 
