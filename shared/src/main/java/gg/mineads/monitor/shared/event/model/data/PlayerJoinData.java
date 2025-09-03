@@ -30,26 +30,29 @@ import java.util.UUID;
 public final class PlayerJoinData implements EventData {
   @SerializedName("session_id")
   private final UUID sessionId;
+  @SerializedName("uuid")
+  private final UUID uuid;
+  @SerializedName("username")
+  private final String username;
   @SerializedName("locale")
   @Nullable
   private final String locale;
-  @SerializedName("ip")
+  @SerializedName("host")
   @Nullable
-  private final String ip;
+  private final String host;
   @SerializedName("client_brand")
   @Nullable
   private final String clientBrand;
   @SerializedName("protocol_version")
-  private final int protocolVersion;
+  @Nullable
+  private final Integer protocolVersion;
   @SerializedName("online_mode")
-  private final boolean onlineMode;
+  @Nullable
+  private final Boolean onlineMode;
   @SerializedName("luckperms_ranks")
   @Nullable
   private final List<String> luckpermsRanks;
   @SerializedName("virtual_host")
   @Nullable
   private final String virtualHost;
-  @SerializedName("virtual_port")
-  @Nullable
-  private final Integer virtualPort;
 }

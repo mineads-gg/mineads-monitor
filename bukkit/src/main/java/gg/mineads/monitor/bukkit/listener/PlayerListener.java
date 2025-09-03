@@ -20,6 +20,7 @@ package gg.mineads.monitor.bukkit.listener;
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.BatchProcessor;
 import gg.mineads.monitor.shared.event.model.MineAdsEvent;
+import gg.mineads.monitor.shared.event.model.TypeUtil;
 import gg.mineads.monitor.shared.event.model.data.*;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
@@ -34,6 +35,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Log
@@ -49,7 +51,6 @@ public class PlayerListener implements Listener {
     this.scheduler = scheduler;
   }
 
-  @SuppressWarnings("deprecation")
   @EventHandler
   public void onPlayerJoin(PlayerJoinEvent event) {
     if (!isEventEnabled(EventType.JOIN)) {
@@ -72,15 +73,15 @@ public class PlayerListener implements Listener {
 
       PlayerJoinData data = new PlayerJoinData(
         sessionId,
-        player.getLocale(),
-        player.getAddress() != null && player.getAddress().getAddress() != null
-          ? player.getAddress().getAddress().getHostAddress() : null,
-        null, // Client brand is not available on Bukkit
+        player.getUniqueId(),
+        player.getName(),
+        Objects.toString(player.locale(), null),
+        TypeUtil.getHostString(player.getAddress()),
+        player.getClientBrandName(),
         player.getProtocolVersion(),
         player.getServer().getOnlineMode(),
         ranks,
-        player.getVirtualHost() != null ? player.getVirtualHost().getHostString() : null,
-        player.getVirtualHost() != null ? player.getVirtualHost().getPort() : null
+        TypeUtil.getHostString(player.getVirtualHost())
       );
       batchProcessor.addEvent(MineAdsEvent.from(data));
     });

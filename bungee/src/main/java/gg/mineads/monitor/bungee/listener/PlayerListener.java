@@ -20,6 +20,7 @@ package gg.mineads.monitor.bungee.listener;
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.BatchProcessor;
 import gg.mineads.monitor.shared.event.model.MineAdsEvent;
+import gg.mineads.monitor.shared.event.model.TypeUtil;
 import gg.mineads.monitor.shared.event.model.data.*;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
@@ -33,6 +34,7 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Log
@@ -70,15 +72,15 @@ public class PlayerListener implements Listener {
 
       PlayerJoinData data = new PlayerJoinData(
         sessionId,
-        player.getLocale() != null ? player.getLocale().toString() : null,
-        player.getAddress() != null && player.getAddress().getAddress() != null
-          ? player.getAddress().getAddress().getHostAddress() : null,
-        null,
+        player.getUniqueId(),
+        player.getName(),
+        Objects.toString(player.getLocale(), null),
+        TypeUtil.getHostString(player.getSocketAddress()),
+        player.getClientBrand(),
         player.getPendingConnection().getVersion(),
         player.getPendingConnection().isOnlineMode(),
         ranks,
-        player.getPendingConnection().getVirtualHost() != null ? player.getPendingConnection().getVirtualHost().getHostString() : null,
-        player.getPendingConnection().getVirtualHost() != null ? player.getPendingConnection().getVirtualHost().getPort() : null
+        TypeUtil.getHostString(player.getPendingConnection().getVirtualHost())
       );
       batchProcessor.addEvent(MineAdsEvent.from(data));
     });

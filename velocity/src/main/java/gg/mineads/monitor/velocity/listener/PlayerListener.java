@@ -26,14 +26,15 @@ import com.velocitypowered.api.proxy.Player;
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.BatchProcessor;
 import gg.mineads.monitor.shared.event.model.MineAdsEvent;
+import gg.mineads.monitor.shared.event.model.TypeUtil;
 import gg.mineads.monitor.shared.event.model.data.*;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
 import lombok.extern.java.Log;
 
-import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Log
@@ -71,15 +72,15 @@ public class PlayerListener {
 
       PlayerJoinData data = new PlayerJoinData(
         sessionId,
-        player.getEffectiveLocale() != null ? player.getEffectiveLocale().toString() : null,
-        player.getRemoteAddress() != null && player.getRemoteAddress().getAddress() != null
-          ? player.getRemoteAddress().getAddress().getHostAddress() : null,
+        player.getUniqueId(),
+        player.getUsername(),
+        Objects.toString(player.getEffectiveLocale(), null),
+        TypeUtil.getHostString(player.getRemoteAddress()),
         player.getClientBrand(),
         player.getProtocolVersion().getProtocol(),
         player.isOnlineMode(),
         ranks,
-        player.getVirtualHost().map(InetSocketAddress::getHostString).orElse(null),
-        player.getVirtualHost().map(InetSocketAddress::getPort).orElse(null)
+        TypeUtil.getHostString(player.getVirtualHost().orElse(null))
       );
       batchProcessor.addEvent(MineAdsEvent.from(data));
     });
