@@ -15,13 +15,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package gg.mineads.monitor.shared.event.model.purchase;
+package gg.mineads.monitor.shared.event.model.data;
+
+import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 /**
- * Sealed interface for purchase provider data types.
- * This ensures type safety for purchase-specific data from different providers.
+ * Unified data class for transaction events with essential fields only.
  */
-public sealed interface PurchaseProviderData permits
-  TebexPurchaseData,
-  CraftingStorePurchaseData {
+@Data
+@AllArgsConstructor
+public final class TransactionData implements EventData {
+  @SerializedName("transaction_id")
+  private final String transactionId;
+
+  @SerializedName("username")
+  private final String username;
+
+  @SerializedName("uuid")
+  private final String uuid;
+
+  @SerializedName("package_name")
+  private final String packageName;
+
+  @SerializedName("price")
+  private final String price;
+
+  @SerializedName("currency")
+  private final String currency;
 }

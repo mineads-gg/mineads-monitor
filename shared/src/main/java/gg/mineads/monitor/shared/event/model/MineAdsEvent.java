@@ -42,25 +42,25 @@ public class MineAdsEvent {
   @SerializedName("command_data")
   @Nullable
   private final PlayerCommandData commandData;
-  @SerializedName("purchase_data")
+  @SerializedName("transaction_data")
   @Nullable
-  private final PurchaseData purchaseData;
+  private final TransactionData transactionData;
 
   /**
    * Private constructor for internal use.
    */
   private MineAdsEvent(EventType eventType,
-                        @Nullable PlayerJoinData joinData,
-                        @Nullable PlayerLeaveData leaveData,
-                        @Nullable PlayerChatData chatData,
-                        @Nullable PlayerCommandData commandData,
-                        @Nullable PurchaseData purchaseData) {
+                       @Nullable PlayerJoinData joinData,
+                       @Nullable PlayerLeaveData leaveData,
+                       @Nullable PlayerChatData chatData,
+                       @Nullable PlayerCommandData commandData,
+                       @Nullable TransactionData transactionData) {
     this.eventType = eventType;
     this.joinData = joinData;
     this.leaveData = leaveData;
     this.chatData = chatData;
     this.commandData = commandData;
-    this.purchaseData = purchaseData;
+    this.transactionData = transactionData;
   }
 
   /**
@@ -112,13 +112,61 @@ public class MineAdsEvent {
   }
 
   /**
-   * Create a MineAdsEvent from purchase data.
+   * Create a MineAdsEvent from transaction data for initial purchase.
    *
-   * @param data the purchase data
-   * @return a new MineAdsEvent for purchase
+   * @param data the transaction data
+   * @return a new MineAdsEvent for initial purchase
    */
-  public static MineAdsEvent from(PurchaseData data) {
-    MineAdsEvent event = new MineAdsEvent(EventType.PURCHASE, null, null, null, null, data);
+  public static MineAdsEvent initial(TransactionData data) {
+    MineAdsEvent event = new MineAdsEvent(EventType.INITIAL, null, null, null, null, data);
+    event.validate();
+    return event;
+  }
+
+  /**
+   * Create a MineAdsEvent from transaction data for expiry.
+   *
+   * @param data the transaction data
+   * @return a new MineAdsEvent for expiry
+   */
+  public static MineAdsEvent expiry(TransactionData data) {
+    MineAdsEvent event = new MineAdsEvent(EventType.EXPIRY, null, null, null, null, data);
+    event.validate();
+    return event;
+  }
+
+  /**
+   * Create a MineAdsEvent from transaction data for renewal.
+   *
+   * @param data the transaction data
+   * @return a new MineAdsEvent for renewal
+   */
+  public static MineAdsEvent renewal(TransactionData data) {
+    MineAdsEvent event = new MineAdsEvent(EventType.RENEWAL, null, null, null, null, data);
+    event.validate();
+    return event;
+  }
+
+  /**
+   * Create a MineAdsEvent from transaction data for chargeback.
+   *
+   * @param data the transaction data
+   * @return a new MineAdsEvent for chargeback
+   */
+  public static MineAdsEvent chargeback(TransactionData data) {
+    MineAdsEvent event = new MineAdsEvent(EventType.CHARGEBACK, null, null, null, null, data);
+    event.validate();
+    return event;
+  }
+
+  /**
+   * Create a MineAdsEvent from transaction data for refund.
+   *
+   * @param data the transaction data
+   * @return a new MineAdsEvent for refund
+   */
+  public static MineAdsEvent refund(TransactionData data) {
+    MineAdsEvent event = new MineAdsEvent(EventType.REFUND, null, null, null, null, data);
     event.validate();
     return event;
   }
@@ -134,7 +182,7 @@ public class MineAdsEvent {
     if (leaveData != null) nonNullCount++;
     if (chatData != null) nonNullCount++;
     if (commandData != null) nonNullCount++;
-    if (purchaseData != null) nonNullCount++;
+    if (transactionData != null) nonNullCount++;
 
     if (nonNullCount != 1) {
       throw new IllegalStateException("Exactly one data field must be non-null, found: " + nonNullCount);
@@ -154,8 +202,8 @@ public class MineAdsEvent {
       case COMMAND -> {
         if (commandData == null) throw new IllegalStateException("COMMAND type requires commandData to be non-null");
       }
-      case PURCHASE -> {
-        if (purchaseData == null) throw new IllegalStateException("PURCHASE type requires purchaseData to be non-null");
+      case INITIAL, EXPIRY, RENEWAL, CHARGEBACK, REFUND -> {
+        if (transactionData == null) throw new IllegalStateException(eventType + " type requires transactionData to be non-null");
       }
     }
   }

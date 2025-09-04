@@ -26,5 +26,5 @@ public sealed interface EventData permits
   PlayerLeaveData,
   PlayerChatData,
   PlayerCommandData,
-  PurchaseData {
+  TransactionData {
 }

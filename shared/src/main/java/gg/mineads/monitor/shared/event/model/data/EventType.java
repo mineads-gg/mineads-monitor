@@ -23,8 +23,20 @@ import com.google.gson.annotations.SerializedName;
  * Enum representing different types of events that can be tracked.
  */
 public enum EventType {
-  @SerializedName("purchase")
-  PURCHASE,
+  @SerializedName("initial")
+  INITIAL,
+
+  @SerializedName("expiry")
+  EXPIRY,
+
+  @SerializedName("renewal")
+  RENEWAL,
+
+  @SerializedName("chargeback")
+  CHARGEBACK,
+
+  @SerializedName("refund")
+  REFUND,
 
   @SerializedName("chat")
   CHAT,

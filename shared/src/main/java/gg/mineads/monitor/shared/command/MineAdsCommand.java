@@ -22,9 +22,7 @@ import gg.mineads.monitor.shared.ComponentHelper;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import gg.mineads.monitor.shared.event.model.MineAdsEvent;
-import gg.mineads.monitor.shared.event.model.data.PurchaseData;
-import gg.mineads.monitor.shared.event.model.purchase.CraftingStorePurchaseData;
-import gg.mineads.monitor.shared.event.model.purchase.TebexPurchaseData;
+import gg.mineads.monitor.shared.event.model.data.TransactionData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import net.kyori.adventure.text.Component;
@@ -40,7 +38,6 @@ import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.help.result.CommandEntry;
 import org.incendo.cloud.minecraft.extras.MinecraftHelp;
 import org.incendo.cloud.minecraft.extras.caption.ComponentCaptionFormatter;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -135,95 +132,160 @@ public class MineAdsCommand {
     }
   }
 
-  @Command("tebex <id> <username> <transaction> <price> <currency> <packageName> [server] [date] [email] [ip] [packageId] [packagePrice] [packageExpiry] [purchaserName] [purchaserUuid] [purchaseQuantity]")
-  @Permission("mineadsmonitor.purchase")
-  @CommandDescription("Records a Tebex purchase event")
-  public void onTebexPurchase(
+  @Command("initial <transactionId> <username> <uuid> <packageName> <price> <currency>")
+  @Permission("mineadsmonitor.transaction")
+  @CommandDescription("Records an initial purchase event")
+  public void onInitial(
     final WrappedCommandSender sender,
-    @Argument(value = "id") final String id,
+    @Argument(value = "transactionId") final String transactionId,
     @Argument(value = "username") final String username,
-    @Argument(value = "transaction") final String transaction,
-    @Argument(value = "price") final String price,
-    @Argument(value = "currency") final String currency,
-    @Argument(value = "packageName") final String packageName,
-    @Argument(value = "server") @Nullable final String server,
-    @Argument(value = "date") @Nullable final String date,
-    @Argument(value = "email") @Nullable final String email,
-    @Argument(value = "ip") @Nullable final String ip,
-    @Argument(value = "packageId") @Nullable final String packageId,
-    @Argument(value = "packagePrice") @Nullable final String packagePrice,
-    @Argument(value = "packageExpiry") @Nullable final String packageExpiry,
-    @Argument(value = "purchaserName") @Nullable final String purchaserName,
-    @Argument(value = "purchaserUuid") @Nullable final String purchaserUuid,
-    @Argument(value = "purchaseQuantity") @Nullable final String purchaseQuantity
-  ) {
-    // Create Tebex-specific data
-    TebexPurchaseData tebexData = new TebexPurchaseData(
-      id, username, transaction, price, currency, packageName,
-      server, date, email, ip, packageId, packagePrice, packageExpiry,
-      purchaserName, purchaserUuid, purchaseQuantity
-    );
-
-    // Create purchase event with type discriminator
-    PurchaseData purchaseData = PurchaseData.tebex(tebexData);
-    MineAdsEvent purchaseEvent = MineAdsEvent.from(purchaseData);
-
-    // Add event to batch processor
-    if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
-      plugin.getBatchProcessor().addEvent(purchaseEvent);
-      sender.sendMessage(Component.text("Tebex purchase event recorded successfully", NamedTextColor.GREEN));
-      if (plugin.getConfig().isDebug()) {
-        log.info("[DEBUG] Tebex purchase event recorded for player: " + username + ", package: " + packageName);
-      }
-    } else {
-      sender.sendMessage(Component.text("Plugin not properly initialized - check plugin configuration", NamedTextColor.RED));
-      if (plugin.getConfig().isDebug()) {
-        log.info("[DEBUG] Failed to record Tebex purchase - plugin not initialized");
-      }
-    }
-  }
-
-  @Command("craftingstore <player> <uuid> <package_name> <cost> [uuid_dashed] [packages] [ingame_package_name] [steam_id] [amount] [transaction_id] [discord_id] [discord_name]")
-  @Permission("mineadsmonitor.purchase")
-  @CommandDescription("Records a CraftingStore purchase event")
-  public void onCraftingStorePurchase(
-    final WrappedCommandSender sender,
-    @Argument(value = "player") final String player,
     @Argument(value = "uuid") final String uuid,
-    @Argument(value = "package_name") final String packageName,
-    @Argument(value = "cost") final String cost,
-    @Argument(value = "uuid_dashed") @Nullable final String uuidDashed,
-    @Argument(value = "packages") @Nullable final String packages,
-    @Argument(value = "ingame_package_name") @Nullable final String ingamePackageName,
-    @Argument(value = "steam_id") @Nullable final String steamId,
-    @Argument(value = "amount") @Nullable final String amount,
-    @Argument(value = "transaction_id") @Nullable final String transactionId,
-    @Argument(value = "discord_id") @Nullable final String discordId,
-    @Argument(value = "discord_name") @Nullable final String discordName
+    @Argument(value = "packageName") final String packageName,
+    @Argument(value = "price") final String price,
+    @Argument(value = "currency") final String currency
   ) {
-    // Create CraftingStore-specific data
-    CraftingStorePurchaseData craftingStoreData = new CraftingStorePurchaseData(
-      player, uuid, packageName, cost,
-      uuidDashed, packages, ingamePackageName, steamId, amount,
-      transactionId, discordId, discordName
-    );
-
-    // Create purchase event with type discriminator
-    PurchaseData purchaseData = PurchaseData.craftingStore(craftingStoreData);
-    MineAdsEvent purchaseEvent = MineAdsEvent.from(purchaseData);
+    // Create transaction data
+    TransactionData transactionData = new TransactionData(transactionId, username, uuid, packageName, price, currency);
+    MineAdsEvent transactionEvent = MineAdsEvent.initial(transactionData);
 
     // Add event to batch processor
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
-      plugin.getBatchProcessor().addEvent(purchaseEvent);
-      sender.sendMessage(Component.text("CraftingStore purchase event recorded successfully", NamedTextColor.GREEN));
+      plugin.getBatchProcessor().addEvent(transactionEvent);
+      sender.sendMessage(Component.text("Initial purchase event recorded successfully", NamedTextColor.GREEN));
       if (plugin.getConfig().isDebug()) {
-        log.info("[DEBUG] CraftingStore purchase event recorded for player: " + player + ", package: " + packageName);
+        log.info("[DEBUG] Initial purchase event recorded for player: " + username + ", package: " + packageName + ", transaction: " + transactionId);
       }
     } else {
       sender.sendMessage(Component.text("Plugin not properly initialized - check plugin configuration", NamedTextColor.RED));
       if (plugin.getConfig().isDebug()) {
-        log.info("[DEBUG] Failed to record CraftingStore purchase - plugin not initialized");
+        log.info("[DEBUG] Failed to record initial purchase - plugin not initialized");
       }
     }
   }
+
+  @Command("expiry <transactionId> <username> <uuid> <packageName> <price> <currency>")
+  @Permission("mineadsmonitor.transaction")
+  @CommandDescription("Records an expiry event")
+  public void onExpiry(
+    final WrappedCommandSender sender,
+    @Argument(value = "transactionId") final String transactionId,
+    @Argument(value = "username") final String username,
+    @Argument(value = "uuid") final String uuid,
+    @Argument(value = "packageName") final String packageName,
+    @Argument(value = "price") final String price,
+    @Argument(value = "currency") final String currency
+  ) {
+    // Create transaction data
+    TransactionData transactionData = new TransactionData(transactionId, username, uuid, packageName, price, currency);
+    MineAdsEvent transactionEvent = MineAdsEvent.expiry(transactionData);
+
+    // Add event to batch processor
+    if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
+      plugin.getBatchProcessor().addEvent(transactionEvent);
+      sender.sendMessage(Component.text("Expiry event recorded successfully", NamedTextColor.GREEN));
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Expiry event recorded for player: " + username + ", package: " + packageName + ", transaction: " + transactionId);
+      }
+    } else {
+      sender.sendMessage(Component.text("Plugin not properly initialized - check plugin configuration", NamedTextColor.RED));
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Failed to record expiry - plugin not initialized");
+      }
+    }
+  }
+
+  @Command("renewal <transactionId> <username> <uuid> <packageName> <price> <currency>")
+  @Permission("mineadsmonitor.transaction")
+  @CommandDescription("Records a renewal event")
+  public void onRenewal(
+    final WrappedCommandSender sender,
+    @Argument(value = "transactionId") final String transactionId,
+    @Argument(value = "username") final String username,
+    @Argument(value = "uuid") final String uuid,
+    @Argument(value = "packageName") final String packageName,
+    @Argument(value = "price") final String price,
+    @Argument(value = "currency") final String currency
+  ) {
+    // Create transaction data
+    TransactionData transactionData = new TransactionData(transactionId, username, uuid, packageName, price, currency);
+    MineAdsEvent transactionEvent = MineAdsEvent.renewal(transactionData);
+
+    // Add event to batch processor
+    if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
+      plugin.getBatchProcessor().addEvent(transactionEvent);
+      sender.sendMessage(Component.text("Renewal event recorded successfully", NamedTextColor.GREEN));
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Renewal event recorded for player: " + username + ", package: " + packageName + ", transaction: " + transactionId);
+      }
+    } else {
+      sender.sendMessage(Component.text("Plugin not properly initialized - check plugin configuration", NamedTextColor.RED));
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Failed to record renewal - plugin not initialized");
+      }
+    }
+  }
+
+  @Command("chargeback <transactionId> <username> <uuid> <packageName> <price> <currency>")
+  @Permission("mineadsmonitor.transaction")
+  @CommandDescription("Records a chargeback event")
+  public void onChargeback(
+    final WrappedCommandSender sender,
+    @Argument(value = "transactionId") final String transactionId,
+    @Argument(value = "username") final String username,
+    @Argument(value = "uuid") final String uuid,
+    @Argument(value = "packageName") final String packageName,
+    @Argument(value = "price") final String price,
+    @Argument(value = "currency") final String currency
+  ) {
+    // Create transaction data
+    TransactionData transactionData = new TransactionData(transactionId, username, uuid, packageName, price, currency);
+    MineAdsEvent transactionEvent = MineAdsEvent.chargeback(transactionData);
+
+    // Add event to batch processor
+    if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
+      plugin.getBatchProcessor().addEvent(transactionEvent);
+      sender.sendMessage(Component.text("Chargeback event recorded successfully", NamedTextColor.GREEN));
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Chargeback event recorded for player: " + username + ", package: " + packageName + ", transaction: " + transactionId);
+      }
+    } else {
+      sender.sendMessage(Component.text("Plugin not properly initialized - check plugin configuration", NamedTextColor.RED));
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Failed to record chargeback - plugin not initialized");
+      }
+    }
+  }
+
+  @Command("refund <transactionId> <username> <uuid> <packageName> <price> <currency>")
+  @Permission("mineadsmonitor.transaction")
+  @CommandDescription("Records a refund event")
+  public void onRefund(
+    final WrappedCommandSender sender,
+    @Argument(value = "transactionId") final String transactionId,
+    @Argument(value = "username") final String username,
+    @Argument(value = "uuid") final String uuid,
+    @Argument(value = "packageName") final String packageName,
+    @Argument(value = "price") final String price,
+    @Argument(value = "currency") final String currency
+  ) {
+    // Create transaction data
+    TransactionData transactionData = new TransactionData(transactionId, username, uuid, packageName, price, currency);
+    MineAdsEvent transactionEvent = MineAdsEvent.refund(transactionData);
+
+    // Add event to batch processor
+    if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
+      plugin.getBatchProcessor().addEvent(transactionEvent);
+      sender.sendMessage(Component.text("Refund event recorded successfully", NamedTextColor.GREEN));
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Refund event recorded for player: " + username + ", package: " + packageName + ", transaction: " + transactionId);
+      }
+    } else {
+      sender.sendMessage(Component.text("Plugin not properly initialized - check plugin configuration", NamedTextColor.RED));
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Failed to record refund - plugin not initialized");
+      }
+    }
+  }
+
+
 }
