@@ -4,5 +4,5 @@ plugins {
 }
 
 dependencies {
-  implementation("org.apiguardian:apiguardian-api:1.1.2")
+  implementation(libs.apiguardian.api)
 }

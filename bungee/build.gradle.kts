@@ -7,11 +7,11 @@ dependencies {
   implementation(projects.mineadsmonitorApi)
   implementation(projects.mineadsmonitorShared)
 
-  implementation("org.bstats:bstats-bungeecord:3.1.0")
-  implementation("net.kyori:adventure-platform-bungeecord:4.4.1")
+  implementation(libs.bstats.bungeecord)
+  implementation(libs.adventure.platform.bungeecord)
 
-  compileOnly("net.md-5:bungeecord-api:1.21-R0.3")
-  compileOnly("net.luckperms:api:5.5")
+  compileOnly(libs.bungeecord.api)
+  compileOnly(libs.luckperms.api)
 
-  implementation("org.incendo:cloud-bungee:2.0.0-beta.11")
+  implementation(libs.cloud.bungee)
 }

@@ -1,18 +1,18 @@
 plugins {
   id("mm.platform-conventions")
   id("mm.shadow-conventions")
-  id("xyz.jpenilla.run-velocity") version "2.3.1"
+  alias(libs.plugins.run.velocity)
 }
 
 dependencies {
   implementation(projects.mineadsmonitorShared)
 
-  implementation("org.bstats:bstats-velocity:3.1.0")
+  implementation(libs.bstats.velocity)
 
-  compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
-  compileOnly("net.luckperms:api:5.5")
+  compileOnly(libs.velocity.api)
+  compileOnly(libs.luckperms.api)
 
-  implementation("org.incendo:cloud-velocity:2.0.0-beta.11")
+  implementation(libs.cloud.velocity)
 }
 
 tasks {
