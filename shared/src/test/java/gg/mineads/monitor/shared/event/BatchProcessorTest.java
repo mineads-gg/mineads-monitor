@@ -43,9 +43,7 @@ class BatchProcessorTest {
   private MockedStatic<HttpClient> mockedHttpClient;
 
   @BeforeEach
-  void setUp() throws Exception {
-    String pluginKey = "test-plugin-key";
-
+  void setUp() {
     // Create a test config
     Config config = new Config();
 
@@ -58,7 +56,7 @@ class BatchProcessorTest {
     when(mockBuilder.connectTimeout(any())).thenReturn(mockBuilder);
     when(mockBuilder.build()).thenReturn(mockHttpClient);
 
-    batchProcessor = new BatchProcessor(pluginKey, config);
+    batchProcessor = new BatchProcessor(config);
   }
 
   @AfterEach
@@ -241,7 +239,7 @@ class BatchProcessorTest {
   void testDebugFlagIntegration() throws Exception {
     // Test that debug logging is controlled by config
     Config debugConfig = new Config();
-    BatchProcessor debugBatchProcessor = new BatchProcessor("test-key", debugConfig);
+    BatchProcessor debugBatchProcessor = new BatchProcessor(debugConfig);
 
     // Add an event and verify it doesn't throw exceptions
     debugBatchProcessor.addEvent("test event");
