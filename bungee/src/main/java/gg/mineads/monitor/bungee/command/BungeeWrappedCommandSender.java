@@ -21,6 +21,10 @@ import gg.mineads.monitor.bungee.MineAdsMonitorBungee;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+
+import java.util.Locale;
+import java.util.Objects;
 
 public record BungeeWrappedCommandSender(MineAdsMonitorBungee.Bootstrap bootstrap, CommandSender sender) implements WrappedCommandSender {
   @Override
@@ -31,5 +35,14 @@ public record BungeeWrappedCommandSender(MineAdsMonitorBungee.Bootstrap bootstra
   @Override
   public boolean hasPermission(final String permission) {
     return this.sender.hasPermission(permission);
+  }
+
+  @Override
+  public Locale getLocale() {
+    if (sender instanceof ProxiedPlayer player) {
+      return Objects.requireNonNullElse(player.getLocale(), Locale.ENGLISH);
+    } else {
+      return Locale.ENGLISH;
+    }
   }
 }

@@ -21,6 +21,10 @@ import gg.mineads.monitor.bukkit.MineAdsMonitorBukkit;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import java.util.Locale;
+import java.util.Objects;
 
 public record BukkitWrappedCommandSender(MineAdsMonitorBukkit.Bootstrap bootstrap, CommandSender sender) implements WrappedCommandSender {
   @Override
@@ -31,5 +35,14 @@ public record BukkitWrappedCommandSender(MineAdsMonitorBukkit.Bootstrap bootstra
   @Override
   public boolean hasPermission(final String permission) {
     return this.sender.hasPermission(permission);
+  }
+
+  @Override
+  public Locale getLocale() {
+    if (sender instanceof Player player) {
+      return Objects.requireNonNullElse(player.locale(), Locale.ENGLISH);
+    } else {
+      return Locale.ENGLISH;
+    }
   }
 }

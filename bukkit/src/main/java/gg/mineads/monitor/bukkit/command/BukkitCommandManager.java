@@ -23,6 +23,7 @@ import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.SenderMapper;
+import org.incendo.cloud.bukkit.CloudBukkitCapabilities;
 import org.incendo.cloud.execution.ExecutionCoordinator;
 import org.incendo.cloud.paper.LegacyPaperCommandManager;
 
@@ -34,7 +35,7 @@ public class BukkitCommandManager extends MineAdsCommandManager<MineAdsMonitorBu
 
   @Override
   protected CommandManager<WrappedCommandSender> createCommandManager(MineAdsMonitorBukkit.Bootstrap platformBootstrap) {
-    return new LegacyPaperCommandManager<>(
+    var commandManager = new LegacyPaperCommandManager<WrappedCommandSender>(
       platformBootstrap.getOwningPlugin(),
       ExecutionCoordinator.asyncCoordinator(),
       SenderMapper.create(
@@ -42,5 +43,13 @@ public class BukkitCommandManager extends MineAdsCommandManager<MineAdsMonitorBu
         s -> ((BukkitWrappedCommandSender) s).sender()
       )
     );
+
+    if (commandManager.hasCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
+      commandManager.registerBrigadier();
+    } else if (commandManager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
+      commandManager.registerAsynchronousCompletions();
+    }
+
+    return commandManager;
   }
 }

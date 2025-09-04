@@ -15,18 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package gg.mineads.monitor.shared.command.sender;
+package gg.mineads.monitor.shared;
 
+import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Locale;
-
-public interface WrappedCommandSender {
-
-  void sendMessage(Component component);
-
-  boolean hasPermission(String permission);
-
-  Locale getLocale();
-
+public class ComponentHelper {
+  public static Audience commandSenderToAudience(WrappedCommandSender sender) {
+    return new Audience() {
+      @Override
+      public void sendMessage(@NotNull Component message) {
+        sender.sendMessage(message);
+      }
+    };
+  }
 }

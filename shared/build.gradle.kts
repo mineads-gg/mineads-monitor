@@ -17,6 +17,10 @@ dependencies {
   implementation(libs.cloud.core)
   implementation(libs.cloud.annotations)
   annotationProcessor(libs.cloud.annotations)
+  implementation(libs.cloud.brigadier)
+  implementation(libs.cloud.translations.core)
+  implementation(libs.cloud.minecraft.extras)
+  implementation(libs.cloud.translations.minecraft.extras)
 
   implementation(libs.adventure.api)
   implementation(libs.adventure.text.serializer.legacy)

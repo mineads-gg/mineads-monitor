@@ -18,8 +18,12 @@
 package gg.mineads.monitor.velocity.command;
 
 import com.velocitypowered.api.command.CommandSource;
+import com.velocitypowered.api.proxy.Player;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import net.kyori.adventure.text.Component;
+
+import java.util.Locale;
+import java.util.Objects;
 
 public record VelocityWrappedCommandSender(CommandSource source) implements WrappedCommandSender {
   @Override
@@ -30,5 +34,14 @@ public record VelocityWrappedCommandSender(CommandSource source) implements Wrap
   @Override
   public boolean hasPermission(final String permission) {
     return this.source.hasPermission(permission);
+  }
+
+  @Override
+  public Locale getLocale() {
+    if (source instanceof Player player) {
+      return Objects.requireNonNullElse(player.getEffectiveLocale(), Locale.ENGLISH);
+    } else {
+      return Locale.ENGLISH;
+    }
   }
 }

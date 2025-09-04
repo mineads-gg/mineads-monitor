@@ -18,11 +18,19 @@
 package gg.mineads.monitor.shared.command;
 
 import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
+import gg.mineads.monitor.shared.ComponentHelper;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import lombok.extern.java.Log;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.annotations.AnnotationParser;
+import org.incendo.cloud.brigadier.BrigadierManagerHolder;
+import org.incendo.cloud.brigadier.BrigadierSetting;
+import org.incendo.cloud.brigadier.CloudBrigadierManager;
+import org.incendo.cloud.minecraft.extras.MinecraftExceptionHandler;
+import org.incendo.cloud.minecraft.extras.caption.ComponentCaptionFormatter;
+import org.incendo.cloud.translations.TranslationBundle;
+import org.incendo.cloud.translations.minecraft.extras.MinecraftExtrasTranslationBundle;
 
 @Log
 public abstract class MineAdsCommandManager<B extends AbstractMineAdsMonitorBootstrap> implements PlatformCommandManager {
@@ -32,6 +40,7 @@ public abstract class MineAdsCommandManager<B extends AbstractMineAdsMonitorBoot
   protected final CommandManager<WrappedCommandSender> commandManager;
   protected final AnnotationParser<WrappedCommandSender> annotationParser;
 
+  @SuppressWarnings("unchecked")
   public MineAdsCommandManager(final B platformBootstrap, final MineAdsMonitorPlugin plugin) {
     this.platformBootstrap = platformBootstrap;
     this.plugin = plugin;
@@ -40,6 +49,21 @@ public abstract class MineAdsCommandManager<B extends AbstractMineAdsMonitorBoot
       this.commandManager,
       WrappedCommandSender.class
     );
+
+    if (commandManager instanceof BrigadierManagerHolder<?, ?> holder && holder.hasBrigadierManager()) {
+      CloudBrigadierManager<WrappedCommandSender, ?> brigadierManager = (CloudBrigadierManager<WrappedCommandSender, ?>) holder.brigadierManager();
+      brigadierManager.setNativeNumberSuggestions(true);
+      brigadierManager.settings().set(BrigadierSetting.FORCE_EXECUTABLE, true);
+    }
+
+    commandManager.captionRegistry().registerProvider(TranslationBundle.core(WrappedCommandSender::getLocale));
+    commandManager.captionRegistry().registerProvider(MinecraftExtrasTranslationBundle.minecraftExtras(WrappedCommandSender::getLocale));
+
+    MinecraftExceptionHandler
+      .create(ComponentHelper::commandSenderToAudience)
+      .defaultHandlers()
+      .captionFormatter(ComponentCaptionFormatter.miniMessage())
+      .registerTo(commandManager);
   }
 
   protected abstract CommandManager<WrappedCommandSender> createCommandManager(B platformBootstrap);

@@ -11,11 +11,9 @@ msgpack = "0.9.10"
 gson = "2.13.1"
 
 # Cloud Commands
-cloudCore = "2.0.0"
-cloudAnnotations = "2.0.0"
-cloudPaper = "2.0.0-beta.11"
-cloudVelocity = "2.0.0-beta.11"
-cloudBungee = "2.0.0-beta.11"
+cloud = "2.0.0"
+cloudMinecraft = "2.0.0-beta.11"
+cloudTranslations = "1.0.0-SNAPSHOT"
 
 # Kyori Adventure
 adventureApi = "4.24.0"
@@ -55,11 +53,15 @@ msgpack-core = { module = "org.msgpack:msgpack-core", version.ref = "msgpack" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 
 # Cloud Commands
-cloud-core = { module = "org.incendo:cloud-core", version.ref = "cloudCore" }
-cloud-annotations = { module = "org.incendo:cloud-annotations", version.ref = "cloudAnnotations" }
-cloud-paper = { module = "org.incendo:cloud-paper", version.ref = "cloudPaper" }
-cloud-velocity = { module = "org.incendo:cloud-velocity", version.ref = "cloudVelocity" }
-cloud-bungee = { module = "org.incendo:cloud-bungee", version.ref = "cloudBungee" }
+cloud-core = { module = "org.incendo:cloud-core", version.ref = "cloud" }
+cloud-annotations = { module = "org.incendo:cloud-annotations", version.ref = "cloud" }
+cloud-brigadier = { module = "org.incendo:cloud-brigadier", version.ref = "cloudMinecraft" }
+cloud-translations-core = { module = "org.incendo:cloud-translations-core", version.ref = "cloudTranslations" }
+cloud-minecraft-extras = { module = "org.incendo:cloud-minecraft-extras", version.ref = "cloudMinecraft" }
+cloud-translations-minecraft-extras = { module = "org.incendo:cloud-translations-minecraft-extras", version.ref = "cloudTranslations" }
+cloud-paper = { module = "org.incendo:cloud-paper", version.ref = "cloudMinecraft" }
+cloud-velocity = { module = "org.incendo:cloud-velocity", version.ref = "cloudMinecraft" }
+cloud-bungee = { module = "org.incendo:cloud-bungee", version.ref = "cloudMinecraft" }
 
 # Kyori Adventure
 adventure-api = { module = "net.kyori:adventure-api", version.ref = "adventureApi" }

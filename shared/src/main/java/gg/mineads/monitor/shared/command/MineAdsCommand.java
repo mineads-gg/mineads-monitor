@@ -18,6 +18,7 @@
 package gg.mineads.monitor.shared.command;
 
 import gg.mineads.monitor.data.BuildData;
+import gg.mineads.monitor.shared.ComponentHelper;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import gg.mineads.monitor.shared.event.model.MineAdsEvent;
@@ -29,10 +30,19 @@ import lombok.extern.java.Log;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.incendo.cloud.CommandManager;
+import org.incendo.cloud.annotation.specifier.Greedy;
 import org.incendo.cloud.annotations.Argument;
 import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.CommandDescription;
 import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandContext;
+import org.incendo.cloud.help.result.CommandEntry;
+import org.incendo.cloud.minecraft.extras.MinecraftHelp;
+import org.incendo.cloud.minecraft.extras.caption.ComponentCaptionFormatter;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 @Command("mineadsmonitor")
 @RequiredArgsConstructor
@@ -42,8 +52,58 @@ public class MineAdsCommand {
   private final MineAdsMonitorPlugin plugin;
   private final CommandManager<WrappedCommandSender> commandManager;
 
+  @Command("")
+  @Permission("mineadsmonitor.admin")
+  @CommandDescription("Displays help information for MineAds Monitor commands")
+  public void rootCommand(final WrappedCommandSender sender) {
+    MinecraftHelp.<WrappedCommandSender>builder()
+      .commandManager(commandManager)
+      .audienceProvider(ComponentHelper::commandSenderToAudience)
+      .commandPrefix("/mineadsmonitor help")
+      .messageProvider(MinecraftHelp.captionMessageProvider(
+        commandManager.captionRegistry(),
+        ComponentCaptionFormatter.miniMessage()
+      ))
+      .descriptionDecorator(MinecraftHelp.DescriptionDecorator.text())
+      .commandFilter(c -> c.rootComponent().name().equals("mineadsmonitor") && !c.commandDescription().description().isEmpty())
+      .maxResultsPerPage(Integer.MAX_VALUE)
+      .build()
+      .queryCommands("", sender);
+  }
+
+  @Suggestions("help_queries_mineadsmonitor")
+  public List<String> suggestHelpQueries(CommandContext<WrappedCommandSender> ctx, String input) {
+    return this.commandManager
+      .createHelpHandler()
+      .queryRootIndex(ctx.sender())
+      .entries()
+      .stream()
+      .filter(e -> e.command().rootComponent().name().equals("mineadsmonitor"))
+      .map(CommandEntry::syntax)
+      .toList();
+  }
+
+  @Command("help [query]")
+  @Permission("mineadsmonitor.admin")
+  @CommandDescription("Displays help information for MineAds Monitor commands")
+  public void commandHelp(final WrappedCommandSender sender, @Argument(suggestions = "help_queries_mineadsmonitor") @Greedy String query) {
+    MinecraftHelp.<WrappedCommandSender>builder()
+      .commandManager(commandManager)
+      .audienceProvider(ComponentHelper::commandSenderToAudience)
+      .commandPrefix("/mineadsmonitor help")
+      .messageProvider(MinecraftHelp.captionMessageProvider(
+        commandManager.captionRegistry(),
+        ComponentCaptionFormatter.miniMessage()
+      ))
+      .descriptionDecorator(MinecraftHelp.DescriptionDecorator.text())
+      .commandFilter(c -> c.rootComponent().name().equals("mineadsmonitor") && !c.commandDescription().description().isEmpty())
+      .build()
+      .queryCommands(query == null ? "" : query, sender);
+  }
+
   @Command("version")
   @Permission("mineadsmonitor.admin")
+  @CommandDescription("Displays the current version of MineAds Monitor")
   public void onVersion(final WrappedCommandSender sender) {
     if (plugin.getConfig().isDebug()) {
       log.info("[DEBUG] Version command executed");
@@ -53,6 +113,7 @@ public class MineAdsCommand {
 
   @Command("reload")
   @Permission("mineadsmonitor.admin")
+  @CommandDescription("Reloads the MineAds Monitor configuration")
   public void onReload(final WrappedCommandSender sender) {
     if (plugin.getConfig().isDebug()) {
       log.info("[DEBUG] Reload command executed");
@@ -76,6 +137,7 @@ public class MineAdsCommand {
 
   @Command("tebex <id> <username> <transaction> <price> <currency> <packageName> [server] [date] [email] [ip] [packageId] [packagePrice] [packageExpiry] [purchaserName] [purchaserUuid] [purchaseQuantity]")
   @Permission("mineadsmonitor.purchase")
+  @CommandDescription("Records a Tebex purchase event")
   public void onTebexPurchase(
     final WrappedCommandSender sender,
     @Argument(value = "id") final String id,
@@ -123,6 +185,7 @@ public class MineAdsCommand {
 
   @Command("craftingstore <player> <uuid> <package_name> <cost> [uuid_dashed] [packages] [ingame_package_name] [steam_id] [amount] [transaction_id] [discord_id] [discord_name]")
   @Permission("mineadsmonitor.purchase")
+  @CommandDescription("Records a CraftingStore purchase event")
   public void onCraftingStorePurchase(
     final WrappedCommandSender sender,
     @Argument(value = "player") final String player,
