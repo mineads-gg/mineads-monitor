@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option java_package = "gg.mineads.monitor.shared.event.generated";
 option java_multiple_files = true;
-option go_package = "mineads.gg/ingest/generated";
+option go_package = "./generated";
 
 package mineadsmonitor.v1;
 
