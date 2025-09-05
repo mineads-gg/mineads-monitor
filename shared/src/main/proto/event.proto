@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+option java_package = "gg.mineads.monitor.shared.event.generated";
+option java_multiple_files = true;
+
+package mineadsmonitor.v1;
+
+// Enum for event types
+enum EventType {
+  EVENT_TYPE_UNSPECIFIED = 0;
+  INITIAL = 1;
+  EXPIRY = 2;
+  RENEWAL = 3;
+  CHARGEBACK = 4;
+  REFUND = 5;
+  CHAT = 6;
+  COMMAND = 7;
+  JOIN = 8;
+  LEAVE = 9;
+}
+
+// Player join data
+message PlayerJoinData {
+  string session_id = 1;
+  string uuid = 2;
+  string username = 3;
+  optional string locale = 4;
+  optional string host = 5;
+  optional string client_brand = 6;
+  optional int32 protocol_version = 7;
+  optional bool online_mode = 8;
+  repeated string luckperms_ranks = 9;
+  optional string virtual_host = 10;
+}
+
+// Player leave data
+message PlayerLeaveData {
+  string session_id = 1;
+}
+
+// Player chat data
+message PlayerChatData {
+  string session_id = 1;
+  string message = 2;
+}
+
+// Player command data
+message PlayerCommandData {
+  string session_id = 1;
+  string command = 2;
+}
+
+// Transaction data
+message TransactionData {
+  string transaction_id = 1;
+  string username = 2;
+  string uuid = 3;
+  string package_name = 4;
+  string price = 5;
+  string currency = 6;
+}
+
+// Main event message
+message MineAdsEvent {
+  EventType event_type = 1;
+  int64 time = 2;
+
+  // One of the following will be set based on event_type
+  oneof data {
+    PlayerJoinData join_data = 3;
+    PlayerLeaveData leave_data = 4;
+    PlayerChatData chat_data = 5;
+    PlayerCommandData command_data = 6;
+    TransactionData transaction_data = 7;
+  }
+}
+
+// Batch of events
+message EventBatch {
+  repeated MineAdsEvent events = 1;
+}

@@ -7,6 +7,7 @@ plugins {
 dependencies {
   implementation(projects.mineadsmonitorApi)
   implementation(projects.mineadsmonitorShared)
+  implementation(libs.protobuf.java)
 
   implementation(libs.paperlib)
   implementation(libs.bstats.bukkit)

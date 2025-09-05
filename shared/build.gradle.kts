@@ -1,6 +1,7 @@
 plugins {
   id("mm.java-conventions")
   id("mm.shadow-conventions")
+  id("com.google.protobuf") version "0.9.4"
 }
 
 dependencies {
@@ -11,8 +12,8 @@ dependencies {
   testImplementation(libs.luckperms.api)
 
   implementation(libs.configlib.yaml)
-  implementation(libs.msgpack.core)
   implementation(libs.gson)
+  implementation(libs.protobuf.java)
 
   implementation(libs.cloud.core)
   implementation(libs.cloud.annotations)
@@ -24,4 +25,18 @@ dependencies {
 
   implementation(libs.adventure.api)
   implementation(libs.adventure.text.serializer.legacy)
+}
+
+protobuf {
+  protoc {
+    artifact = "com.google.protobuf:protoc:4.29.1"
+  }
+  generateProtoTasks {
+    all().forEach { task ->
+      task.builtins {
+        java {
+        }
+      }
+    }
+  }
 }

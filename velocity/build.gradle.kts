@@ -6,6 +6,7 @@ plugins {
 
 dependencies {
   implementation(projects.mineadsmonitorShared)
+  implementation(libs.protobuf.java)
 
   implementation(libs.bstats.velocity)
 

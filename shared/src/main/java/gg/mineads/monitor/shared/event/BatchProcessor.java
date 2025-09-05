@@ -17,17 +17,13 @@
  */
 package gg.mineads.monitor.shared.event;
 
-import com.google.gson.*;
 import gg.mineads.monitor.shared.config.Config;
-import gg.mineads.monitor.shared.event.model.MineAdsEvent;
+import gg.mineads.monitor.shared.event.generated.EventBatch;
+import gg.mineads.monitor.shared.event.generated.MineAdsEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
-import org.msgpack.core.MessageBufferPacker;
-import org.msgpack.core.MessagePack;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -48,8 +44,7 @@ public class BatchProcessor implements Runnable {
   private static final long INITIAL_RETRY_DELAY_MS = 1000; // 1 second
   private static final long MAX_RETRY_DELAY_MS = 30000; // 30 seconds
   private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(30);
-  private static final Gson GSON = new Gson();
-  private final Queue<Object> events = new ConcurrentLinkedQueue<>();
+  private final Queue<MineAdsEvent> events = new ConcurrentLinkedQueue<>();
   private final Config config;
   private final HttpClient httpClient = HttpClient.newBuilder()
     .connectTimeout(Duration.ofSeconds(10))
@@ -62,56 +57,11 @@ public class BatchProcessor implements Runnable {
   private final ReentrantLock processingLock = new ReentrantLock();
   private final AtomicBoolean isProcessing = new AtomicBoolean(false);
 
-  private static byte[] serializeToMessagePack(Queue<Object> events) throws IOException {
-    JsonElement json = GSON.toJsonTree(events);
-
-    MessageBufferPacker packer = MessagePack.newDefaultBufferPacker();
-    packJson(packer, json);
-    packer.close();
-
-    return packer.toByteArray();
-  }
-
-  private static void packJson(MessageBufferPacker packer, JsonElement data) throws IOException {
-    switch (data) {
-      case JsonPrimitive primitive -> {
-        if (primitive.isBoolean()) {
-          packer.packBoolean(primitive.getAsBoolean());
-        } else if (primitive.isNumber()) {
-          Number num = primitive.getAsNumber();
-          switch (num) {
-            case Integer i -> packer.packInt(i);
-            case Long l -> packer.packLong(l);
-            case Double d -> packer.packDouble(d);
-            case Float f -> packer.packDouble(f);
-            case Short s -> packer.packShort(s);
-            case Byte b -> packer.packByte(b);
-            case BigInteger bigInteger -> packer.packBigInteger(bigInteger);
-            case BigDecimal bigDecimal -> packer.packString(bigDecimal.toString());
-            default -> throw new IOException("Unknown number type: " + num.getClass().getName());
-          }
-        } else if (primitive.isString()) {
-          packer.packString(primitive.getAsString());
-        } else {
-          throw new IOException("Unknown JsonPrimitive type");
-        }
-      }
-      case JsonArray jsonArray -> {
-        packer.packArrayHeader(jsonArray.size());
-        for (JsonElement element : jsonArray) {
-          packJson(packer, element);
-        }
-      }
-      case JsonObject jsonObject -> {
-        packer.packMapHeader(jsonObject.size());
-        for (String key : jsonObject.keySet()) {
-          packer.packString(key);
-          packJson(packer, jsonObject.get(key));
-        }
-      }
-      case JsonNull ignored -> packer.packNil();
-      default -> throw new IOException("Invalid packing value of type " + data.getClass().getName());
-    }
+  private static byte[] serializeToProtobuf(Queue<MineAdsEvent> events) {
+    return EventBatch.newBuilder()
+      .addAllEvents(events)
+      .build()
+      .toByteArray();
   }
 
   @Override
@@ -166,7 +116,7 @@ public class BatchProcessor implements Runnable {
     }
   }
 
-  public void addEvent(Object event) {
+  public void addEvent(MineAdsEvent event) {
     events.add(event);
     if (config.isDebug()) {
       log.info("[DEBUG] Added event to queue, new size: " + events.size());
@@ -191,12 +141,12 @@ public class BatchProcessor implements Runnable {
   }
 
   void processQueueSafely() {
-    Queue<Object> currentEvents = new ConcurrentLinkedQueue<>();
+    Queue<MineAdsEvent> currentEvents = new ConcurrentLinkedQueue<>();
     int drained = 0;
 
     // Drain events safely
     while (!events.isEmpty() && drained < BATCH_SIZE_THRESHOLD) {
-      Object event = events.poll();
+      MineAdsEvent event = events.poll();
       if (event != null) {
         currentEvents.add(event);
         drained++;
@@ -215,21 +165,19 @@ public class BatchProcessor implements Runnable {
 
       // Log event type breakdown
       Map<String, Long> eventTypes = currentEvents.stream()
-        .filter(e -> e instanceof MineAdsEvent)
-        .map(e -> (MineAdsEvent) e)
         .collect(Collectors.groupingBy(
-          event -> event.getEventType().toString(),
+          event -> event.getEventType().name(),
           Collectors.counting()
         ));
       log.info("[DEBUG] Event types in batch: " + eventTypes);
     }
 
     try {
-      byte[] messagePack = serializeToMessagePack(currentEvents);
+      byte[] protobuf = serializeToProtobuf(currentEvents);
       if (config.isDebug()) {
-        log.info("[DEBUG] Serialized batch to " + messagePack.length + " bytes");
+        log.info("[DEBUG] Serialized batch to " + protobuf.length + " bytes");
       }
-      sendBatchWithRetry(messagePack, 0);
+      sendBatchWithRetry(protobuf, 0);
     } catch (Exception e) {
       log.severe("Failed to process batch: " + e.getMessage());
       // Re-queue events on failure
@@ -244,7 +192,7 @@ public class BatchProcessor implements Runnable {
     HttpRequest request = HttpRequest.newBuilder()
       .uri(URI.create(HttpConstants.API_ENDPOINT))
       .header(HttpConstants.HEADER_API_KEY, config.getPluginKey())
-      .header(HttpConstants.HEADER_CONTENT_TYPE, HttpConstants.CONTENT_TYPE_MSGPACK)
+      .header(HttpConstants.HEADER_CONTENT_TYPE, HttpConstants.CONTENT_TYPE_PROTOBUF)
       .timeout(REQUEST_TIMEOUT)
       .PUT(HttpRequest.BodyPublishers.ofByteArray(batch))
       .build();

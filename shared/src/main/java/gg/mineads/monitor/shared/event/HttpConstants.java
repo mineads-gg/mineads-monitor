@@ -30,7 +30,7 @@ public final class HttpConstants {
   public static final String HEADER_CONTENT_TYPE = "Content-Type";
 
   // Content types
-  public static final String CONTENT_TYPE_MSGPACK = "application/msgpack";
+  public static final String CONTENT_TYPE_PROTOBUF = "application/x-protobuf";
 
   private HttpConstants() {
     // Utility class

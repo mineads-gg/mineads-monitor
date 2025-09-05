@@ -19,7 +19,7 @@ package gg.mineads.monitor.shared.config;
 
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
-import gg.mineads.monitor.shared.event.model.data.EventType;
+import gg.mineads.monitor.shared.event.generated.EventType;
 import lombok.Getter;
 
 import java.util.Set;
@@ -31,7 +31,17 @@ public class Config {
   private String pluginKey = "";
 
   @Comment("Enable/disable tracking of specific event types. By default, all events are enabled.")
-  private Set<EventType> enabledEvents = Set.of(EventType.values());
+  private Set<EventType> enabledEvents = Set.of(
+    EventType.INITIAL,
+    EventType.EXPIRY,
+    EventType.RENEWAL,
+    EventType.CHARGEBACK,
+    EventType.REFUND,
+    EventType.CHAT,
+    EventType.COMMAND,
+    EventType.JOIN,
+    EventType.LEAVE
+  );
 
   @Comment("Enable debug logging for batch processing events. Useful for troubleshooting.")
   private boolean debug = false;

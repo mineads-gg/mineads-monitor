@@ -19,9 +19,8 @@ package gg.mineads.monitor.bungee.listener;
 
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.BatchProcessor;
-import gg.mineads.monitor.shared.event.model.MineAdsEvent;
-import gg.mineads.monitor.shared.event.model.TypeUtil;
-import gg.mineads.monitor.shared.event.model.data.*;
+import gg.mineads.monitor.shared.event.TypeUtil;
+import gg.mineads.monitor.shared.event.generated.*;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
@@ -70,19 +69,26 @@ public class PlayerListener implements Listener {
         log.info("[DEBUG] Player joined: " + player.getName() + " (" + player.getUniqueId() + "), session: " + sessionId + ", ranks: " + ranks);
       }
 
-      PlayerJoinData data = new PlayerJoinData(
-        sessionId,
-        player.getUniqueId(),
-        player.getName(),
-        Objects.toString(player.getLocale(), null),
-        TypeUtil.getIPString(player.getSocketAddress()),
-        player.getClientBrand(),
-        player.getPendingConnection().getVersion(),
-        player.getPendingConnection().isOnlineMode(),
-        ranks,
-        TypeUtil.getHostString(player.getPendingConnection().getVirtualHost())
-      );
-      batchProcessor.addEvent(MineAdsEvent.from(data));
+      PlayerJoinData data = PlayerJoinData.newBuilder()
+        .setSessionId(sessionId.toString())
+        .setUuid(player.getUniqueId().toString())
+        .setUsername(player.getName())
+        .setLocale(Objects.toString(player.getLocale(), ""))
+        .setHost(TypeUtil.getIPString(player.getSocketAddress()))
+        .setClientBrand(player.getClientBrand())
+        .setProtocolVersion(player.getPendingConnection().getVersion())
+        .setOnlineMode(player.getPendingConnection().isOnlineMode())
+        .addAllLuckpermsRanks(ranks)
+        .setVirtualHost(TypeUtil.getHostString(player.getPendingConnection().getVirtualHost()))
+        .build();
+
+      MineAdsEvent protoEvent = MineAdsEvent.newBuilder()
+        .setEventType(EventType.JOIN)
+        .setTime(System.currentTimeMillis())
+        .setJoinData(data)
+        .build();
+
+      batchProcessor.addEvent(protoEvent);
     });
   }
 
@@ -104,7 +110,17 @@ public class PlayerListener implements Listener {
         if (config.isDebug()) {
           log.info("[DEBUG] Player quit: " + player.getName() + " (" + player.getUniqueId() + "), session: " + sessionId);
         }
-        batchProcessor.addEvent(MineAdsEvent.from(new PlayerLeaveData(sessionId)));
+        PlayerLeaveData data = PlayerLeaveData.newBuilder()
+          .setSessionId(sessionId.toString())
+          .build();
+
+        MineAdsEvent protoEvent = MineAdsEvent.newBuilder()
+          .setEventType(EventType.LEAVE)
+          .setTime(System.currentTimeMillis())
+          .setLeaveData(data)
+          .build();
+
+        batchProcessor.addEvent(protoEvent);
       } else if (config.isDebug()) {
         log.info("[DEBUG] Player quit: " + player.getName() + " - no active session found");
       }
@@ -136,7 +152,18 @@ public class PlayerListener implements Listener {
           if (config.isDebug()) {
             log.info("[DEBUG] Player command: " + player.getName() + " - " + event.getMessage().substring(0, Math.min(50, event.getMessage().length())) + (event.getMessage().length() > 50 ? "..." : ""));
           }
-          batchProcessor.addEvent(MineAdsEvent.from(new PlayerCommandData(sessionId, event.getMessage())));
+          PlayerCommandData data = PlayerCommandData.newBuilder()
+            .setSessionId(sessionId.toString())
+            .setCommand(event.getMessage())
+            .build();
+
+          MineAdsEvent protoEvent = MineAdsEvent.newBuilder()
+            .setEventType(EventType.COMMAND)
+            .setTime(System.currentTimeMillis())
+            .setCommandData(data)
+            .build();
+
+          batchProcessor.addEvent(protoEvent);
         } else if (config.isDebug()) {
           log.info("[DEBUG] Player command event ignored - COMMAND events disabled");
         }
@@ -145,7 +172,18 @@ public class PlayerListener implements Listener {
           if (config.isDebug()) {
             log.info("[DEBUG] Player chat: " + player.getName() + " - " + event.getMessage().substring(0, Math.min(50, event.getMessage().length())) + (event.getMessage().length() > 50 ? "..." : ""));
           }
-          batchProcessor.addEvent(MineAdsEvent.from(new PlayerChatData(sessionId, event.getMessage())));
+          PlayerChatData data = PlayerChatData.newBuilder()
+            .setSessionId(sessionId.toString())
+            .setMessage(event.getMessage())
+            .build();
+
+          MineAdsEvent protoEvent = MineAdsEvent.newBuilder()
+            .setEventType(EventType.CHAT)
+            .setTime(System.currentTimeMillis())
+            .setChatData(data)
+            .build();
+
+          batchProcessor.addEvent(protoEvent);
         } else if (config.isDebug()) {
           log.info("[DEBUG] Player chat event ignored - CHAT events disabled");
         }

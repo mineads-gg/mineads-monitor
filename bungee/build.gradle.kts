@@ -6,6 +6,7 @@ plugins {
 dependencies {
   implementation(projects.mineadsmonitorApi)
   implementation(projects.mineadsmonitorShared)
+  implementation(libs.protobuf.java)
 
   implementation(libs.bstats.bungeecord)
   implementation(libs.adventure.platform.bungeecord)

@@ -21,8 +21,9 @@ import gg.mineads.monitor.data.BuildData;
 import gg.mineads.monitor.shared.ComponentHelper;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
-import gg.mineads.monitor.shared.event.model.MineAdsEvent;
-import gg.mineads.monitor.shared.event.model.data.TransactionData;
+import gg.mineads.monitor.shared.event.generated.EventType;
+import gg.mineads.monitor.shared.event.generated.MineAdsEvent;
+import gg.mineads.monitor.shared.event.generated.TransactionData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import net.kyori.adventure.text.Component;
@@ -145,8 +146,20 @@ public class MineAdsCommand {
     @Argument(value = "currency") final String currency
   ) {
     // Create transaction data
-    TransactionData transactionData = new TransactionData(transactionId, username, uuid, packageName, price, currency);
-    MineAdsEvent transactionEvent = MineAdsEvent.initial(transactionData);
+    TransactionData transactionData = TransactionData.newBuilder()
+      .setTransactionId(transactionId)
+      .setUsername(username)
+      .setUuid(uuid)
+      .setPackageName(packageName)
+      .setPrice(price)
+      .setCurrency(currency)
+      .build();
+
+    MineAdsEvent transactionEvent = MineAdsEvent.newBuilder()
+      .setEventType(EventType.INITIAL)
+      .setTime(System.currentTimeMillis())
+      .setTransactionData(transactionData)
+      .build();
 
     // Add event to batch processor
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
@@ -176,8 +189,20 @@ public class MineAdsCommand {
     @Argument(value = "currency") final String currency
   ) {
     // Create transaction data
-    TransactionData transactionData = new TransactionData(transactionId, username, uuid, packageName, price, currency);
-    MineAdsEvent transactionEvent = MineAdsEvent.expiry(transactionData);
+    TransactionData transactionData = TransactionData.newBuilder()
+      .setTransactionId(transactionId)
+      .setUsername(username)
+      .setUuid(uuid)
+      .setPackageName(packageName)
+      .setPrice(price)
+      .setCurrency(currency)
+      .build();
+
+    MineAdsEvent transactionEvent = MineAdsEvent.newBuilder()
+      .setEventType(EventType.EXPIRY)
+      .setTime(System.currentTimeMillis())
+      .setTransactionData(transactionData)
+      .build();
 
     // Add event to batch processor
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
@@ -207,8 +232,20 @@ public class MineAdsCommand {
     @Argument(value = "currency") final String currency
   ) {
     // Create transaction data
-    TransactionData transactionData = new TransactionData(transactionId, username, uuid, packageName, price, currency);
-    MineAdsEvent transactionEvent = MineAdsEvent.renewal(transactionData);
+    TransactionData transactionData = TransactionData.newBuilder()
+      .setTransactionId(transactionId)
+      .setUsername(username)
+      .setUuid(uuid)
+      .setPackageName(packageName)
+      .setPrice(price)
+      .setCurrency(currency)
+      .build();
+
+    MineAdsEvent transactionEvent = MineAdsEvent.newBuilder()
+      .setEventType(EventType.RENEWAL)
+      .setTime(System.currentTimeMillis())
+      .setTransactionData(transactionData)
+      .build();
 
     // Add event to batch processor
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
@@ -238,8 +275,20 @@ public class MineAdsCommand {
     @Argument(value = "currency") final String currency
   ) {
     // Create transaction data
-    TransactionData transactionData = new TransactionData(transactionId, username, uuid, packageName, price, currency);
-    MineAdsEvent transactionEvent = MineAdsEvent.chargeback(transactionData);
+    TransactionData transactionData = TransactionData.newBuilder()
+      .setTransactionId(transactionId)
+      .setUsername(username)
+      .setUuid(uuid)
+      .setPackageName(packageName)
+      .setPrice(price)
+      .setCurrency(currency)
+      .build();
+
+    MineAdsEvent transactionEvent = MineAdsEvent.newBuilder()
+      .setEventType(EventType.CHARGEBACK)
+      .setTime(System.currentTimeMillis())
+      .setTransactionData(transactionData)
+      .build();
 
     // Add event to batch processor
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
@@ -269,8 +318,20 @@ public class MineAdsCommand {
     @Argument(value = "currency") final String currency
   ) {
     // Create transaction data
-    TransactionData transactionData = new TransactionData(transactionId, username, uuid, packageName, price, currency);
-    MineAdsEvent transactionEvent = MineAdsEvent.refund(transactionData);
+    TransactionData transactionData = TransactionData.newBuilder()
+      .setTransactionId(transactionId)
+      .setUsername(username)
+      .setUuid(uuid)
+      .setPackageName(packageName)
+      .setPrice(price)
+      .setCurrency(currency)
+      .build();
+
+    MineAdsEvent transactionEvent = MineAdsEvent.newBuilder()
+      .setEventType(EventType.REFUND)
+      .setTime(System.currentTimeMillis())
+      .setTransactionData(transactionData)
+      .build();
 
     // Add event to batch processor
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
