@@ -45,4 +45,7 @@ public class Config {
 
   @Comment("Enable debug logging for batch processing events. Useful for troubleshooting.")
   private boolean debug = false;
+
+  @Comment("Disable sending chat message content. When enabled (default), full chat message content is sent with chat events. When disabled, only the fact that a message was sent is transmitted.")
+  private boolean disableChatContent = false;
 }

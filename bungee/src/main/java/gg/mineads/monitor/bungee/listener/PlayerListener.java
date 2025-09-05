@@ -186,10 +186,14 @@ public class PlayerListener implements Listener {
             String message = event.getMessage().substring(0, Math.min(50, event.getMessage().length())) + (event.getMessage().length() > 50 ? "..." : "");
             log.info("[DEBUG] Player chat: %s - %s".formatted(player.getName(), message));
           }
-          PlayerChatData data = PlayerChatData.newBuilder()
-            .setSessionId(sessionId.toString())
-            .setMessage(event.getMessage())
-            .build();
+          PlayerChatData.Builder dataBuilder = PlayerChatData.newBuilder()
+            .setSessionId(sessionId.toString());
+
+          if (!config.isDisableChatContent()) {
+            dataBuilder.setMessage(event.getMessage());
+          }
+
+          PlayerChatData data = dataBuilder.build();
 
           MineAdsEvent protoEvent = TypeUtil.createChatEvent(data);
 

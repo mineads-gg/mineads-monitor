@@ -42,7 +42,7 @@ message PlayerLeaveData {
 // Player chat data
 message PlayerChatData {
   string session_id = 1;
-  string message = 2;
+  optional string message = 2;
 }
 
 // Player command data
