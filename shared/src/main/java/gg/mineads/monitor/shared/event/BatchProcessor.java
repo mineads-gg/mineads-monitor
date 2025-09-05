@@ -25,10 +25,13 @@ import lombok.extern.java.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Queue;
@@ -36,6 +39,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 @RequiredArgsConstructor
@@ -49,6 +53,7 @@ public class BatchProcessor implements Runnable {
   private final Queue<MineAdsEvent> events = new ConcurrentLinkedQueue<>();
   private final Config config;
   private final HttpClient httpClient = HttpClient.newBuilder()
+    .version(HttpClient.Version.HTTP_2)
     .connectTimeout(Duration.ofSeconds(10))
     .build();
   private final ScheduledExecutorService retryExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
@@ -126,10 +131,6 @@ public class BatchProcessor implements Runnable {
     processIfNecessary();
   }
 
-  public int getQueueSize() {
-    return events.size();
-  }
-
   public void shutdown() {
     retryExecutor.shutdown();
     try {
@@ -201,18 +202,38 @@ public class BatchProcessor implements Runnable {
     }
   }
 
+  public static InputStream getDecodedInputStream(
+    HttpResponse<InputStream> httpResponse) {
+    String encoding = determineContentEncoding(httpResponse);
+    try {
+      return switch (encoding) {
+        case "" -> httpResponse.body();
+        case "gzip" -> new GZIPInputStream(httpResponse.body());
+        default -> throw new UnsupportedOperationException(
+          "Unexpected Content-Encoding: " + encoding);
+      };
+    } catch (IOException ioe) {
+      throw new UncheckedIOException(ioe);
+    }
+  }
+
+  public static String determineContentEncoding(
+    HttpResponse<?> httpResponse) {
+    return httpResponse.headers().firstValue("Content-Encoding").orElse("");
+  }
+
   private void sendBatchWithRetry(byte[] payload, int attempt) {
     HttpRequest request = HttpRequest.newBuilder()
-      .version(HttpClient.Version.HTTP_2)
       .uri(URI.create("https://ingest.mineads.gg/event"))
       .header("X-API-KEY", config.getPluginKey())
       .header("Content-Type", "application/x-protobuf")
       .header("Content-Encoding", "gzip")
+      .header("Accept-Encoding", "gzip")
       .timeout(REQUEST_TIMEOUT)
       .PUT(HttpRequest.BodyPublishers.ofByteArray(payload))
       .build();
 
-    httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+    httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream())
       .thenAccept(response -> handleResponse(response, payload, attempt))
       .exceptionally(throwable -> {
         handleSendError(throwable, payload, attempt);
@@ -220,7 +241,14 @@ public class BatchProcessor implements Runnable {
       });
   }
 
-  private void handleResponse(HttpResponse<String> response, byte[] batch, int attempt) {
+  private void handleResponse(HttpResponse<InputStream> response, byte[] batch, int attempt) {
+    String responseBody;
+    try (InputStream bodyStream = getDecodedInputStream(response)) {
+      responseBody = new String(bodyStream.readAllBytes(), StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+
     int statusCode = response.statusCode();
 
     if (statusCode >= 200 && statusCode < 300) {
@@ -235,8 +263,7 @@ public class BatchProcessor implements Runnable {
       log.warning("Batch send failed with status " + statusCode + ", retrying in " + delayMs + "ms (attempt " + (attempt + 1) + ")");
       if (config.isDebug()) {
         log.info("[DEBUG] Scheduling retry attempt " + (attempt + 1) + " in " + delayMs + "ms");
-        String responseBody = response.body();
-        if (responseBody != null && !responseBody.trim().isEmpty()) {
+        if (!responseBody.isBlank()) {
           log.info("[DEBUG] Error response body: " + responseBody);
         }
       }
@@ -246,8 +273,7 @@ public class BatchProcessor implements Runnable {
       log.severe("Batch send failed with status " + statusCode + " after " + (attempt + 1) + " attempts");
       if (config.isDebug()) {
         log.info("[DEBUG] Final failure for batch after " + (attempt + 1) + " attempts");
-        String responseBody = response.body();
-        if (responseBody != null && !responseBody.trim().isEmpty()) {
+        if (!responseBody.isBlank()) {
           log.info("[DEBUG] Error response body: " + responseBody);
         }
       }
@@ -260,14 +286,14 @@ public class BatchProcessor implements Runnable {
       log.warning("Batch send failed with exception: " + throwable.getMessage() + ", retrying in " + delayMs + "ms (attempt " + (attempt + 1) + ")");
       if (config.isDebug()) {
         log.info("[DEBUG] Scheduling retry attempt " + (attempt + 1) + " in " + delayMs + "ms due to exception");
-        log.info("[DEBUG] Exception details: " + throwable.toString());
+        log.info("[DEBUG] Exception details: " + throwable);
       }
       retryExecutor.schedule(() -> sendBatchWithRetry(batch, attempt + 1), delayMs, TimeUnit.MILLISECONDS);
     } else {
       log.severe("Batch send failed after " + (attempt + 1) + " attempts: " + throwable.getMessage());
       if (config.isDebug()) {
         log.info("[DEBUG] Final failure for batch after " + (attempt + 1) + " attempts due to exception");
-        log.info("[DEBUG] Exception details: " + throwable.toString());
+        log.info("[DEBUG] Exception details: " + throwable);
       }
     }
   }
