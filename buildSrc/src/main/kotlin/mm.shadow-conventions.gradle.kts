@@ -14,6 +14,7 @@ tasks {
   shadowJar {
     exclude("META-INF/SPONGEPO.SF", "META-INF/SPONGEPO.DSA", "META-INF/SPONGEPO.RSA")
     configureRelocations()
+    mergeServiceFiles()
   }
 
   build {
