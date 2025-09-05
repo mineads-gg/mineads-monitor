@@ -30,7 +30,7 @@ message PlayerJoinData {
   optional string client_brand = 6;
   optional int32 protocol_version = 7;
   optional bool online_mode = 8;
-  repeated string luckperms_ranks = 9;
+  repeated string luckperms_groups = 9;
   optional string virtual_host = 10;
 }
 

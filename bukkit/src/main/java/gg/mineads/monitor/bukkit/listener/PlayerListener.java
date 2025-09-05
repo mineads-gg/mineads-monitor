@@ -64,30 +64,50 @@ public class PlayerListener implements Listener {
 
     // Process event asynchronously to avoid blocking main thread
     scheduler.runAsync(() -> {
-      List<String> ranks = LuckPermsUtil.getAllGroups(player.getUniqueId());
+      List<String> groups = LuckPermsUtil.getAllGroups(player.getUniqueId());
 
       if (config.isDebug()) {
-        log.info("[DEBUG] Player joined: " + player.getName() + " (" + player.getUniqueId() + "), session: " + sessionId + ", ranks: " + ranks);
+        log.info("[DEBUG] Player joined: " + player.getName() + " (" + player.getUniqueId() + "), session: " + sessionId + ", groups: " + groups);
       }
 
-      PlayerJoinData data = PlayerJoinData.newBuilder()
+      PlayerJoinData.Builder builder = PlayerJoinData.newBuilder()
         .setSessionId(sessionId.toString())
         .setUuid(player.getUniqueId().toString())
         .setUsername(player.getName())
-        .setLocale(Objects.toString(player.locale(), ""))
-        .setHost(TypeUtil.getIPString(player.getAddress()))
-        .setClientBrand(player.getClientBrandName())
-        .setProtocolVersion(player.getProtocolVersion())
-        .setOnlineMode(player.getServer().getOnlineMode())
-        .addAllLuckpermsRanks(ranks)
-        .setVirtualHost(TypeUtil.getHostString(player.getVirtualHost()))
-        .build();
+        .setOnlineMode(player.getServer().getOnlineMode());
 
-      MineAdsEvent protoEvent = MineAdsEvent.newBuilder()
-        .setEventType(EventType.JOIN)
-        .setTime(System.currentTimeMillis())
-        .setJoinData(data)
-        .build();
+      if (groups != null) {
+        builder.addAllLuckpermsGroups(groups);
+      }
+
+      String host = TypeUtil.getIPString(player.getAddress());
+      if (host != null) {
+        builder.setHost(host);
+      }
+
+      int protocolVersion = player.getProtocolVersion();
+      if (protocolVersion != -1) {
+        builder.setProtocolVersion(protocolVersion);
+      }
+
+      String locale = Objects.toString(player.locale(), "");
+      if (!locale.isBlank()) {
+        builder.setLocale(locale);
+      }
+
+      String clientBrand = player.getClientBrandName();
+      if (clientBrand != null && !clientBrand.isBlank()) {
+        builder.setClientBrand(clientBrand);
+      }
+
+      String virtualHost = TypeUtil.getHostString(player.getVirtualHost());
+      if (virtualHost != null && !virtualHost.isBlank()) {
+        builder.setVirtualHost(virtualHost);
+      }
+
+      PlayerJoinData data = builder.build();
+
+      MineAdsEvent protoEvent = TypeUtil.createJoinEvent(data);
 
       batchProcessor.addEvent(protoEvent);
     });
@@ -115,11 +135,7 @@ public class PlayerListener implements Listener {
           .setSessionId(sessionId.toString())
           .build();
 
-        MineAdsEvent protoEvent = MineAdsEvent.newBuilder()
-          .setEventType(EventType.LEAVE)
-          .setTime(System.currentTimeMillis())
-          .setLeaveData(data)
-          .build();
+        MineAdsEvent protoEvent = TypeUtil.createLeaveEvent(data);
 
         batchProcessor.addEvent(protoEvent);
       } else if (config.isDebug()) {
@@ -151,11 +167,7 @@ public class PlayerListener implements Listener {
           .setMessage(event.getMessage())
           .build();
 
-        MineAdsEvent protoEvent = MineAdsEvent.newBuilder()
-          .setEventType(EventType.CHAT)
-          .setTime(System.currentTimeMillis())
-          .setChatData(data)
-          .build();
+        MineAdsEvent protoEvent = TypeUtil.createChatEvent(data);
 
         batchProcessor.addEvent(protoEvent);
       } else if (config.isDebug()) {
@@ -187,11 +199,7 @@ public class PlayerListener implements Listener {
           .setCommand(event.getMessage())
           .build();
 
-        MineAdsEvent protoEvent = MineAdsEvent.newBuilder()
-          .setEventType(EventType.COMMAND)
-          .setTime(System.currentTimeMillis())
-          .setCommandData(data)
-          .build();
+        MineAdsEvent protoEvent = TypeUtil.createCommandEvent(data);
 
         batchProcessor.addEvent(protoEvent);
       } else if (config.isDebug()) {

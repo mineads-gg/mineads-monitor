@@ -17,6 +17,8 @@
  */
 package gg.mineads.monitor.shared.event;
 
+import gg.mineads.monitor.shared.event.generated.*;
+
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
@@ -42,5 +44,37 @@ public class TypeUtil {
     } else {
       return null;
     }
+  }
+
+  public static MineAdsEvent createJoinEvent(PlayerJoinData data) {
+    return MineAdsEvent.newBuilder()
+      .setEventType(EventType.JOIN)
+      .setTime(System.currentTimeMillis())
+      .setJoinData(data)
+      .build();
+  }
+
+  public static MineAdsEvent createLeaveEvent(PlayerLeaveData data) {
+    return MineAdsEvent.newBuilder()
+      .setEventType(EventType.LEAVE)
+      .setTime(System.currentTimeMillis())
+      .setLeaveData(data)
+      .build();
+  }
+
+  public static MineAdsEvent createChatEvent(PlayerChatData data) {
+    return MineAdsEvent.newBuilder()
+      .setEventType(EventType.CHAT)
+      .setTime(System.currentTimeMillis())
+      .setChatData(data)
+      .build();
+  }
+
+  public static MineAdsEvent createCommandEvent(PlayerCommandData data) {
+    return MineAdsEvent.newBuilder()
+      .setEventType(EventType.COMMAND)
+      .setTime(System.currentTimeMillis())
+      .setCommandData(data)
+      .build();
   }
 }
