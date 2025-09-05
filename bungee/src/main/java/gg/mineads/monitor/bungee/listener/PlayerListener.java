@@ -89,8 +89,8 @@ public class PlayerListener implements Listener {
         builder.setProtocolVersion(protocolVersion);
       }
 
-      String locale = Objects.toString(player.getLocale(), "");
-      if (!locale.isBlank()) {
+      String locale = Objects.toString(player.getLocale(), null);
+      if (locale != null && !locale.isBlank()) {
         builder.setLocale(locale);
       }
 
