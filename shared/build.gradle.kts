@@ -1,7 +1,7 @@
 plugins {
   id("mm.java-conventions")
   id("mm.shadow-conventions")
-  id("com.google.protobuf") version "0.9.4"
+  id("com.google.protobuf") version "0.9.5"
 }
 
 dependencies {
@@ -29,7 +29,7 @@ dependencies {
 
 protobuf {
   protoc {
-    artifact = "com.google.protobuf:protoc:4.29.1"
+    artifact = "com.google.protobuf:protoc:4.32.0"
   }
   generateProtoTasks {
     all().forEach { task ->
