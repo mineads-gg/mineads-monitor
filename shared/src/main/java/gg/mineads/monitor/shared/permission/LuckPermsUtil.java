@@ -17,6 +17,7 @@
  */
 package gg.mineads.monitor.shared.permission;
 
+import gg.mineads.monitor.shared.event.generated.LuckPermsData;
 import lombok.extern.java.Log;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.model.group.Group;
@@ -76,9 +77,9 @@ public class LuckPermsUtil {
    * Gets all groups that a user has.
    *
    * @param uuid The UUID of the user
-   * @return A list of all group names the user has, or null if not available
+   * @return A LuckPermsData instance with all group names the user has, or null if not available
    */
-  public static List<String> getAllGroups(UUID uuid) {
+  public static LuckPermsData getAllGroups(UUID uuid) {
     if (!isAvailable()) {
       return null;
     }
@@ -89,13 +90,17 @@ public class LuckPermsUtil {
         return null;
       }
 
-      return user.getInheritedGroups(QueryOptions.nonContextual(Set.of(
+      List<String> groups = user.getInheritedGroups(QueryOptions.nonContextual(Set.of(
           Flag.RESOLVE_INHERITANCE
         )))
         .stream()
         .map(Group::getName)
         .sorted()
         .toList();
+
+      return LuckPermsData.newBuilder()
+        .addAllGroups(groups)
+        .build();
     } catch (Exception e) {
       return null;
     }

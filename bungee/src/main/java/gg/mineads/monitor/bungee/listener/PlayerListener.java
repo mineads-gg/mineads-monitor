@@ -32,7 +32,6 @@ import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -63,10 +62,10 @@ public class PlayerListener implements Listener {
 
     // Process event asynchronously to avoid blocking main thread
     scheduler.runAsync(() -> {
-      List<String> groups = LuckPermsUtil.getAllGroups(player.getUniqueId());
+      LuckPermsData luckPermsData = LuckPermsUtil.getAllGroups(player.getUniqueId());
 
       if (config.isDebug()) {
-        log.info("[DEBUG] Player joined: %s (%s), session: %s, groups: %s".formatted(player.getName(), player.getUniqueId(), sessionId, groups));
+        log.info("[DEBUG] Player joined: %s (%s), session: %s, groups: %s".formatted(player.getName(), player.getUniqueId(), sessionId, luckPermsData != null ? luckPermsData.getGroupsList() : null));
       }
 
       PlayerJoinData.Builder builder = PlayerJoinData.newBuilder()
@@ -75,8 +74,8 @@ public class PlayerListener implements Listener {
         .setUsername(player.getName())
         .setOnlineMode(player.getPendingConnection().isOnlineMode());
 
-      if (groups != null) {
-        builder.addAllLuckpermsGroups(groups);
+      if (luckPermsData != null) {
+        builder.setLuckpermsData(luckPermsData);
       }
 
       String host = TypeUtil.getIPString(player.getSocketAddress());

@@ -20,6 +20,11 @@ enum EventType {
   LEAVE = 9;
 }
 
+// LuckPerms data
+message LuckPermsData {
+  repeated string groups = 1;
+}
+
 // Player join data
 message PlayerJoinData {
   string session_id = 1;
@@ -30,7 +35,7 @@ message PlayerJoinData {
   optional string client_brand = 6;
   optional int32 protocol_version = 7;
   optional bool online_mode = 8;
-  repeated string luckperms_groups = 9;
+  optional LuckPermsData luckperms_data = 9;
   optional string virtual_host = 10;
 }
 

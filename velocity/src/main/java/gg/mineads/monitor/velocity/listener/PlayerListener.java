@@ -32,7 +32,6 @@ import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
 import lombok.extern.java.Log;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -63,10 +62,10 @@ public class PlayerListener {
 
     // Process event asynchronously to avoid blocking main thread
     scheduler.runAsync(() -> {
-      List<String> groups = LuckPermsUtil.getAllGroups(player.getUniqueId());
+      LuckPermsData luckPermsData = LuckPermsUtil.getAllGroups(player.getUniqueId());
 
       if (config.isDebug()) {
-        log.info("[DEBUG] Player joined: %s (%s), session: %s, groups: %s".formatted(player.getUsername(), player.getUniqueId(), sessionId, groups));
+        log.info("[DEBUG] Player joined: %s (%s), session: %s, groups: %s".formatted(player.getUsername(), player.getUniqueId(), sessionId, luckPermsData != null ? luckPermsData.getGroupsList() : null));
       }
 
       PlayerJoinData.Builder builder = PlayerJoinData.newBuilder()
@@ -75,8 +74,8 @@ public class PlayerListener {
         .setUsername(player.getUsername())
         .setOnlineMode(player.isOnlineMode());
 
-      if (groups != null) {
-        builder.addAllLuckpermsGroups(groups);
+      if (luckPermsData != null) {
+        builder.setLuckpermsData(luckPermsData);
       }
 
       String host = TypeUtil.getIPString(player.getRemoteAddress());
