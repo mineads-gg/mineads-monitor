@@ -66,7 +66,7 @@ public class PlayerListener implements Listener {
       List<String> groups = LuckPermsUtil.getAllGroups(player.getUniqueId());
 
       if (config.isDebug()) {
-        log.info("[DEBUG] Player joined: " + player.getName() + " (" + player.getUniqueId() + "), session: " + sessionId + ", groups: " + groups);
+        log.info("[DEBUG] Player joined: %s (%s), session: %s, groups: %s".formatted(player.getName(), player.getUniqueId(), sessionId, groups));
       }
 
       PlayerJoinData.Builder builder = PlayerJoinData.newBuilder()
@@ -128,7 +128,7 @@ public class PlayerListener implements Listener {
     scheduler.runAsync(() -> {
       if (sessionId != null) {
         if (config.isDebug()) {
-          log.info("[DEBUG] Player quit: " + player.getName() + " (" + player.getUniqueId() + "), session: " + sessionId);
+          log.info("[DEBUG] Player quit: %s (%s), session: %s".formatted(player.getName(), player.getUniqueId(), sessionId));
         }
         PlayerLeaveData data = PlayerLeaveData.newBuilder()
           .setSessionId(sessionId.toString())
@@ -138,7 +138,7 @@ public class PlayerListener implements Listener {
 
         batchProcessor.addEvent(protoEvent);
       } else if (config.isDebug()) {
-        log.info("[DEBUG] Player quit: " + player.getName() + " - no active session found");
+        log.info("[DEBUG] Player quit: %s - no active session found".formatted(player.getName()));
       }
     });
   }
@@ -152,7 +152,7 @@ public class PlayerListener implements Listener {
     UUID sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
     if (sessionId == null) {
       if (config.isDebug()) {
-        log.info("[DEBUG] Chat event ignored: " + player.getName() + " - no active session");
+        log.info("[DEBUG] Chat event ignored: %s - no active session".formatted(player.getName()));
       }
       return;
     }
@@ -166,7 +166,8 @@ public class PlayerListener implements Listener {
       if (isCommand) {
         if (isCommandEnabled) {
           if (config.isDebug()) {
-            log.info("[DEBUG] Player command: " + player.getName() + " - " + event.getMessage().substring(0, Math.min(50, event.getMessage().length())) + (event.getMessage().length() > 50 ? "..." : ""));
+            String command = event.getMessage().substring(0, Math.min(50, event.getMessage().length())) + (event.getMessage().length() > 50 ? "..." : "");
+            log.info("[DEBUG] Player command: %s - %s".formatted(player.getName(), command));
           }
           PlayerCommandData data = PlayerCommandData.newBuilder()
             .setSessionId(sessionId.toString())
@@ -182,7 +183,8 @@ public class PlayerListener implements Listener {
       } else {
         if (isChatEnabled) {
           if (config.isDebug()) {
-            log.info("[DEBUG] Player chat: " + player.getName() + " - " + event.getMessage().substring(0, Math.min(50, event.getMessage().length())) + (event.getMessage().length() > 50 ? "..." : ""));
+            String message = event.getMessage().substring(0, Math.min(50, event.getMessage().length())) + (event.getMessage().length() > 50 ? "..." : "");
+            log.info("[DEBUG] Player chat: %s - %s".formatted(player.getName(), message));
           }
           PlayerChatData data = PlayerChatData.newBuilder()
             .setSessionId(sessionId.toString())
