@@ -23,6 +23,7 @@ import gg.mineads.monitor.shared.event.generated.MineAdsEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -35,6 +36,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPOutputStream;
 
 @RequiredArgsConstructor
 @Log
@@ -58,10 +60,10 @@ public class BatchProcessor implements Runnable {
   private final AtomicBoolean isProcessing = new AtomicBoolean(false);
 
   private static byte[] serializeToProtobuf(Queue<MineAdsEvent> events) {
-    return EventBatch.newBuilder()
+    return compress(EventBatch.newBuilder()
       .addAllEvents(events)
       .build()
-      .toByteArray();
+      .toByteArray());
   }
 
   @Override
@@ -188,19 +190,32 @@ public class BatchProcessor implements Runnable {
     }
   }
 
-  private void sendBatchWithRetry(byte[] batch, int attempt) {
+  private static byte[] compress(byte[] data) {
+    try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream(data.length);
+         GZIPOutputStream gzipStream = new GZIPOutputStream(byteStream)) {
+      gzipStream.write(data);
+      gzipStream.close();
+      return byteStream.toByteArray();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to gzip data", e);
+    }
+  }
+
+  private void sendBatchWithRetry(byte[] payload, int attempt) {
     HttpRequest request = HttpRequest.newBuilder()
-      .uri(URI.create(HttpConstants.API_ENDPOINT))
-      .header(HttpConstants.HEADER_API_KEY, config.getPluginKey())
-      .header(HttpConstants.HEADER_CONTENT_TYPE, HttpConstants.CONTENT_TYPE_PROTOBUF)
+      .version(HttpClient.Version.HTTP_2)
+      .uri(URI.create("https://ingest.mineads.gg/event"))
+      .header("X-API-KEY", config.getPluginKey())
+      .header("Content-Type", "application/x-protobuf")
+      .header("Content-Encoding", "gzip")
       .timeout(REQUEST_TIMEOUT)
-      .PUT(HttpRequest.BodyPublishers.ofByteArray(batch))
+      .PUT(HttpRequest.BodyPublishers.ofByteArray(payload))
       .build();
 
     httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-      .thenAccept(response -> handleResponse(response, batch, attempt))
+      .thenAccept(response -> handleResponse(response, payload, attempt))
       .exceptionally(throwable -> {
-        handleSendError(throwable, batch, attempt);
+        handleSendError(throwable, payload, attempt);
         return null;
       });
   }
