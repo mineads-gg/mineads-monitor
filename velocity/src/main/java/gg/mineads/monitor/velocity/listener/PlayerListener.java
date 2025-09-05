@@ -202,10 +202,14 @@ public class PlayerListener {
           String command = event.getCommand().substring(0, Math.min(50, event.getCommand().length())) + (event.getCommand().length() > 50 ? "..." : "");
           log.info("[DEBUG] Player command: %s - %s".formatted(player.getUsername(), command));
         }
-        PlayerCommandData data = PlayerCommandData.newBuilder()
-          .setSessionId(sessionId.toString())
-          .setCommand(event.getCommand())
-          .build();
+        PlayerCommandData.Builder dataBuilder = PlayerCommandData.newBuilder()
+          .setSessionId(sessionId.toString());
+
+        if (!config.isDisableCommandContent()) {
+          dataBuilder.setCommand(event.getCommand());
+        }
+
+        PlayerCommandData data = dataBuilder.build();
 
         MineAdsEvent protoEvent = TypeUtil.createCommandEvent(data);
 

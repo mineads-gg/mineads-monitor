@@ -48,7 +48,7 @@ message PlayerChatData {
 // Player command data
 message PlayerCommandData {
   string session_id = 1;
-  string command = 2;
+  optional string command = 2;
 }
 
 // Transaction data

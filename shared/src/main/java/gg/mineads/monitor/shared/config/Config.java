@@ -48,4 +48,7 @@ public class Config {
 
   @Comment("Disable sending chat message content. When enabled (default), full chat message content is sent with chat events. When disabled, only the fact that a message was sent is transmitted.")
   private boolean disableChatContent = false;
+
+  @Comment("Disable sending command content. When enabled (default), full command content is sent with command events. When disabled, only the fact that a command was executed is transmitted.")
+  private boolean disableCommandContent = false;
 }
