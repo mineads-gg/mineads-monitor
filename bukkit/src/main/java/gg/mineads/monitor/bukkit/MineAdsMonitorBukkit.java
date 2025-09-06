@@ -85,7 +85,7 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
 
     @Override
     public void registerListeners(BatchProcessor batchProcessor, Config config) {
-      plugin.getServer().getPluginManager().registerEvents(new PlayerListener(batchProcessor, config, getScheduler()), plugin);
+      plugin.getServer().getPluginManager().registerEvents(new PlayerListener(batchProcessor, config, getScheduler(), getMineAdsPlugin()), plugin);
     }
 
     @Override

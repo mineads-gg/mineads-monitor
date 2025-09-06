@@ -23,6 +23,7 @@ import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
+import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.BatchProcessor;
 import gg.mineads.monitor.shared.event.TypeUtil;
@@ -31,6 +32,8 @@ import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
 import lombok.extern.java.Log;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -41,11 +44,13 @@ public class PlayerListener {
   private final BatchProcessor batchProcessor;
   private final Config config;
   private final MineAdsScheduler scheduler;
+  private final MineAdsMonitorPlugin plugin;
 
-  public PlayerListener(BatchProcessor batchProcessor, Config config, MineAdsScheduler scheduler) {
+  public PlayerListener(BatchProcessor batchProcessor, Config config, MineAdsScheduler scheduler, MineAdsMonitorPlugin plugin) {
     this.batchProcessor = batchProcessor;
     this.config = config;
     this.scheduler = scheduler;
+    this.plugin = plugin;
   }
 
   @Subscribe
@@ -66,6 +71,12 @@ public class PlayerListener {
 
       if (config.isDebug()) {
         log.info("[DEBUG] Player joined: %s (%s), session: %s, groups: %s".formatted(player.getUsername(), player.getUniqueId(), sessionId, luckPermsData != null ? luckPermsData.getGroupsList() : null));
+      }
+
+      // Check for update notification
+      if (plugin.isOutdated() && player.hasPermission("mineadsmonitor.admin")) {
+        Component updateMessage = Component.text("[MineAdsMonitor] A new version is available! Download it at: https://modrinth.com/project/mineads-monitor", NamedTextColor.YELLOW);
+        player.sendMessage(updateMessage);
       }
 
       PlayerJoinData.Builder builder = PlayerJoinData.newBuilder()

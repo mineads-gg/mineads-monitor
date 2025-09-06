@@ -27,6 +27,10 @@ import java.nio.file.Path;
 public abstract class AbstractMineAdsMonitorBootstrap {
   private MineAdsMonitorPlugin plugin;
 
+  public MineAdsMonitorPlugin getMineAdsPlugin() {
+    return plugin;
+  }
+
   public void onEnable() {
     this.plugin = new MineAdsMonitorPlugin(this);
     this.plugin.onEnable();

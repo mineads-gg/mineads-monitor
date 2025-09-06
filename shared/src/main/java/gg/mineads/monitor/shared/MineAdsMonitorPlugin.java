@@ -41,6 +41,12 @@ public class MineAdsMonitorPlugin {
   private Config config;
   @Getter
   private boolean initialized = false;
+  @Getter
+  private boolean outdated = false;
+
+  public void setOutdated(boolean outdated) {
+    this.outdated = outdated;
+  }
 
   public MineAdsMonitorPlugin(AbstractMineAdsMonitorBootstrap bootstrap) {
     this.bootstrap = bootstrap;
@@ -169,7 +175,7 @@ public class MineAdsMonitorPlugin {
     bootstrap.initializeLuckPerms();
 
     // Check for updates asynchronously
-    gg.mineads.monitor.shared.update.UpdateChecker.checkForUpdates();
+    gg.mineads.monitor.shared.update.UpdateChecker.checkForUpdates(this);
   }
 
   /**

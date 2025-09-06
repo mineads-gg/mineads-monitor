@@ -19,6 +19,7 @@ package gg.mineads.monitor.shared.update;
 
 import com.google.gson.Gson;
 import gg.mineads.monitor.data.BuildData;
+import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import lombok.extern.java.Log;
 
 import java.net.URI;
@@ -43,7 +44,7 @@ public class UpdateChecker {
   /**
    * Checks for updates asynchronously and logs results to console.
    */
-  public static CompletableFuture<Void> checkForUpdates() {
+  public static CompletableFuture<Void> checkForUpdates(MineAdsMonitorPlugin plugin) {
     log.info("[MineAdsMonitor] Checking for updates...");
     HttpRequest request = HttpRequest.newBuilder()
       .uri(URI.create(GITHUB_API_URL))
@@ -55,7 +56,7 @@ public class UpdateChecker {
 
     return HTTP_CLIENT.sendAsync(request, HttpResponse.BodyHandlers.ofString())
       .thenApply(HttpResponse::body)
-      .thenAccept(UpdateChecker::processUpdateResponse)
+      .thenAccept(response -> processUpdateResponse(response, plugin))
       .exceptionally(throwable -> {
         log.warning("[MineAdsMonitor] Failed to check for updates: " + throwable.getMessage());
         return null;
@@ -65,7 +66,7 @@ public class UpdateChecker {
   /**
    * Processes the JSON response from GitHub API.
    */
-  private static void processUpdateResponse(String jsonResponse) {
+  private static void processUpdateResponse(String jsonResponse, MineAdsMonitorPlugin plugin) {
     try {
       log.info("[MineAdsMonitor] Processing update response...");
       GitHubRelease latestRelease = GSON.fromJson(jsonResponse, GitHubRelease.class);
@@ -92,6 +93,7 @@ public class UpdateChecker {
       log.info("[MineAdsMonitor] Latest version: " + latestVersion);
 
       if (isNewerVersion(latestVersion, currentVersion)) {
+        plugin.setOutdated(true);
         log.info("[MineAdsMonitor] =========================================");
         log.info("[MineAdsMonitor] A new version is available!");
         log.info("[MineAdsMonitor] Current: " + currentVersion);

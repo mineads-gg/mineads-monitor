@@ -17,6 +17,7 @@
  */
 package gg.mineads.monitor.bukkit.listener;
 
+import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.BatchProcessor;
 import gg.mineads.monitor.shared.event.TypeUtil;
@@ -25,6 +26,8 @@ import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
 import lombok.extern.java.Log;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -42,11 +45,13 @@ public class PlayerListener implements Listener {
   private final BatchProcessor batchProcessor;
   private final Config config;
   private final MineAdsScheduler scheduler;
+  private final MineAdsMonitorPlugin plugin;
 
-  public PlayerListener(BatchProcessor batchProcessor, Config config, MineAdsScheduler scheduler) {
+  public PlayerListener(BatchProcessor batchProcessor, Config config, MineAdsScheduler scheduler, MineAdsMonitorPlugin plugin) {
     this.batchProcessor = batchProcessor;
     this.config = config;
     this.scheduler = scheduler;
+    this.plugin = plugin;
   }
 
   @EventHandler
@@ -67,6 +72,12 @@ public class PlayerListener implements Listener {
 
       if (config.isDebug()) {
         log.info("[DEBUG] Player joined: %s (%s), session: %s, groups: %s".formatted(player.getName(), player.getUniqueId(), sessionId, luckPermsData != null ? luckPermsData.getGroupsList() : null));
+      }
+
+      // Check for update notification
+      if (plugin.isOutdated() && player.hasPermission("mineadsmonitor.admin")) {
+        Component updateMessage = Component.text("[MineAdsMonitor] A new version is available! Download it at: https://modrinth.com/project/mineads-monitor", NamedTextColor.YELLOW);
+        player.sendMessage(updateMessage);
       }
 
       PlayerJoinData.Builder builder = PlayerJoinData.newBuilder()
