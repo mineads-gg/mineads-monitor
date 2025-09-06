@@ -42,16 +42,16 @@ import org.incendo.cloud.minecraft.extras.caption.ComponentCaptionFormatter;
 
 import java.util.List;
 
-@Command("mineadsmonitor")
-@RequiredArgsConstructor
 @Log
+@RequiredArgsConstructor
+@Command("mineadsmonitor")
+@Permission("mineadsmonitor.admin")
 public class MineAdsCommand {
 
   private final MineAdsMonitorPlugin plugin;
   private final CommandManager<WrappedCommandSender> commandManager;
 
   @Command("")
-  @Permission("mineadsmonitor.admin")
   @CommandDescription("Displays help information for MineAds Monitor commands")
   public void rootCommand(final WrappedCommandSender sender) {
     MinecraftHelp.<WrappedCommandSender>builder()
@@ -82,7 +82,6 @@ public class MineAdsCommand {
   }
 
   @Command("help [query]")
-  @Permission("mineadsmonitor.admin")
   @CommandDescription("Displays help information for MineAds Monitor commands")
   public void commandHelp(final WrappedCommandSender sender, @Argument(suggestions = "help_queries_mineadsmonitor") @Greedy String query) {
     MinecraftHelp.<WrappedCommandSender>builder()
@@ -100,7 +99,6 @@ public class MineAdsCommand {
   }
 
   @Command("version")
-  @Permission("mineadsmonitor.admin")
   @CommandDescription("Displays the current version of MineAds Monitor")
   public void onVersion(final WrappedCommandSender sender) {
     if (plugin.getConfig().isDebug()) {
@@ -110,7 +108,6 @@ public class MineAdsCommand {
   }
 
   @Command("reload")
-  @Permission("mineadsmonitor.admin")
   @CommandDescription("Reloads the MineAds Monitor configuration")
   public void onReload(final WrappedCommandSender sender) {
     if (plugin.getConfig().isDebug()) {
@@ -134,7 +131,6 @@ public class MineAdsCommand {
   }
 
   @Command("initial <transactionId> <username> <uuid> <packageName> <price> <currency>")
-  @Permission("mineadsmonitor.transaction")
   @CommandDescription("Records an initial purchase event")
   public void onInitial(
     final WrappedCommandSender sender,
@@ -177,7 +173,6 @@ public class MineAdsCommand {
   }
 
   @Command("expiry <transactionId> <username> <uuid> <packageName> <price> <currency>")
-  @Permission("mineadsmonitor.transaction")
   @CommandDescription("Records an expiry event")
   public void onExpiry(
     final WrappedCommandSender sender,
@@ -220,7 +215,6 @@ public class MineAdsCommand {
   }
 
   @Command("renewal <transactionId> <username> <uuid> <packageName> <price> <currency>")
-  @Permission("mineadsmonitor.transaction")
   @CommandDescription("Records a renewal event")
   public void onRenewal(
     final WrappedCommandSender sender,
@@ -263,7 +257,6 @@ public class MineAdsCommand {
   }
 
   @Command("chargeback <transactionId> <username> <uuid> <packageName> <price> <currency>")
-  @Permission("mineadsmonitor.transaction")
   @CommandDescription("Records a chargeback event")
   public void onChargeback(
     final WrappedCommandSender sender,
@@ -306,7 +299,6 @@ public class MineAdsCommand {
   }
 
   @Command("refund <transactionId> <username> <uuid> <packageName> <price> <currency>")
-  @Permission("mineadsmonitor.transaction")
   @CommandDescription("Records a refund event")
   public void onRefund(
     final WrappedCommandSender sender,
@@ -347,6 +339,4 @@ public class MineAdsCommand {
       }
     }
   }
-
-
 }
