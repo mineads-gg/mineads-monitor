@@ -138,7 +138,7 @@ public class MineAdsCommand {
     @Argument(value = "username") final String username,
     @Argument(value = "uuid") final String uuid,
     @Argument(value = "packageName") final String packageName,
-    @Argument(value = "price") final String price,
+    @Argument(value = "price") final double price,
     @Argument(value = "currency") final String currency
   ) {
     // Create transaction data
@@ -180,7 +180,7 @@ public class MineAdsCommand {
     @Argument(value = "username") final String username,
     @Argument(value = "uuid") final String uuid,
     @Argument(value = "packageName") final String packageName,
-    @Argument(value = "price") final String price,
+    @Argument(value = "price") final double price,
     @Argument(value = "currency") final String currency
   ) {
     // Create transaction data
@@ -222,7 +222,7 @@ public class MineAdsCommand {
     @Argument(value = "username") final String username,
     @Argument(value = "uuid") final String uuid,
     @Argument(value = "packageName") final String packageName,
-    @Argument(value = "price") final String price,
+    @Argument(value = "price") final double price,
     @Argument(value = "currency") final String currency
   ) {
     // Create transaction data
@@ -264,7 +264,7 @@ public class MineAdsCommand {
     @Argument(value = "username") final String username,
     @Argument(value = "uuid") final String uuid,
     @Argument(value = "packageName") final String packageName,
-    @Argument(value = "price") final String price,
+    @Argument(value = "price") final double price,
     @Argument(value = "currency") final String currency
   ) {
     // Create transaction data
@@ -306,7 +306,7 @@ public class MineAdsCommand {
     @Argument(value = "username") final String username,
     @Argument(value = "uuid") final String uuid,
     @Argument(value = "packageName") final String packageName,
-    @Argument(value = "price") final String price,
+    @Argument(value = "price") final double price,
     @Argument(value = "currency") final String currency
   ) {
     // Create transaction data

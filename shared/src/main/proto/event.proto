@@ -62,7 +62,7 @@ message TransactionData {
   string username = 2;
   string uuid = 3;
   string package_name = 4;
-  string price = 5;
+  double price = 5;
   string currency = 6;
 }
 
