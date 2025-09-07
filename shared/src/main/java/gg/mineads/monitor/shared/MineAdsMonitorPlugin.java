@@ -47,17 +47,16 @@ public class MineAdsMonitorPlugin {
   @Getter
   private boolean outdated = false;
 
-  public AbstractMineAdsMonitorBootstrap getBootstrap() {
-    return bootstrap;
-  }
-
   public MineAdsMonitorPlugin(AbstractMineAdsMonitorBootstrap bootstrap) {
     this.bootstrap = bootstrap;
-    this.batchProcessor = new BatchProcessor(this);
+    this.batchProcessor = new BatchProcessor(this, bootstrap.getScheduler());
   }
 
   public void onEnable() {
     try {
+      // Load configuration
+      loadConfig();
+
       if (config != null && config.isDebug()) {
         log.info("[DEBUG] Starting plugin enable process");
       }
@@ -65,38 +64,24 @@ public class MineAdsMonitorPlugin {
       // Initialize platform-specific components
       bootstrap.initializePlatform();
 
-      // Load configuration
-      loadConfig();
+      // Create and register commands (always register commands, even with config issues)
+      MineAdsCommandManager<?> commandManager = bootstrap.createCommandManager(this);
+      commandManager.registerCommands();
+
+      // Initialize core services (only if config is valid)
+      initializeCoreServices();
 
       // Validate configuration
       ConfigErrorType error = validateConfiguration();
       if (error != null) {
         logConfigurationError(error);
-        return;
-      }
-
-      if (config != null && config.isDebug()) {
+        log.info("[MineAdsMonitor] Plugin partially enabled - commands available but core services disabled due to config issues");
+      } else if (config != null && config.isDebug()) {
         log.info("[DEBUG] Configuration loaded successfully");
-      }
-
-      // Initialize core services
-      initializeCoreServices();
-
-      // Create and register commands
-      MineAdsCommandManager<?> commandManager = bootstrap.createCommandManager(this);
-      commandManager.registerCommands();
-
-      // Register platform-specific listeners
-      if (this.batchProcessor != null) {
-        bootstrap.registerListeners(this);
-        if (config != null && config.isDebug()) {
-          log.info("[DEBUG] Event listeners registered");
-        }
       }
 
       initialized = true;
       log.info("[MineAdsMonitor] Plugin enabled successfully");
-
     } catch (Exception e) {
       log.log(Level.SEVERE, "[MineAdsMonitor] Failed to enable plugin", e);
       onDisable(); // Cleanup on failure
@@ -141,13 +126,17 @@ public class MineAdsMonitorPlugin {
       String newConfigContent = outputStream.toString();
       if (!currentConfigContent.equals(newConfigContent)) {
         Files.writeString(configPath, newConfigContent);
-        if (config.isDebug()) {
+        if (config != null && config.isDebug()) {
           log.info("[DEBUG] Configuration file updated with new defaults");
         }
       }
     } catch (Exception e) {
       log.log(Level.WARNING, "[MineAdsMonitor] Failed to update configuration file", e);
     }
+  }
+
+  public boolean hasConfigIssues() {
+    return validateConfiguration() != null;
   }
 
   /**
@@ -180,7 +169,7 @@ public class MineAdsMonitorPlugin {
   private void initializeCoreServices() {
     bootstrap.getScheduler().scheduleAsync(batchProcessor, 10, 10, TimeUnit.SECONDS);
 
-    if (config.isDebug()) {
+    if (config != null && config.isDebug()) {
       log.info("[DEBUG] Batch processor scheduled to run every 10 seconds");
     }
 
@@ -189,15 +178,19 @@ public class MineAdsMonitorPlugin {
 
     // Check for updates asynchronously
     UpdateChecker.checkForUpdates(this);
+
+    // Register platform-specific listeners
+    bootstrap.registerListeners(this);
+    if (config != null && config.isDebug()) {
+      log.info("[DEBUG] Event listeners registered");
+    }
   }
 
   /**
    * Shutdown core services
    */
   private void shutdownCoreServices() {
-    if (batchProcessor != null) {
-      batchProcessor.run(); // Process any remaining events
-    }
+    batchProcessor.run(); // Process any remaining events
   }
 
   /**
@@ -207,25 +200,13 @@ public class MineAdsMonitorPlugin {
    */
   public boolean reloadConfig() {
     try {
-      // Load new configuration
-      Path configPath = bootstrap.getDataFolder().resolve("config.yml");
-      Config newConfig = YamlConfigurations.update(configPath, Config.class);
+      loadConfig();
 
       // Validate the new configuration
-      ConfigErrorType error = validateConfig(newConfig);
+      ConfigErrorType error = validateConfig(config);
       if (error != null) {
         logConfigurationError(error, true);
         return false;
-      }
-
-      // Check if plugin key changed - if so, we need to restart the batch processor
-      boolean pluginKeyChanged = !config.getPluginKey().equals(newConfig.getPluginKey());
-
-      // Update configuration
-      this.config = newConfig;
-
-      if (pluginKeyChanged) {
-        log.info("[MineAdsMonitor] Plugin key changed, batch processor will use new key on next batch");
       }
 
       log.info("[MineAdsMonitor] Configuration reloaded successfully");

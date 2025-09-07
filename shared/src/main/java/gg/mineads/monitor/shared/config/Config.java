@@ -48,9 +48,6 @@ public class Config {
     EventType.LEAVE
   );
 
-  @Comment("Enable debug logging for batch processing events. Useful for troubleshooting.")
-  private boolean debug = false;
-
   @Comment("Disable sending chat message content. When enabled (default), full chat message content is sent with chat events. When disabled, only the fact that a message was sent is transmitted.")
   private boolean disableChatContent = false;
 
@@ -61,6 +58,10 @@ public class Config {
   private Map<String, Integer> commandArgLimits = Map.of(
     "warp", 2
   );
+
+  // Should be last
+  @Comment("Enable debug logging for batch processing events. Useful for troubleshooting.")
+  private boolean debug = false;
 
   private static String generateDefaultServerId() {
     String chars = "abcdefghijklmnopqrstuvwxyz";

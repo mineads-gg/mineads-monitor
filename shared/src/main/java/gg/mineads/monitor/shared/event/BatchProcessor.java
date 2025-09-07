@@ -22,6 +22,7 @@ import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.generated.EventBatch;
 import gg.mineads.monitor.shared.event.generated.MineAdsEvent;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 
 import java.io.ByteArrayOutputStream;
@@ -46,6 +47,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 @Log
+@RequiredArgsConstructor
 public class BatchProcessor implements Runnable {
   private static final int BATCH_SIZE_THRESHOLD = 100;
   private static final int MAX_RETRY_ATTEMPTS = 3;
@@ -63,11 +65,6 @@ public class BatchProcessor implements Runnable {
   private final ReentrantLock processingLock = new ReentrantLock();
   private final AtomicBoolean isProcessing = new AtomicBoolean(false);
 
-  public BatchProcessor(MineAdsMonitorPlugin plugin) {
-    this.plugin = plugin;
-    this.scheduler = plugin.getBootstrap().getScheduler();
-  }
-
   private byte[] serializeToProtobuf(Queue<MineAdsEvent> events) {
     Config config = plugin.getConfig();
     return compress(EventBatch.newBuilder()
@@ -79,6 +76,13 @@ public class BatchProcessor implements Runnable {
 
   @Override
   public void run() {
+    if (plugin.hasConfigIssues()) {
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Skipping batch processing due to configuration issues");
+      }
+      return;
+    }
+
     Config config = plugin.getConfig();
     if (config != null && config.isDebug()) {
       log.info("[DEBUG] BatchProcessor run() called, events in queue: " + events.size());
