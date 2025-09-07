@@ -53,7 +53,8 @@ message PlayerChatData {
 // Player command data
 message PlayerCommandData {
   string session_id = 1;
-  optional string command = 2;
+  repeated string arguments = 2;
+  bool is_truncated = 3;
 }
 
 // Transaction data

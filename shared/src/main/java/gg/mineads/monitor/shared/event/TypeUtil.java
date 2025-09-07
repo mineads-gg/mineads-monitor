@@ -21,6 +21,9 @@ import gg.mineads.monitor.shared.event.generated.*;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class TypeUtil {
   private TypeUtil() {}
@@ -68,6 +71,48 @@ public class TypeUtil {
       .setTime(System.currentTimeMillis())
       .setChatData(data)
       .build();
+  }
+
+  public static PlayerCommandData.Builder createCommandDataBuilder(String sessionId, String fullCommand, boolean slashPrefixed, int defaultMaxArgs, Map<String, Integer> commandArgLimits) {
+    PlayerCommandData.Builder builder = PlayerCommandData.newBuilder()
+      .setSessionId(sessionId);
+
+    if (fullCommand == null || fullCommand.isBlank()) {
+      return builder.setIsTruncated(false); // Empty command, no truncation
+    }
+
+    // Remove leading slash if present
+    String command = slashPrefixed ? fullCommand.substring(1) : fullCommand;
+
+    // Split into arguments
+    String[] parts = command.split("\\s+");
+    if (parts.length == 0) {
+      return builder.setIsTruncated(false);
+    }
+
+    String commandName = parts[0];
+    int maxArgs = commandArgLimits.getOrDefault(commandName, defaultMaxArgs);
+
+    List<String> arguments = new ArrayList<>();
+
+    // If maxArgs == 0, disable command content (empty list, not truncated)
+    boolean isTruncated = false;
+
+    if (maxArgs > 0) {
+      // Add command name as first argument
+      arguments.add(commandName);
+      // Add additional arguments up to maxArgs - 1 (since command name is already 1)
+      for (int i = 1; i < parts.length && arguments.size() < maxArgs; i++) {
+        arguments.add(parts[i]);
+      }
+      if (parts.length > maxArgs) {
+        isTruncated = true;
+      }
+    }
+
+    return builder
+      .addAllArguments(arguments)
+      .setIsTruncated(isTruncated);
   }
 
   public static MineAdsEvent createCommandEvent(PlayerCommandData data) {

@@ -220,12 +220,13 @@ public class PlayerListener {
           String command = event.getCommand().substring(0, Math.min(50, event.getCommand().length())) + (event.getCommand().length() > 50 ? "..." : "");
           log.info("[DEBUG] Player command: %s - %s".formatted(player.getUsername(), command));
         }
-        PlayerCommandData.Builder dataBuilder = PlayerCommandData.newBuilder()
-          .setSessionId(sessionId.toString());
-
-        if (!config.isDisableCommandContent()) {
-          dataBuilder.setCommand(event.getCommand());
-        }
+        PlayerCommandData.Builder dataBuilder = TypeUtil.createCommandDataBuilder(
+          sessionId.toString(),
+          event.getCommand(),
+          false,
+          config.getDefaultMaxCommandArgs(),
+          config.getCommandArgLimits()
+        );
 
         PlayerCommandData data = dataBuilder.build();
 

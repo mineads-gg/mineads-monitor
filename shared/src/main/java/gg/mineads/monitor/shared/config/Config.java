@@ -22,6 +22,7 @@ import de.exlll.configlib.Configuration;
 import gg.mineads.monitor.shared.event.generated.EventType;
 import lombok.Getter;
 
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -53,8 +54,13 @@ public class Config {
   @Comment("Disable sending chat message content. When enabled (default), full chat message content is sent with chat events. When disabled, only the fact that a message was sent is transmitted.")
   private boolean disableChatContent = false;
 
-  @Comment("Disable sending command content. When enabled (default), full command content is sent with command events. When disabled, only the fact that a command was executed is transmitted.")
-  private boolean disableCommandContent = false;
+  @Comment("Default maximum number of command arguments to send. Set to 0 for no arguments (empty list), 1 for just the command name, or higher for more arguments. Default is 1.")
+  private int defaultMaxCommandArgs = 1;
+
+  @Comment("Override the default max arguments for specific commands. Map of command name to max arguments. Command names should not include the leading slash.")
+  private Map<String, Integer> commandArgLimits = Map.of(
+    "warp", 2
+  );
 
   private static String generateDefaultServerId() {
     String chars = "abcdefghijklmnopqrstuvwxyz";

@@ -185,12 +185,13 @@ public class PlayerListener implements Listener {
             String command = event.getMessage().substring(0, Math.min(50, event.getMessage().length())) + (event.getMessage().length() > 50 ? "..." : "");
             log.info("[DEBUG] Player command: %s - %s".formatted(player.getName(), command));
           }
-          PlayerCommandData.Builder dataBuilder = PlayerCommandData.newBuilder()
-            .setSessionId(sessionId.toString());
-
-          if (!config.isDisableCommandContent()) {
-            dataBuilder.setCommand(event.getMessage());
-          }
+          PlayerCommandData.Builder dataBuilder = TypeUtil.createCommandDataBuilder(
+            sessionId.toString(),
+            event.getMessage(),
+            true,
+            config.getDefaultMaxCommandArgs(),
+            config.getCommandArgLimits()
+          );
 
           PlayerCommandData data = dataBuilder.build();
 
