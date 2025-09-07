@@ -156,7 +156,18 @@ public class MineAdsMonitorPlugin {
     if (!config.getPluginKey().startsWith("pluginkey_")) {
       return ConfigErrorType.PLUGIN_KEY_INVALID_FORMAT;
     }
+    if (!isValidServerId(config.getServerId())) {
+      return ConfigErrorType.SERVER_ID_INVALID_FORMAT;
+    }
     return null; // No error
+  }
+
+  private boolean isValidServerId(String serverId) {
+    if (serverId == null || serverId.isEmpty()) {
+      return false;
+    }
+    // Only allow lowercase letters, numbers, and dashes
+    return serverId.matches("^[a-z0-9-]+$");
   }
 
   /**
@@ -238,6 +249,9 @@ public class MineAdsMonitorPlugin {
     if (!config.getPluginKey().startsWith("pluginkey_")) {
       return ConfigErrorType.PLUGIN_KEY_INVALID_FORMAT;
     }
+    if (!isValidServerId(config.getServerId())) {
+      return ConfigErrorType.SERVER_ID_INVALID_FORMAT;
+    }
     return null; // No error
   }
 
@@ -260,6 +274,9 @@ public class MineAdsMonitorPlugin {
         break;
       case PLUGIN_KEY_INVALID_FORMAT:
         log.warning(prefix + "Invalid plugin key. Plugin keys must start with 'pluginkey_'. Please check that you used the correct type of key from the MineAds dashboard.");
+        break;
+      case SERVER_ID_INVALID_FORMAT:
+        log.warning(prefix + "Invalid server id format. Server ids can only contain lowercase letters, numbers, and dashes (e.g., 'survival-main', 'creative-01').");
         break;
     }
   }

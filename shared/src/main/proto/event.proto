@@ -84,4 +84,5 @@ message MineAdsEvent {
 // Batch of events
 message EventBatch {
   repeated MineAdsEvent events = 1;
+  string server_id = 2;
 }

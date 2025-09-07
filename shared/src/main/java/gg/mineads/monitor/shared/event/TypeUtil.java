@@ -77,4 +77,12 @@ public class TypeUtil {
       .setCommandData(data)
       .build();
   }
+
+  public static MineAdsEvent createTransactionEvent(TransactionData data, EventType eventType) {
+    return MineAdsEvent.newBuilder()
+      .setEventType(eventType)
+      .setTime(System.currentTimeMillis())
+      .setTransactionData(data)
+      .build();
+  }
 }

@@ -21,6 +21,7 @@ import gg.mineads.monitor.data.BuildData;
 import gg.mineads.monitor.shared.ComponentHelper;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
+import gg.mineads.monitor.shared.event.TypeUtil;
 import gg.mineads.monitor.shared.event.generated.EventType;
 import gg.mineads.monitor.shared.event.generated.MineAdsEvent;
 import gg.mineads.monitor.shared.event.generated.TransactionData;
@@ -151,11 +152,7 @@ public class MineAdsCommand {
       .setCurrency(currency)
       .build();
 
-    MineAdsEvent transactionEvent = MineAdsEvent.newBuilder()
-      .setEventType(EventType.INITIAL)
-      .setTime(System.currentTimeMillis())
-      .setTransactionData(transactionData)
-      .build();
+    MineAdsEvent transactionEvent = TypeUtil.createTransactionEvent(transactionData, EventType.INITIAL);
 
     // Add event to batch processor
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
@@ -193,11 +190,7 @@ public class MineAdsCommand {
       .setCurrency(currency)
       .build();
 
-    MineAdsEvent transactionEvent = MineAdsEvent.newBuilder()
-      .setEventType(EventType.EXPIRY)
-      .setTime(System.currentTimeMillis())
-      .setTransactionData(transactionData)
-      .build();
+    MineAdsEvent transactionEvent = TypeUtil.createTransactionEvent(transactionData, EventType.EXPIRY);
 
     // Add event to batch processor
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
@@ -235,11 +228,7 @@ public class MineAdsCommand {
       .setCurrency(currency)
       .build();
 
-    MineAdsEvent transactionEvent = MineAdsEvent.newBuilder()
-      .setEventType(EventType.RENEWAL)
-      .setTime(System.currentTimeMillis())
-      .setTransactionData(transactionData)
-      .build();
+    MineAdsEvent transactionEvent = TypeUtil.createTransactionEvent(transactionData, EventType.RENEWAL);
 
     // Add event to batch processor
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
@@ -277,11 +266,7 @@ public class MineAdsCommand {
       .setCurrency(currency)
       .build();
 
-    MineAdsEvent transactionEvent = MineAdsEvent.newBuilder()
-      .setEventType(EventType.CHARGEBACK)
-      .setTime(System.currentTimeMillis())
-      .setTransactionData(transactionData)
-      .build();
+    MineAdsEvent transactionEvent = TypeUtil.createTransactionEvent(transactionData, EventType.CHARGEBACK);
 
     // Add event to batch processor
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
@@ -319,11 +304,7 @@ public class MineAdsCommand {
       .setCurrency(currency)
       .build();
 
-    MineAdsEvent transactionEvent = MineAdsEvent.newBuilder()
-      .setEventType(EventType.REFUND)
-      .setTime(System.currentTimeMillis())
-      .setTransactionData(transactionData)
-      .build();
+    MineAdsEvent transactionEvent = TypeUtil.createTransactionEvent(transactionData, EventType.REFUND);
 
     // Add event to batch processor
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {

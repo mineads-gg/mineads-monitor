@@ -64,9 +64,10 @@ public class BatchProcessor implements Runnable {
   private final ReentrantLock processingLock = new ReentrantLock();
   private final AtomicBoolean isProcessing = new AtomicBoolean(false);
 
-  private static byte[] serializeToProtobuf(Queue<MineAdsEvent> events) {
+  private byte[] serializeToProtobuf(Queue<MineAdsEvent> events) {
     return compress(EventBatch.newBuilder()
       .addAllEvents(events)
+      .setServerId(config.getServerId())
       .build()
       .toByteArray());
   }

@@ -22,6 +22,7 @@ import de.exlll.configlib.Configuration;
 import gg.mineads.monitor.shared.event.generated.EventType;
 import lombok.Getter;
 
+import java.util.Random;
 import java.util.Set;
 
 @Getter
@@ -29,6 +30,9 @@ import java.util.Set;
 public class Config {
   @Comment("The plugin key for your server. You can get this from the MineAds dashboard. Must start with 'pluginkey_'.")
   private String pluginKey = "";
+
+  @Comment("Unique identifier for this server on the network. Use a descriptive name like 'survival-main' or 'creative-hub'. Only lowercase letters and dashes allowed. Used to distinguish events from different servers.")
+  private String serverId = generateDefaultServerId();
 
   @Comment("Enable/disable tracking of specific event types. By default, all events are enabled.")
   private Set<EventType> enabledEvents = Set.of(
@@ -51,4 +55,14 @@ public class Config {
 
   @Comment("Disable sending command content. When enabled (default), full command content is sent with command events. When disabled, only the fact that a command was executed is transmitted.")
   private boolean disableCommandContent = false;
+
+  private static String generateDefaultServerId() {
+    String chars = "abcdefghijklmnopqrstuvwxyz";
+    Random random = new Random();
+    StringBuilder sb = new StringBuilder("server-");
+    for (int i = 0; i < 5; i++) {
+      sb.append(chars.charAt(random.nextInt(chars.length())));
+    }
+    return sb.toString();
+  }
 }

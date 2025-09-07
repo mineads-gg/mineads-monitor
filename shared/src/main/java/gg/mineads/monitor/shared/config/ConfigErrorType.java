@@ -29,5 +29,10 @@ public enum ConfigErrorType {
   /**
    * Plugin key does not have the correct format (must start with "pluginkey_")
    */
-  PLUGIN_KEY_INVALID_FORMAT
+  PLUGIN_KEY_INVALID_FORMAT,
+
+  /**
+   * Server id contains invalid characters (only lowercase letters and dashes allowed)
+   */
+  SERVER_ID_INVALID_FORMAT
 }
