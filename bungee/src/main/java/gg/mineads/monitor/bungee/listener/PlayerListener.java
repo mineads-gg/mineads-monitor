@@ -34,6 +34,7 @@ import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -53,7 +54,7 @@ public class PlayerListener implements Listener {
     this.plugin = plugin;
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.HIGHEST)
   public void onPostLogin(PostLoginEvent event) {
     if (!isEventEnabled(EventType.JOIN)) {
       if (config.isDebug()) {
@@ -123,7 +124,7 @@ public class PlayerListener implements Listener {
     });
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.HIGHEST)
   public void onPlayerDisconnect(PlayerDisconnectEvent event) {
     if (!isEventEnabled(EventType.LEAVE)) {
       if (config.isDebug()) {
@@ -154,7 +155,7 @@ public class PlayerListener implements Listener {
     });
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.HIGHEST)
   public void onChat(ChatEvent event) {
     if (!(event.getSender() instanceof ProxiedPlayer player)) {
       return;

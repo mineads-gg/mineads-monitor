@@ -53,7 +53,7 @@ public class PlayerListener {
     this.plugin = plugin;
   }
 
-  @Subscribe
+  @Subscribe(priority = Short.MIN_VALUE)
   public void onPostLogin(PostLoginEvent event) {
     if (!isEventEnabled(EventType.JOIN)) {
       if (config.isDebug()) {
@@ -122,7 +122,7 @@ public class PlayerListener {
     });
   }
 
-  @Subscribe
+  @Subscribe(priority = Short.MIN_VALUE)
   public void onDisconnect(DisconnectEvent event) {
     if (!isEventEnabled(EventType.LEAVE)) {
       if (config.isDebug()) {
@@ -153,7 +153,7 @@ public class PlayerListener {
     });
   }
 
-  @Subscribe
+  @Subscribe(priority = Short.MIN_VALUE)
   public void onPlayerChat(PlayerChatEvent event) {
     if (!isEventEnabled(EventType.CHAT)) {
       if (config.isDebug()) {
@@ -190,7 +190,7 @@ public class PlayerListener {
     });
   }
 
-  @Subscribe
+  @Subscribe(priority = Short.MIN_VALUE)
   public void onCommandExecute(CommandExecuteEvent event) {
     if (!isEventEnabled(EventType.COMMAND)) {
       if (config.isDebug()) {

@@ -30,6 +30,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -54,7 +55,7 @@ public class PlayerListener implements Listener {
     this.plugin = plugin;
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerJoin(PlayerJoinEvent event) {
     if (!isEventEnabled(EventType.JOIN)) {
       if (config.isDebug()) {
@@ -123,7 +124,7 @@ public class PlayerListener implements Listener {
     });
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerQuit(PlayerQuitEvent event) {
     if (!isEventEnabled(EventType.LEAVE)) {
       if (config.isDebug()) {
@@ -154,7 +155,7 @@ public class PlayerListener implements Listener {
     });
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerChat(AsyncPlayerChatEvent event) {
     if (!isEventEnabled(EventType.CHAT)) {
       if (config.isDebug()) {
@@ -191,7 +192,7 @@ public class PlayerListener implements Listener {
     });
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
     if (!isEventEnabled(EventType.COMMAND)) {
       if (config.isDebug()) {
