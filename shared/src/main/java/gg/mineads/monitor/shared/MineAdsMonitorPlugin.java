@@ -47,6 +47,10 @@ public class MineAdsMonitorPlugin {
   @Getter
   private boolean outdated = false;
 
+  public AbstractMineAdsMonitorBootstrap getBootstrap() {
+    return bootstrap;
+  }
+
   public MineAdsMonitorPlugin(AbstractMineAdsMonitorBootstrap bootstrap) {
     this.bootstrap = bootstrap;
     this.batchProcessor = new BatchProcessor(this);
@@ -193,7 +197,6 @@ public class MineAdsMonitorPlugin {
   private void shutdownCoreServices() {
     if (batchProcessor != null) {
       batchProcessor.run(); // Process any remaining events
-      batchProcessor.shutdown();
     }
   }
 

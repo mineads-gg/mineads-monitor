@@ -36,6 +36,11 @@ public class BukkitMineAdsScheduler implements MineAdsScheduler {
   }
 
   @Override
+  public void scheduleAsyncDelayed(Runnable task, long delay, TimeUnit timeUnit) {
+    foliaLib.getScheduler().runLaterAsync(task, delay, timeUnit);
+  }
+
+  @Override
   public void runAsync(Runnable task) {
     foliaLib.getScheduler().runAsync(ignored -> task.run());
   }

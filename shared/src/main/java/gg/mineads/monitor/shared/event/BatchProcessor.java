@@ -21,6 +21,7 @@ import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.generated.EventBatch;
 import gg.mineads.monitor.shared.event.generated.MineAdsEvent;
+import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import lombok.extern.java.Log;
 
 import java.io.ByteArrayOutputStream;
@@ -35,7 +36,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -52,20 +55,17 @@ public class BatchProcessor implements Runnable {
 
   private final Queue<MineAdsEvent> events = new ConcurrentLinkedQueue<>();
   private final MineAdsMonitorPlugin plugin;
+  private final MineAdsScheduler scheduler;
   private final HttpClient httpClient = HttpClient.newBuilder()
     .version(HttpClient.Version.HTTP_2)
     .connectTimeout(Duration.ofSeconds(10))
     .build();
-  private final ScheduledExecutorService retryExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
-    Thread t = new Thread(r, "BatchProcessor-Retry");
-    t.setDaemon(true);
-    return t;
-  });
   private final ReentrantLock processingLock = new ReentrantLock();
   private final AtomicBoolean isProcessing = new AtomicBoolean(false);
 
   public BatchProcessor(MineAdsMonitorPlugin plugin) {
     this.plugin = plugin;
+    this.scheduler = plugin.getBootstrap().getScheduler();
   }
 
   private byte[] serializeToProtobuf(Queue<MineAdsEvent> events) {
@@ -138,18 +138,6 @@ public class BatchProcessor implements Runnable {
       log.info("[DEBUG] Added event to queue, new size: " + events.size());
     }
     processIfNecessary();
-  }
-
-  public void shutdown() {
-    retryExecutor.shutdown();
-    try {
-      if (!retryExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
-        retryExecutor.shutdownNow();
-      }
-    } catch (InterruptedException e) {
-      retryExecutor.shutdownNow();
-      Thread.currentThread().interrupt();
-    }
   }
 
   void processQueueSafely() {
@@ -279,7 +267,7 @@ public class BatchProcessor implements Runnable {
           log.info("[DEBUG] Error response body: " + responseBody);
         }
       }
-      retryExecutor.schedule(() -> sendBatchWithRetry(batch, attempt + 1), delayMs, TimeUnit.MILLISECONDS);
+      scheduler.scheduleAsyncDelayed(() -> sendBatchWithRetry(batch, attempt + 1), delayMs, TimeUnit.MILLISECONDS);
     } else {
       // Final failure
       log.severe("Batch send failed with status " + statusCode + " after " + (attempt + 1) + " attempts");
@@ -301,7 +289,7 @@ public class BatchProcessor implements Runnable {
         log.info("[DEBUG] Scheduling retry attempt " + (attempt + 1) + " in " + delayMs + "ms due to exception");
         log.info("[DEBUG] Exception details: " + throwable);
       }
-      retryExecutor.schedule(() -> sendBatchWithRetry(batch, attempt + 1), delayMs, TimeUnit.MILLISECONDS);
+      scheduler.scheduleAsyncDelayed(() -> sendBatchWithRetry(batch, attempt + 1), delayMs, TimeUnit.MILLISECONDS);
     } else {
       log.severe("Batch send failed after " + (attempt + 1) + " attempts: " + throwable.getMessage());
       if (config != null && config.isDebug()) {

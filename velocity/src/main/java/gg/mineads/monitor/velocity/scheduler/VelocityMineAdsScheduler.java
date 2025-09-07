@@ -43,6 +43,13 @@ public class VelocityMineAdsScheduler implements MineAdsScheduler {
   }
 
   @Override
+  public void scheduleAsyncDelayed(Runnable task, long delay, TimeUnit timeUnit) {
+    scheduler.buildTask(plugin, task)
+      .delay(delay, timeUnit)
+      .schedule();
+  }
+
+  @Override
   public void runAsync(Runnable task) {
     scheduler.buildTask(plugin, task).schedule();
   }
