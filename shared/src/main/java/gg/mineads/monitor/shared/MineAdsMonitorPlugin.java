@@ -22,7 +22,9 @@ import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.config.ConfigErrorType;
 import gg.mineads.monitor.shared.event.BatchProcessor;
+import gg.mineads.monitor.shared.update.UpdateChecker;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.java.Log;
 
 import java.io.ByteArrayOutputStream;
@@ -36,20 +38,18 @@ public class MineAdsMonitorPlugin {
 
   private final AbstractMineAdsMonitorBootstrap bootstrap;
   @Getter
-  private BatchProcessor batchProcessor;
+  private final BatchProcessor batchProcessor;
   @Getter
   private Config config;
   @Getter
   private boolean initialized = false;
+  @Setter
   @Getter
   private boolean outdated = false;
 
-  public void setOutdated(boolean outdated) {
-    this.outdated = outdated;
-  }
-
   public MineAdsMonitorPlugin(AbstractMineAdsMonitorBootstrap bootstrap) {
     this.bootstrap = bootstrap;
+    this.batchProcessor = new BatchProcessor(this);
   }
 
   public void onEnable() {
@@ -84,7 +84,7 @@ public class MineAdsMonitorPlugin {
 
       // Register platform-specific listeners
       if (this.batchProcessor != null) {
-        bootstrap.registerListeners(this.batchProcessor, this.config);
+        bootstrap.registerListeners(this);
         if (config != null && config.isDebug()) {
           log.info("[DEBUG] Event listeners registered");
         }
@@ -174,9 +174,7 @@ public class MineAdsMonitorPlugin {
    * Initialize core services
    */
   private void initializeCoreServices() {
-    batchProcessor = new BatchProcessor(config);
-
-    bootstrap.getScheduler().scheduleAsync(batchProcessor, 10, 10, java.util.concurrent.TimeUnit.SECONDS);
+    bootstrap.getScheduler().scheduleAsync(batchProcessor, 10, 10, TimeUnit.SECONDS);
 
     if (config.isDebug()) {
       log.info("[DEBUG] Batch processor scheduled to run every 10 seconds");
@@ -186,7 +184,7 @@ public class MineAdsMonitorPlugin {
     bootstrap.initializeLuckPerms();
 
     // Check for updates asynchronously
-    gg.mineads.monitor.shared.update.UpdateChecker.checkForUpdates(this);
+    UpdateChecker.checkForUpdates(this);
   }
 
   /**
@@ -223,12 +221,8 @@ public class MineAdsMonitorPlugin {
       // Update configuration
       this.config = newConfig;
 
-      if (pluginKeyChanged && batchProcessor != null) {
-        // Restart batch processor with new plugin key
-        batchProcessor.shutdown();
-        batchProcessor = new BatchProcessor(config);
-        bootstrap.getScheduler().scheduleAsync(batchProcessor, 10, 10, TimeUnit.SECONDS);
-        log.info("[MineAdsMonitor] Batch processor restarted with new plugin key");
+      if (pluginKeyChanged) {
+        log.info("[MineAdsMonitor] Plugin key changed, batch processor will use new key on next batch");
       }
 
       log.info("[MineAdsMonitor] Configuration reloaded successfully");
@@ -267,17 +261,10 @@ public class MineAdsMonitorPlugin {
    */
   private void logConfigurationError(ConfigErrorType error, boolean isReload) {
     String prefix = isReload ? "[MineAdsMonitor] Reload failed: " : "[MineAdsMonitor] ";
-
     switch (error) {
-      case PLUGIN_KEY_MISSING:
-        log.warning(prefix + "Plugin key not configured. Please set 'pluginKey' in config.yml");
-        break;
-      case PLUGIN_KEY_INVALID_FORMAT:
-        log.warning(prefix + "Invalid plugin key. Plugin keys must start with 'pluginkey_'. Please check that you used the correct type of key from the MineAds dashboard.");
-        break;
-      case SERVER_ID_INVALID_FORMAT:
-        log.warning(prefix + "Invalid server id format. Server ids can only contain lowercase letters, numbers, and dashes (e.g., 'survival-main', 'creative-01').");
-        break;
+      case PLUGIN_KEY_MISSING -> log.warning(prefix + "Plugin key not configured. Please set 'pluginKey' in config.yml");
+      case PLUGIN_KEY_INVALID_FORMAT -> log.warning(prefix + "Invalid plugin key. Plugin keys must start with 'pluginkey_'. Please check that you used the correct type of key from the MineAds dashboard.");
+      case SERVER_ID_INVALID_FORMAT -> log.warning(prefix + "Invalid server id format. Server ids can only contain lowercase letters, numbers, and dashes (e.g., 'survival-main', 'creative-01').");
     }
   }
 }

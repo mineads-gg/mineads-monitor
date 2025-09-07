@@ -18,8 +18,6 @@
 package gg.mineads.monitor.bukkit.listener;
 
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
-import gg.mineads.monitor.shared.config.Config;
-import gg.mineads.monitor.shared.event.BatchProcessor;
 import gg.mineads.monitor.shared.event.TypeUtil;
 import gg.mineads.monitor.shared.event.generated.*;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
@@ -43,14 +41,10 @@ import java.util.UUID;
 @Log
 public class PlayerListener implements Listener {
 
-  private final BatchProcessor batchProcessor;
-  private final Config config;
   private final MineAdsScheduler scheduler;
   private final MineAdsMonitorPlugin plugin;
 
-  public PlayerListener(BatchProcessor batchProcessor, Config config, MineAdsScheduler scheduler, MineAdsMonitorPlugin plugin) {
-    this.batchProcessor = batchProcessor;
-    this.config = config;
+  public PlayerListener(MineAdsScheduler scheduler, MineAdsMonitorPlugin plugin) {
     this.scheduler = scheduler;
     this.plugin = plugin;
   }
@@ -58,7 +52,7 @@ public class PlayerListener implements Listener {
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerJoin(PlayerJoinEvent event) {
     if (!isEventEnabled(EventType.JOIN)) {
-      if (config.isDebug()) {
+      if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player join event ignored - JOIN events disabled");
       }
       return;
@@ -71,7 +65,7 @@ public class PlayerListener implements Listener {
     scheduler.runAsync(() -> {
       LuckPermsData luckPermsData = LuckPermsUtil.getAllGroups(player.getUniqueId());
 
-      if (config.isDebug()) {
+      if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player joined: %s (%s), session: %s, groups: %s".formatted(player.getName(), player.getUniqueId(), sessionId, luckPermsData != null ? luckPermsData.getGroupsList() : null));
       }
 
@@ -120,14 +114,14 @@ public class PlayerListener implements Listener {
 
       MineAdsEvent protoEvent = TypeUtil.createJoinEvent(data);
 
-      batchProcessor.addEvent(protoEvent);
+      plugin.getBatchProcessor().addEvent(protoEvent);
     });
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerQuit(PlayerQuitEvent event) {
     if (!isEventEnabled(EventType.LEAVE)) {
-      if (config.isDebug()) {
+      if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player quit event ignored - LEAVE events disabled");
       }
       return;
@@ -139,7 +133,7 @@ public class PlayerListener implements Listener {
     // Process event asynchronously to avoid blocking main thread
     scheduler.runAsync(() -> {
       if (sessionId != null) {
-        if (config.isDebug()) {
+        if (plugin.getConfig().isDebug()) {
           log.info("[DEBUG] Player quit: %s (%s), session: %s".formatted(player.getName(), player.getUniqueId(), sessionId));
         }
         PlayerLeaveData data = PlayerLeaveData.newBuilder()
@@ -148,8 +142,8 @@ public class PlayerListener implements Listener {
 
         MineAdsEvent protoEvent = TypeUtil.createLeaveEvent(data);
 
-        batchProcessor.addEvent(protoEvent);
-      } else if (config.isDebug()) {
+        plugin.getBatchProcessor().addEvent(protoEvent);
+      } else if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player quit: %s - no active session found".formatted(player.getName()));
       }
     });
@@ -158,7 +152,7 @@ public class PlayerListener implements Listener {
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerChat(AsyncPlayerChatEvent event) {
     if (!isEventEnabled(EventType.CHAT)) {
-      if (config.isDebug()) {
+      if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player chat event ignored - CHAT events disabled");
       }
       return;
@@ -170,14 +164,14 @@ public class PlayerListener implements Listener {
     // Process event asynchronously to avoid blocking main thread
     scheduler.runAsync(() -> {
       if (sessionId != null) {
-        if (config.isDebug()) {
+        if (plugin.getConfig().isDebug()) {
           String message = event.getMessage().substring(0, Math.min(50, event.getMessage().length())) + (event.getMessage().length() > 50 ? "..." : "");
           log.info("[DEBUG] Player chat: %s - %s".formatted(player.getName(), message));
         }
         PlayerChatData.Builder dataBuilder = PlayerChatData.newBuilder()
           .setSessionId(sessionId.toString());
 
-        if (!config.isDisableChatContent()) {
+        if (!plugin.getConfig().isDisableChatContent()) {
           dataBuilder.setMessage(event.getMessage());
         }
 
@@ -185,8 +179,8 @@ public class PlayerListener implements Listener {
 
         MineAdsEvent protoEvent = TypeUtil.createChatEvent(data);
 
-        batchProcessor.addEvent(protoEvent);
-      } else if (config.isDebug()) {
+        plugin.getBatchProcessor().addEvent(protoEvent);
+      } else if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player chat ignored: %s - no active session".formatted(player.getName()));
       }
     });
@@ -195,7 +189,7 @@ public class PlayerListener implements Listener {
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
     if (!isEventEnabled(EventType.COMMAND)) {
-      if (config.isDebug()) {
+      if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player command event ignored - COMMAND events disabled");
       }
       return;
@@ -207,7 +201,7 @@ public class PlayerListener implements Listener {
     // Process event asynchronously to avoid blocking main thread
     scheduler.runAsync(() -> {
       if (sessionId != null) {
-        if (config.isDebug()) {
+        if (plugin.getConfig().isDebug()) {
           String command = event.getMessage().substring(0, Math.min(50, event.getMessage().length())) + (event.getMessage().length() > 50 ? "..." : "");
           log.info("[DEBUG] Player command: %s - %s".formatted(player.getName(), command));
         }
@@ -215,22 +209,22 @@ public class PlayerListener implements Listener {
           sessionId.toString(),
           event.getMessage(),
           true,
-          config.getDefaultMaxCommandArgs(),
-          config.getCommandArgLimits()
+          plugin.getConfig().getDefaultMaxCommandArgs(),
+          plugin.getConfig().getCommandArgLimits()
         );
 
         PlayerCommandData data = dataBuilder.build();
 
         MineAdsEvent protoEvent = TypeUtil.createCommandEvent(data);
 
-        batchProcessor.addEvent(protoEvent);
-      } else if (config.isDebug()) {
+        plugin.getBatchProcessor().addEvent(protoEvent);
+      } else if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player command ignored: %s - no active session".formatted(player.getName()));
       }
     });
   }
 
   private boolean isEventEnabled(EventType eventType) {
-    return config.getEnabledEvents().contains(eventType);
+    return plugin.getConfig().getEnabledEvents().contains(eventType);
   }
 }

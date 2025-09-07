@@ -18,8 +18,6 @@
 package gg.mineads.monitor.shared;
 
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
-import gg.mineads.monitor.shared.config.Config;
-import gg.mineads.monitor.shared.event.BatchProcessor;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 
 import java.nio.file.Path;
@@ -51,7 +49,7 @@ public abstract class AbstractMineAdsMonitorBootstrap {
 
   public abstract MineAdsCommandManager<?> createCommandManager(MineAdsMonitorPlugin plugin);
 
-  public abstract void registerListeners(BatchProcessor batchProcessor, Config config);
+  public abstract void registerListeners(MineAdsMonitorPlugin plugin);
 
   public abstract void initializePlatform();
 

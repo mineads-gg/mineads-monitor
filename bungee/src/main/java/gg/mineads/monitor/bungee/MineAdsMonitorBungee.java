@@ -23,8 +23,6 @@ import gg.mineads.monitor.bungee.scheduler.BungeeMineAdsScheduler;
 import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
-import gg.mineads.monitor.shared.config.Config;
-import gg.mineads.monitor.shared.event.BatchProcessor;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import lombok.Getter;
@@ -81,8 +79,8 @@ public class MineAdsMonitorBungee extends Plugin {
     }
 
     @Override
-    public void registerListeners(BatchProcessor batchProcessor, Config config) {
-      plugin.getProxy().getPluginManager().registerListener(plugin, new PlayerListener(batchProcessor, config, getScheduler(), getMineAdsPlugin()));
+    public void registerListeners(MineAdsMonitorPlugin mineAdsPlugin) {
+      plugin.getProxy().getPluginManager().registerListener(plugin, new PlayerListener(getScheduler(), mineAdsPlugin));
     }
 
     @Override

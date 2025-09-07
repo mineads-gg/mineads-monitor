@@ -24,8 +24,6 @@ import gg.mineads.monitor.bukkit.scheduler.BukkitMineAdsScheduler;
 import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
-import gg.mineads.monitor.shared.config.Config;
-import gg.mineads.monitor.shared.event.BatchProcessor;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import lombok.Getter;
@@ -84,8 +82,8 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
     }
 
     @Override
-    public void registerListeners(BatchProcessor batchProcessor, Config config) {
-      plugin.getServer().getPluginManager().registerEvents(new PlayerListener(batchProcessor, config, getScheduler(), getMineAdsPlugin()), plugin);
+    public void registerListeners(MineAdsMonitorPlugin mineAdsPlugin) {
+      plugin.getServer().getPluginManager().registerEvents(new PlayerListener(getScheduler(), mineAdsPlugin), plugin);
     }
 
     @Override
