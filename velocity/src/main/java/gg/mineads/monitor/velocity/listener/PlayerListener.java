@@ -155,6 +155,10 @@ public class PlayerListener {
 
   @Subscribe(priority = Short.MIN_VALUE)
   public void onPlayerChat(PlayerChatEvent event) {
+    if (event.getResult() == PlayerChatEvent.ChatResult.denied()) {
+      return;
+    }
+
     if (!isEventEnabled(EventType.CHAT)) {
       if (config.isDebug()) {
         log.info("[DEBUG] Player chat event ignored - CHAT events disabled");
@@ -192,6 +196,10 @@ public class PlayerListener {
 
   @Subscribe(priority = Short.MIN_VALUE)
   public void onCommandExecute(CommandExecuteEvent event) {
+    if (event.getResult() == CommandExecuteEvent.CommandResult.denied()) {
+      return;
+    }
+
     if (!isEventEnabled(EventType.COMMAND)) {
       if (config.isDebug()) {
         log.info("[DEBUG] Player command event ignored - COMMAND events disabled");

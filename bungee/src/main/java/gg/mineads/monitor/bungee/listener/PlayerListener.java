@@ -157,6 +157,10 @@ public class PlayerListener implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void onChat(ChatEvent event) {
+    if (event.isCancelled()) {
+      return;
+    }
+
     if (!(event.getSender() instanceof ProxiedPlayer player)) {
       return;
     }
