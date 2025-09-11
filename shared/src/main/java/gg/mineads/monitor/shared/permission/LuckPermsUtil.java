@@ -25,6 +25,7 @@ import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.group.Group;
 import net.luckperms.api.model.user.User;
 
+import java.util.Comparator;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -96,8 +97,8 @@ public class LuckPermsUtil {
         .addAllGroups(
           user.getInheritedGroups(user.getQueryOptions())
             .stream()
+            .sorted(Comparator.comparingInt(group -> group.getWeight().orElse(0)))
             .map(Group::getName)
-            .sorted()
             ::iterator
         )
         .build();
