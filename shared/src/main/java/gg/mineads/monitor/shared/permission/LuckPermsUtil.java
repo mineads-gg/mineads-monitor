@@ -20,16 +20,15 @@ package gg.mineads.monitor.shared.permission;
 import gg.mineads.monitor.shared.event.generated.LuckPermsData;
 import lombok.extern.java.Log;
 import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.group.Group;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.query.Flag;
 import net.luckperms.api.query.QueryOptions;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 @Log
 public class LuckPermsUtil {
@@ -39,22 +38,16 @@ public class LuckPermsUtil {
   /**
    * Attempts to initialize the LuckPerms API.
    * This should be called during plugin startup.
-   *
-   * @param luckPermsProvider A supplier that attempts to get the LuckPerms instance
    */
-  public static void initialize(Supplier<@Nullable LuckPerms> luckPermsProvider) {
+  public static void initialize() {
     if (initialized) {
       log.info("[MineAdsMonitor] LuckPerms already initialized, skipping");
       return;
     }
 
     try {
-      luckPerms = luckPermsProvider.get();
-      if (luckPerms != null) {
-        log.info("[MineAdsMonitor] LuckPerms integration initialized successfully");
-      } else {
-        log.info("[MineAdsMonitor] LuckPerms not found, permission features will be limited");
-      }
+      luckPerms = LuckPermsProvider.get();
+      log.info("[MineAdsMonitor] LuckPerms integration initialized successfully");
     } catch (Exception | NoClassDefFoundError e) {
       // LuckPerms is not available
       luckPerms = null;

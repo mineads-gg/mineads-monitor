@@ -28,10 +28,9 @@ import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.luckperms.api.LuckPerms;
 import org.bstats.bukkit.Metrics;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.nio.file.Path;
@@ -54,6 +53,7 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
     bootstrap.onDisable();
   }
 
+  @Log
   @Getter
   @RequiredArgsConstructor
   public static class Bootstrap extends AbstractMineAdsMonitorBootstrap {
@@ -114,15 +114,9 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
     @Override
     public void initializeLuckPerms() {
       if (isLuckPermsEnabled()) {
-        LuckPermsUtil.initialize(() -> {
-          try {
-            RegisteredServiceProvider<LuckPerms> provider =
-              plugin.getServer().getServicesManager().getRegistration(LuckPerms.class);
-            return provider != null ? provider.getProvider() : null;
-          } catch (Exception | NoClassDefFoundError e) {
-            return null;
-          }
-        });
+        LuckPermsUtil.initialize();
+      } else {
+        log.info("[MineAdsMonitor] LuckPerms not found, permission features will be limited");
       }
     }
   }

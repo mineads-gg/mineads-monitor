@@ -27,8 +27,8 @@ import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
-import net.luckperms.api.LuckPermsProvider;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.bstats.bungeecord.Metrics;
 
@@ -52,6 +52,7 @@ public class MineAdsMonitorBungee extends Plugin {
     bootstrap.onDisable();
   }
 
+  @Log
   @Getter
   @RequiredArgsConstructor
   public static class Bootstrap extends AbstractMineAdsMonitorBootstrap {
@@ -110,13 +111,9 @@ public class MineAdsMonitorBungee extends Plugin {
     @Override
     public void initializeLuckPerms() {
       if (isLuckPermsEnabled()) {
-        LuckPermsUtil.initialize(() -> {
-          try {
-            return LuckPermsProvider.get();
-          } catch (Exception | NoClassDefFoundError e) {
-            return null;
-          }
-        });
+        LuckPermsUtil.initialize();
+      } else {
+        log.info("[MineAdsMonitor] LuckPerms not found, permission features will be limited");
       }
     }
   }

@@ -34,7 +34,7 @@ import gg.mineads.monitor.velocity.listener.PlayerListener;
 import gg.mineads.monitor.velocity.scheduler.VelocityMineAdsScheduler;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.luckperms.api.LuckPermsProvider;
+import lombok.extern.java.Log;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
 
@@ -69,6 +69,7 @@ public class MineAdsMonitorVelocity {
     this.bootstrap.onDisable();
   }
 
+  @Log
   @Getter
   @RequiredArgsConstructor
   public static class Bootstrap extends AbstractMineAdsMonitorBootstrap {
@@ -122,13 +123,9 @@ public class MineAdsMonitorVelocity {
     @Override
     public void initializeLuckPerms() {
       if (isLuckPermsEnabled()) {
-        LuckPermsUtil.initialize(() -> {
-          try {
-            return LuckPermsProvider.get();
-          } catch (Exception | NoClassDefFoundError e) {
-            return null;
-          }
-        });
+        LuckPermsUtil.initialize();
+      } else {
+        log.info("[MineAdsMonitor] LuckPerms not found, permission features will be limited");
       }
     }
   }
