@@ -72,7 +72,7 @@ public class LuckPermsUtil {
    * @param uuid The UUID of the user
    * @return A LuckPermsData instance with all group names the user has, or null if not available
    */
-  public static LuckPermsData getAllGroups(UUID uuid) {
+  public static LuckPermsData getLuckPermsData(UUID uuid) {
     if (!isAvailable()) {
       return null;
     }

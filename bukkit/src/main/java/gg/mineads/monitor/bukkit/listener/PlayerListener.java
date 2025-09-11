@@ -63,7 +63,7 @@ public class PlayerListener implements Listener {
 
     // Process event asynchronously to avoid blocking main thread
     scheduler.runAsync(() -> {
-      LuckPermsData luckPermsData = LuckPermsUtil.getAllGroups(player.getUniqueId());
+      LuckPermsData luckPermsData = LuckPermsUtil.getLuckPermsData(player.getUniqueId());
 
       if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player joined: %s (%s), session: %s, groups: %s".formatted(player.getName(), player.getUniqueId(), sessionId, luckPermsData != null ? luckPermsData.getGroupsList() : null));
