@@ -7,7 +7,7 @@ bungeeApi = "1.21-R0.3"
 # Core dependencies
 luckperms = "5.5"
 configlibYaml = "4.6.1"
-gson = "2.13.1"
+gson = "2.13.2"
 protobuf = "4.32.0"
 
 # Cloud Commands
