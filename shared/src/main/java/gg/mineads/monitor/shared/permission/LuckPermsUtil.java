@@ -17,17 +17,14 @@
  */
 package gg.mineads.monitor.shared.permission;
 
+import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.generated.LuckPermsData;
 import lombok.extern.java.Log;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.group.Group;
 import net.luckperms.api.model.user.User;
-import net.luckperms.api.query.Flag;
-import net.luckperms.api.query.QueryOptions;
 
-import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -73,8 +70,11 @@ public class LuckPermsUtil {
    * @param uuid The UUID of the user
    * @return A LuckPermsData instance with all group names the user has, or null if not available
    */
-  public static LuckPermsData getLuckPermsData(UUID uuid) {
+  public static LuckPermsData getLuckPermsData(Config config, UUID uuid) {
     if (!isAvailable()) {
+      if (config.isDebug()) {
+        log.info("[DEBUG] LuckPerms not available when retrieving data for UUID: " + uuid);
+      }
       return null;
     }
 
@@ -86,21 +86,23 @@ public class LuckPermsUtil {
       }
 
       if (user == null) {
+        if (config.isDebug()) {
+          log.info("[DEBUG] LuckPerms user not found for UUID: " + uuid);
+        }
         return null;
       }
 
-      List<String> groups = user.getInheritedGroups(QueryOptions.nonContextual(Set.of(
-          Flag.RESOLVE_INHERITANCE
-        )))
-        .stream()
-        .map(Group::getName)
-        .sorted()
-        .toList();
-
       return LuckPermsData.newBuilder()
-        .addAllGroups(groups)
+        .addAllGroups(
+          user.getInheritedGroups(user.getQueryOptions())
+            .stream()
+            .map(Group::getName)
+            .sorted()
+            ::iterator
+        )
         .build();
     } catch (Exception e) {
+      log.warning("[DEBUG] Error retrieving LuckPerms data for UUID: " + uuid + ", error: " + e);
       return null;
     }
   }

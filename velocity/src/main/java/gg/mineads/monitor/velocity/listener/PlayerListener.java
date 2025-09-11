@@ -61,7 +61,7 @@ public class PlayerListener {
 
     // Process event asynchronously to avoid blocking main thread
     scheduler.runAsync(() -> {
-      LuckPermsData luckPermsData = LuckPermsUtil.getLuckPermsData(player.getUniqueId());
+      LuckPermsData luckPermsData = LuckPermsUtil.getLuckPermsData(plugin.getConfig(), player.getUniqueId());
 
       if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player joined: %s (%s), session: %s, groups: %s".formatted(player.getUsername(), player.getUniqueId(), sessionId, luckPermsData != null ? luckPermsData.getGroupsList() : null));
