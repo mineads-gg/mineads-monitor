@@ -29,10 +29,11 @@ import net.luckperms.api.query.QueryOptions;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Log
 public class LuckPermsUtil {
-  private static LuckPerms luckPerms = null;
+  private static Object luckPerms = null;
   private static boolean initialized = false;
 
   /**
@@ -78,7 +79,12 @@ public class LuckPermsUtil {
     }
 
     try {
-      User user = luckPerms.getUserManager().getUser(uuid);
+      LuckPerms luckPermsInstance = (LuckPerms) luckPerms;
+      User user = luckPermsInstance.getUserManager().getUser(uuid);
+      if (user == null) {
+        user = luckPermsInstance.getUserManager().loadUser(uuid).get(30, TimeUnit.SECONDS);
+      }
+
       if (user == null) {
         return null;
       }
