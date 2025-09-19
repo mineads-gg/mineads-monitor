@@ -12,7 +12,7 @@ dependencies {
   api("org.jetbrains:annotations:26.0.2-1")
   compileOnly("com.github.spotbugs:spotbugs-annotations:4.9.6")
 
-  errorprone("com.google.errorprone:error_prone_core:2.41.0")
+  errorprone("com.google.errorprone:error_prone_core:2.42.0")
 
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
   testFixturesApi("org.junit.jupiter:junit-jupiter:5.13.4")
