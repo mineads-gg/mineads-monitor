@@ -16,8 +16,8 @@ dependencies {
 
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
   testFixturesApi("org.junit.jupiter:junit-jupiter:5.13.4")
-  testFixturesApi("org.mockito:mockito-core:5.19.0")
-  testFixturesApi("org.mockito:mockito-junit-jupiter:5.19.0")
+  testFixturesApi("org.mockito:mockito-core:5.20.0")
+  testFixturesApi("org.mockito:mockito-junit-jupiter:5.20.0")
 }
 
 tasks {
