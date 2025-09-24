@@ -127,8 +127,8 @@ jobs:
           files: |
             build/libs/MineAdsMonitor-Bukkit-${{ inputs.version }}.jar
 
-          name: MineAdsMonitor ${{ inputs.version }}
-          version: ${{ inputs.version }}
+          name: MineAdsMonitor ${{ inputs.version }} Bukkit
+          version: ${{ inputs.version }}-bukkit
           version-type: release
           changelog: ${{ steps.github_release.outputs.changelog }}
 
@@ -157,8 +157,8 @@ jobs:
           files: |
             build/libs/MineAdsMonitor-Bungee-${{ inputs.version }}.jar
 
-          name: MineAdsMonitor ${{ inputs.version }}
-          version: ${{ inputs.version }}
+          name: MineAdsMonitor ${{ inputs.version }} BungeeCord
+          version: ${{ inputs.version }}-bungee
           version-type: release
           changelog: ${{ steps.github_release.outputs.changelog }}
 
@@ -184,8 +184,8 @@ jobs:
           files: |
             build/libs/MineAdsMonitor-Velocity-${{ inputs.version }}.jar
 
-          name: MineAdsMonitor ${{ inputs.version }}
-          version: ${{ inputs.version }}
+          name: MineAdsMonitor ${{ inputs.version }} Velocity
+          version: ${{ inputs.version }}-velocity
           version-type: release
           changelog: ${{ steps.github_release.outputs.changelog }}
 
