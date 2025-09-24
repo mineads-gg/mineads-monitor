@@ -258,9 +258,9 @@ jobs:
         uses: tsickert/discord-webhook@v7.0.0
         with:
           webhook-url: ${{ secrets.WEBHOOK_URL }}
-          content: <@&850705047938793503> New MineAdsMonitor version released!
+          content: <@&1420401128838795335> New MineAdsMonitor version released!
           embed-title: MineAdsMonitor ${{ inputs.version }}
-          embed-description: MineAdsMonitor ${{ inputs.version }} has been released! Changelog and download can be found at https://modrinth.com/plugin/mineads-monitor/version/${{ inputs.version }}
+          embed-description: MineAdsMonitor ${{ inputs.version }} has been released! Changelog and download can be found at https://modrinth.com/plugin/mineads-monitor/versions#download
           embed-color: 16641028
           embed-thumbnail-url: https://raw.githubusercontent.com/mineads-gg/mineads-monitor/refs/heads/main/images/logo.png
 
