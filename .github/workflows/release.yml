@@ -130,7 +130,8 @@ jobs:
           name: MineAdsMonitor ${{ inputs.version }} Bukkit
           version: ${{ inputs.version }}-bukkit
           version-type: release
-          changelog: ${{ steps.github_release.outputs.changelog }}
+          changelog: |
+            ${{ steps.github_release.outputs.changelog }}
 
           loaders: |
             bukkit
@@ -160,7 +161,8 @@ jobs:
           name: MineAdsMonitor ${{ inputs.version }} BungeeCord
           version: ${{ inputs.version }}-bungee
           version-type: release
-          changelog: ${{ steps.github_release.outputs.changelog }}
+          changelog: |
+            ${{ steps.github_release.outputs.changelog }}
 
           loaders: |
             bungeecord
@@ -187,7 +189,8 @@ jobs:
           name: MineAdsMonitor ${{ inputs.version }} Velocity
           version: ${{ inputs.version }}-velocity
           version-type: release
-          changelog: ${{ steps.github_release.outputs.changelog }}
+          changelog: |
+            ${{ steps.github_release.outputs.changelog }}
 
           loaders: |
             velocity
