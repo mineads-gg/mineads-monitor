@@ -36,7 +36,7 @@ tasks {
         mapOf(
           "version" to inputs.properties["version"],
           "description" to inputs.properties["description"],
-          "url" to "https://modrinth.com/plugin/mineadsmonitor",
+          "url" to "https://modrinth.com/plugin/mineads-monitor",
         )
       )
     }
