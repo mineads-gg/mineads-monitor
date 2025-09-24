@@ -222,11 +222,29 @@ jobs:
           retry-delay: 10000
           fail-mode: fail
 
-      - name: Publish to Hangar
-        run: ./gradlew publishPluginPublicationToHangar --stacktrace
-        env:
-          HANGAR_TOKEN: ${{ secrets.HANGAR_TOKEN }}
-          HANGAR_CHANGELOG: ${{ steps.github_release.outputs.changelog }}
+      - name: Upload to Hangar
+        uses: benwoo1110/hangar-upload-action@v1
+        with:
+          api_token: ${{ secrets.HANGAR_TOKEN }}
+          slug: 'MineAdsMonitor'
+          version: ${{ inputs.version }}
+          channel: release
+          description: ${{ steps.github_release.outputs.changelog }}
+          files: |
+            [
+              {
+                "path": "bukkit/build/libs/mineadsmonitor-bukkit-${{ inputs.version }}.jar",
+                "platforms": ["PAPER"]
+              },
+              {
+                "path": "bungee/build/libs/mineadsmonitor-bungee-${{ inputs.version }}.jar",
+                "platforms": ["WATERFALL"]
+              },
+              {
+                "path": "velocity/build/libs/mineadsmonitor-velocity-${{ inputs.version }}.jar",
+                "platforms": ["VELOCITY"]
+              }
+            ]
 
       - name: Discord Webhook Action
         uses: tsickert/discord-webhook@v7.0.0
