@@ -245,10 +245,6 @@ jobs:
                 "platforms": ["PAPER"]
               },
               {
-                "path": "build/libs/MineAdsMonitor-Bungee-${{ inputs.version }}.jar",
-                "platforms": ["WATERFALL"]
-              },
-              {
                 "path": "build/libs/MineAdsMonitor-Velocity-${{ inputs.version }}.jar",
                 "platforms": ["VELOCITY"]
               }
