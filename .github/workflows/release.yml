@@ -222,7 +222,7 @@ jobs:
           version: ${{ inputs.version }}
           version-type: release
           changelog: |
-            [![modrinth](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/modrinth_vector.svg)](https://modrinth.com/plugin/mineads-monitor/version/${{ inputs.version }}) [![hangar](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/hangar_vector.svg)](https://hangar.papermc.io/MineAds/MineAdsMonitor/versions/${{ inputs.version }})
+            [![modrinth](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/modrinth_vector.svg)](https://modrinth.com/plugin/mineads-monitor/versions#download) [![hangar](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/hangar_vector.svg)](https://hangar.papermc.io/MineAds/MineAdsMonitor/versions/${{ inputs.version }})
 
             ${{ steps.github_release.outputs.changelog }}
 
