@@ -131,7 +131,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
           files: |
-            build/libs/MineAdsMonitor-${{ inputs.version }}.jar
+            bukkit/build/libs/mineadsmonitor-bukkit-${{ inputs.version }}.jar
+            bungee/build/libs/mineadsmonitor-bungee-${{ inputs.version }}.jar
+            velocity/build/libs/mineadsmonitor-velocity-${{ inputs.version }}.jar
 
           name: MineAdsMonitor ${{ inputs.version }}
           version: ${{ inputs.version }}
@@ -155,11 +157,6 @@ jobs:
           game-versions: |
             >=1.8.0
           game-version-filter: releases
-          java: |
-            8
-            11
-            17
-            21
 
           retry-attempts: 2
           retry-delay: 10000
