@@ -124,7 +124,7 @@ jobs:
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
 
           files: |
-            bukkit/build/libs/mineadsmonitor-bukkit-${{ inputs.version }}.jar
+            build/libs/MineAdsMonitor-Bukkit-${{ inputs.version }}.jar
 
           name: MineAdsMonitor ${{ inputs.version }}
           version: ${{ inputs.version }}
@@ -153,7 +153,7 @@ jobs:
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
 
           files: |
-            bungee/build/libs/mineadsmonitor-bungee-${{ inputs.version }}.jar
+            build/libs/MineAdsMonitor-Bungee-${{ inputs.version }}.jar
 
           name: MineAdsMonitor ${{ inputs.version }}
           version: ${{ inputs.version }}
@@ -179,7 +179,7 @@ jobs:
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
 
           files: |
-            velocity/build/libs/mineadsmonitor-velocity-${{ inputs.version }}.jar
+            build/libs/MineAdsMonitor-Velocity-${{ inputs.version }}.jar
 
           name: MineAdsMonitor ${{ inputs.version }}
           version: ${{ inputs.version }}
@@ -206,9 +206,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
           files: |
-            bukkit/build/libs/mineadsmonitor-bukkit-${{ inputs.version }}.jar
-            bungee/build/libs/mineadsmonitor-bungee-${{ inputs.version }}.jar
-            velocity/build/libs/mineadsmonitor-velocity-${{ inputs.version }}.jar
+            build/libs/MineAdsMonitor-Bukkit-${{ inputs.version }}.jar
+            build/libs/MineAdsMonitor-Bungee-${{ inputs.version }}.jar
+            build/libs/MineAdsMonitor-Velocity-${{ inputs.version }}.jar
 
           name: MineAdsMonitor ${{ inputs.version }}
           version: ${{ inputs.version }}
@@ -233,15 +233,15 @@ jobs:
           files: |
             [
               {
-                "path": "bukkit/build/libs/mineadsmonitor-bukkit-${{ inputs.version }}.jar",
+                "path": "build/libs/MineAdsMonitor-Bukkit-${{ inputs.version }}.jar",
                 "platforms": ["PAPER"]
               },
               {
-                "path": "bungee/build/libs/mineadsmonitor-bungee-${{ inputs.version }}.jar",
+                "path": "build/libs/MineAdsMonitor-Bungee-${{ inputs.version }}.jar",
                 "platforms": ["WATERFALL"]
               },
               {
-                "path": "velocity/build/libs/mineadsmonitor-velocity-${{ inputs.version }}.jar",
+                "path": "build/libs/MineAdsMonitor-Velocity-${{ inputs.version }}.jar",
                 "platforms": ["VELOCITY"]
               }
             ]
