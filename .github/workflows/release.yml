@@ -123,6 +123,81 @@ jobs:
           modrinth-unfeature-mode: subset
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
 
+          files: |
+            bukkit/build/libs/mineadsmonitor-bukkit-${{ inputs.version }}.jar
+
+          name: MineAdsMonitor ${{ inputs.version }}
+          version: ${{ inputs.version }}
+          version-type: release
+          changelog: ${{ steps.github_release.outputs.changelog }}
+
+          loaders: |
+            bukkit
+            folia
+            paper
+            purpur
+            spigot
+          game-versions: |
+            >=1.8.0
+          game-version-filter: releases
+
+          retry-attempts: 2
+          retry-delay: 10000
+          fail-mode: fail
+
+      - uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: mineads-monitor
+          modrinth-featured: true
+          modrinth-unfeature-mode: subset
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
+          files: |
+            bungee/build/libs/mineadsmonitor-bungee-${{ inputs.version }}.jar
+
+          name: MineAdsMonitor ${{ inputs.version }}
+          version: ${{ inputs.version }}
+          version-type: release
+          changelog: ${{ steps.github_release.outputs.changelog }}
+
+          loaders: |
+            bungeecord
+            waterfall
+          game-versions: |
+            >=1.8.0
+          game-version-filter: releases
+
+          retry-attempts: 2
+          retry-delay: 10000
+          fail-mode: fail
+
+      - uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: mineads-monitor
+          modrinth-featured: true
+          modrinth-unfeature-mode: subset
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
+          files: |
+            velocity/build/libs/mineadsmonitor-velocity-${{ inputs.version }}.jar
+
+          name: MineAdsMonitor ${{ inputs.version }}
+          version: ${{ inputs.version }}
+          version-type: release
+          changelog: ${{ steps.github_release.outputs.changelog }}
+
+          loaders: |
+            velocity
+          game-versions: |
+            >=1.8.0
+          game-version-filter: releases
+
+          retry-attempts: 2
+          retry-delay: 10000
+          fail-mode: fail
+
+      - uses: Kir-Antipov/mc-publish@v3.3
+        with:
           github-tag: ${{ inputs.version }}
           github-generate-changelog: false
           github-draft: false
@@ -138,25 +213,10 @@ jobs:
           name: MineAdsMonitor ${{ inputs.version }}
           version: ${{ inputs.version }}
           version-type: release
-          changelog: ${{ steps.github_release.outputs.changelog }}
-
-          github-changelog: |
+          changelog: |
             [![modrinth](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/modrinth_vector.svg)](https://modrinth.com/plugin/mineads-monitor/version/${{ inputs.version }}) [![hangar](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/hangar_vector.svg)](https://hangar.papermc.io/MineAds/MineAdsMonitor/versions/${{ inputs.version }})
 
             ${{ steps.github_release.outputs.changelog }}
-
-          loaders: |
-            bukkit
-            bungeecord
-            folia
-            paper
-            purpur
-            spigot
-            velocity
-            waterfall
-          game-versions: |
-            >=1.8.0
-          game-version-filter: releases
 
           retry-attempts: 2
           retry-delay: 10000
