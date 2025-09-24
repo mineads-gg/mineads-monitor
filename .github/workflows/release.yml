@@ -249,7 +249,11 @@ jobs:
                 "platforms": ["VELOCITY"]
               }
             ]
-
+          platform_dependencies: |
+            {
+              "PAPER": ["1.8-1.21.8"],
+              "VELOCITY": ["3.0-3.4"]
+            }
       - name: Discord Webhook Action
         uses: tsickert/discord-webhook@v7.0.0
         with:
