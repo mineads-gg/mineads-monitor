@@ -13,6 +13,8 @@ on:
 jobs:
   set-release-version:
     uses: mineads-gg/mineads-monitor/.github/workflows/set-version.yml@main
+    permissions:
+      contents: write
     with:
       version: ${{ inputs.version }}
     secrets: inherit
@@ -182,6 +184,8 @@ jobs:
   set-after-version:
     needs: build
     uses: mineads-gg/mineads-monitor/.github/workflows/set-version.yml@main
+    permissions:
+      contents: write
     with:
       version: ${{ inputs.after-version }}
     secrets: inherit
