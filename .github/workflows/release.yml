@@ -262,7 +262,7 @@ jobs:
           embed-title: MineAdsMonitor ${{ inputs.version }}
           embed-description: MineAdsMonitor ${{ inputs.version }} has been released! Changelog and download can be found at https://modrinth.com/plugin/mineads-monitor/versions#download
           embed-color: 16641028
-          embed-thumbnail-url: https://raw.githubusercontent.com/mineads-gg/mineads-monitor/refs/heads/main/images/logo.png
+          embed-thumbnail-url: https://mineads.gg/logo.png
 
   set-after-version:
     needs: build
