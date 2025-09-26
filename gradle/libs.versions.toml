@@ -32,7 +32,7 @@ foliaLib = "0.5.1"
 apiguardian = "1.1.2"
 
 # Build tools
-shadowPlugin = "9.2.1"
+shadowPlugin = "9.2.2"
 spotlessPlugin = "7.2.1"
 spotbugsPlugin = "6.4.2"
 indraGit = "3.2.0"
