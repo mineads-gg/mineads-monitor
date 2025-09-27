@@ -2,7 +2,7 @@
 # Minecraft platforms
 paperApi = "1.21.4-R0.1-SNAPSHOT"
 velocityApi = "3.4.0-SNAPSHOT"
-bungeeApi = "1.21-R0.3"
+bungeeApi = "1.21-R0.4"
 
 # Core dependencies
 luckperms = "5.5"
