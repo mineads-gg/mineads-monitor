@@ -17,7 +17,7 @@ dependencies {
   implementation("net.kyori:indra-git:4.0.0-SNAPSHOT")
   implementation("xyz.wagyourtail.jvmdowngrader:xyz.wagyourtail.jvmdowngrader.gradle.plugin:1.3.3")
   implementation("net.ltgt.errorprone:net.ltgt.errorprone.gradle.plugin:4.3.0")
-  implementation("io.freefair.gradle:lombok-plugin:8.14.2")
+  implementation("io.freefair.gradle:lombok-plugin:9.0.0")
 }
 
 java {
