@@ -38,7 +38,7 @@ spotbugsPlugin = "6.4.2"
 indraGit = "3.2.0"
 jvmdowngrader = "1.3.3"
 errorpronePlugin = "4.3.0"
-lombokPlugin = "8.14.2"
+lombokPlugin = "9.0.0"
 protobufPlugin = "0.9.5"
 
 # Gradle plugins
