@@ -43,8 +43,8 @@ protobufPlugin = "0.9.5"
 
 # Gradle plugins
 foojayResolver = "1.0.0"
-runPaper = "3.0.0"
-runVelocity = "3.0.0"
+runPaper = "3.0.1"
+runVelocity = "3.0.1"
 
 [libraries]
 # Core dependencies
