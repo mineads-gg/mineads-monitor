@@ -16,8 +16,8 @@ cloudMinecraft = "2.0.0-beta.11"
 cloudTranslations = "1.0.0-SNAPSHOT"
 
 # Kyori Adventure
-adventureApi = "4.24.0"
-adventureTextSerializerLegacy = "4.24.0"
+adventureApi = "4.25.0"
+adventureTextSerializerLegacy = "4.25.0"
 adventurePlatformBukkit = "4.4.1"
 adventurePlatformBungeecord = "4.4.1"
 
