@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
   api("org.jetbrains:annotations:26.0.2-1")
-  compileOnly("com.github.spotbugs:spotbugs-annotations:4.9.7")
+  compileOnly("com.github.spotbugs:spotbugs-annotations:4.9.8")
 
   errorprone("com.google.errorprone:error_prone_core:2.42.0")
 
