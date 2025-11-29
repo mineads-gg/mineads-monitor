@@ -27,6 +27,13 @@ dependencies {
 }
 
 tasks {
+  withType<com.github.spotbugs.snom.SpotBugsTask>().configureEach {
+    val spotbugsExcludeFile = rootProject.file("config/spotbugs/exclude.xml")
+    if (spotbugsExcludeFile.exists()) {
+      excludeFilter.set(spotbugsExcludeFile)
+    }
+  }
+
   processResources {
     inputs.property("version", project.version)
     inputs.property("description", project.description)
