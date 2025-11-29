@@ -225,6 +225,6 @@ public class PlayerListener implements Listener {
   }
 
   private boolean isEventEnabled(EventType eventType) {
-    return plugin.getConfig().getEnabledEvents().contains(eventType);
+    return plugin.getConfig().isEventEnabled(eventType);
   }
 }

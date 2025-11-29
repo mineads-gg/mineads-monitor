@@ -35,18 +35,11 @@ public class Config {
   @Comment("Unique identifier for this server on the network. Use a descriptive name like 'survival-main' or 'creative-hub'. Only lowercase letters and dashes allowed. Used to distinguish events from different servers.")
   private String serverId = generateDefaultServerId();
 
-  @Comment("Enable/disable tracking of specific event types. By default, all events are enabled.")
-  private Set<EventType> enabledEvents = Set.of(
-    EventType.INITIAL,
-    EventType.EXPIRY,
-    EventType.RENEWAL,
-    EventType.CHARGEBACK,
-    EventType.REFUND,
-    EventType.CHAT,
-    EventType.COMMAND,
-    EventType.JOIN,
-    EventType.LEAVE
-  );
+  @Comment("Controls how the event list below is interpreted. BLACKLIST (default) blocks only the events listed. WHITELIST allows only the events listed.")
+  private EventListMode eventListMode = EventListMode.BLACKLIST;
+
+  @Comment("When in BLACKLIST mode, events here are blocked. When in WHITELIST mode, only events here are allowed. Defaults to an empty list (all events allowed).")
+  private Set<EventType> eventList = Set.of();
 
   @Comment("Disable sending chat message content. When enabled (default), full chat message content is sent with chat events. When disabled, only the fact that a message was sent is transmitted.")
   private boolean disableChatContent = false;
@@ -71,5 +64,17 @@ public class Config {
       sb.append(chars.charAt(random.nextInt(chars.length())));
     }
     return sb.toString();
+  }
+
+  public boolean isEventEnabled(EventType eventType) {
+    return switch (eventListMode) {
+      case WHITELIST -> eventList.contains(eventType);
+      case BLACKLIST -> !eventList.contains(eventType);
+    };
+  }
+
+  public enum EventListMode {
+    BLACKLIST,
+    WHITELIST
   }
 }
