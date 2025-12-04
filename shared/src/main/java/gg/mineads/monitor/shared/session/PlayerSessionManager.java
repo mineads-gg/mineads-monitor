@@ -22,6 +22,7 @@ import lombok.extern.java.Log;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Log
 public class PlayerSessionManager {
@@ -78,5 +79,16 @@ public class PlayerSessionManager {
    */
   public static int getActiveSessionCount() {
     return playerSessions.size();
+  }
+
+  /**
+   * Returns a snapshot of active player sessions.
+   *
+   * @return Map of player UUID -> session UUID
+   */
+  public static Map<UUID, UUID> getActiveSessionsSnapshot() {
+    // Return an immutable copy to avoid exposing internal map
+    return playerSessions.entrySet().stream()
+      .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 }

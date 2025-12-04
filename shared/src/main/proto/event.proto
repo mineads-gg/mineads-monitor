@@ -18,6 +18,7 @@ enum EventType {
   COMMAND = 7;
   JOIN = 8;
   LEAVE = 9;
+  HEARTBEAT = 10;
 }
 
 // LuckPerms data
@@ -41,6 +42,11 @@ message PlayerJoinData {
 
 // Player leave data
 message PlayerLeaveData {
+  string session_id = 1;
+}
+
+// Player heartbeat data
+message PlayerHeartbeatData {
   string session_id = 1;
 }
 
@@ -79,6 +85,7 @@ message MineAdsEvent {
     PlayerChatData chat_data = 5;
     PlayerCommandData command_data = 6;
     TransactionData transaction_data = 7;
+    PlayerHeartbeatData heartbeat_data = 8;
   }
 }
 

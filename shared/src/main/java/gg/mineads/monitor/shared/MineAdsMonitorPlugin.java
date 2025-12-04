@@ -23,6 +23,7 @@ import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.config.ConfigErrorType;
 import gg.mineads.monitor.shared.event.BatchProcessor;
 import gg.mineads.monitor.shared.update.UpdateChecker;
+import gg.mineads.monitor.shared.session.SessionHeartbeatTask;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
@@ -172,6 +173,9 @@ public class MineAdsMonitorPlugin {
     if (config != null && config.isDebug()) {
       log.info("[DEBUG] Batch processor scheduled to run every 10 seconds");
     }
+
+    // Emit heartbeats for active sessions to bound sessions on crashes
+    bootstrap.getScheduler().scheduleAsync(new SessionHeartbeatTask(this), 10, 60, TimeUnit.SECONDS);
 
     // Initialize platform-specific services
     bootstrap.initializeLuckPerms();

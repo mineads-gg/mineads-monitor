@@ -65,6 +65,14 @@ public class TypeUtil {
       .build();
   }
 
+  public static MineAdsEvent createHeartbeatEvent(PlayerHeartbeatData data) {
+    return MineAdsEvent.newBuilder()
+      .setEventType(EventType.HEARTBEAT)
+      .setTime(System.currentTimeMillis())
+      .setHeartbeatData(data)
+      .build();
+  }
+
   public static MineAdsEvent createChatEvent(PlayerChatData data) {
     return MineAdsEvent.newBuilder()
       .setEventType(EventType.CHAT)
