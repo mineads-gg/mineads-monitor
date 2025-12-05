@@ -171,7 +171,7 @@ public class BatchProcessor implements Runnable {
       // Log event type breakdown
       Map<String, Long> eventTypes = currentEvents.stream()
         .collect(Collectors.groupingBy(
-          event -> event.getEventType().name(),
+          event -> event.getDataCase().name(),
           Collectors.counting()
         ));
       log.info("[DEBUG] Event types in batch: " + eventTypes);

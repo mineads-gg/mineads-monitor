@@ -22,7 +22,6 @@ import gg.mineads.monitor.shared.ComponentHelper;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import gg.mineads.monitor.shared.event.TypeUtil;
-import gg.mineads.monitor.shared.event.generated.EventType;
 import gg.mineads.monitor.shared.event.generated.MineAdsEvent;
 import gg.mineads.monitor.shared.event.generated.TransactionData;
 import lombok.RequiredArgsConstructor;
@@ -152,7 +151,7 @@ public class MineAdsCommand {
       .setCurrency(currency)
       .build();
 
-    MineAdsEvent transactionEvent = TypeUtil.createTransactionEvent(transactionData, EventType.INITIAL);
+    MineAdsEvent transactionEvent = TypeUtil.createTransactionEvent(transactionData, MineAdsEvent.Builder::setInitialTransactionData);
 
     // Add event to batch processor
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
@@ -190,7 +189,7 @@ public class MineAdsCommand {
       .setCurrency(currency)
       .build();
 
-    MineAdsEvent transactionEvent = TypeUtil.createTransactionEvent(transactionData, EventType.EXPIRY);
+    MineAdsEvent transactionEvent = TypeUtil.createTransactionEvent(transactionData, MineAdsEvent.Builder::setExpiryTransactionData);
 
     // Add event to batch processor
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
@@ -228,7 +227,7 @@ public class MineAdsCommand {
       .setCurrency(currency)
       .build();
 
-    MineAdsEvent transactionEvent = TypeUtil.createTransactionEvent(transactionData, EventType.RENEWAL);
+    MineAdsEvent transactionEvent = TypeUtil.createTransactionEvent(transactionData, MineAdsEvent.Builder::setRenewalTransactionData);
 
     // Add event to batch processor
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
@@ -266,7 +265,7 @@ public class MineAdsCommand {
       .setCurrency(currency)
       .build();
 
-    MineAdsEvent transactionEvent = TypeUtil.createTransactionEvent(transactionData, EventType.CHARGEBACK);
+    MineAdsEvent transactionEvent = TypeUtil.createTransactionEvent(transactionData, MineAdsEvent.Builder::setChargebackTransactionData);
 
     // Add event to batch processor
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {
@@ -304,7 +303,7 @@ public class MineAdsCommand {
       .setCurrency(currency)
       .build();
 
-    MineAdsEvent transactionEvent = TypeUtil.createTransactionEvent(transactionData, EventType.REFUND);
+    MineAdsEvent transactionEvent = TypeUtil.createTransactionEvent(transactionData, MineAdsEvent.Builder::setRefundTransactionData);
 
     // Add event to batch processor
     if (plugin.isInitialized() && plugin.getBatchProcessor() != null) {

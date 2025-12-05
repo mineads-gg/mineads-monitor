@@ -55,7 +55,7 @@ public class PlayerListener implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void onPostLogin(PostLoginEvent event) {
-    if (!isEventEnabled(EventType.JOIN)) {
+    if (!isEventEnabled(MineAdsEvent.DataCase.JOIN_DATA)) {
       if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player join event ignored - JOIN events disabled");
       }
@@ -115,7 +115,7 @@ public class PlayerListener implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void onPlayerDisconnect(PlayerDisconnectEvent event) {
-    if (!isEventEnabled(EventType.LEAVE)) {
+    if (!isEventEnabled(MineAdsEvent.DataCase.LEAVE_DATA)) {
       if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player quit event ignored - LEAVE events disabled");
       }
@@ -146,7 +146,7 @@ public class PlayerListener implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void onSettingsChanged(SettingsChangedEvent event) {
-    if (!isEventEnabled(EventType.PLAYER_SETTINGS)) {
+    if (!isEventEnabled(MineAdsEvent.DataCase.SETTINGS_DATA)) {
       if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player settings event ignored - PLAYER_SETTINGS events disabled");
       }
@@ -185,7 +185,7 @@ public class PlayerListener implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void onPluginMessage(PluginMessageEvent event) {
-    if (!isEventEnabled(EventType.PLAYER_CLIENT_BRAND)) {
+    if (!isEventEnabled(MineAdsEvent.DataCase.CLIENT_BRAND_DATA)) {
       return;
     }
 
@@ -240,8 +240,8 @@ public class PlayerListener implements Listener {
     }
 
     boolean isCommand = event.isCommand() || event.isProxyCommand();
-    boolean isChatEnabled = isEventEnabled(EventType.CHAT);
-    boolean isCommandEnabled = isEventEnabled(EventType.COMMAND);
+    boolean isChatEnabled = isEventEnabled(MineAdsEvent.DataCase.CHAT_DATA);
+    boolean isCommandEnabled = isEventEnabled(MineAdsEvent.DataCase.COMMAND_DATA);
 
     // Process event asynchronously to avoid blocking main thread
     scheduler.runAsync(() -> {
@@ -311,7 +311,7 @@ public class PlayerListener implements Listener {
     }
   }
 
-  private boolean isEventEnabled(EventType eventType) {
+  private boolean isEventEnabled(MineAdsEvent.DataCase eventType) {
     return plugin.getConfig().isEventEnabled(eventType);
   }
 }

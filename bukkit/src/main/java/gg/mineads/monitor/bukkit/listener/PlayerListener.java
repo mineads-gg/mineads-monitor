@@ -55,7 +55,7 @@ public class PlayerListener implements Listener {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerJoin(PlayerJoinEvent event) {
-    if (!isEventEnabled(EventType.JOIN)) {
+    if (!isEventEnabled(MineAdsEvent.DataCase.JOIN_DATA)) {
       if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player join event ignored - JOIN events disabled");
       }
@@ -110,7 +110,7 @@ public class PlayerListener implements Listener {
 
       plugin.getBatchProcessor().addEvent(protoEvent);
 
-      if (isEventEnabled(EventType.PLAYER_CLIENT_BRAND)) {
+      if (isEventEnabled(MineAdsEvent.DataCase.CLIENT_BRAND_DATA)) {
         scheduleClientBrandCapture(player, sessionId, 0);
       }
     });
@@ -118,7 +118,7 @@ public class PlayerListener implements Listener {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerQuit(PlayerQuitEvent event) {
-    if (!isEventEnabled(EventType.LEAVE)) {
+    if (!isEventEnabled(MineAdsEvent.DataCase.LEAVE_DATA)) {
       if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player quit event ignored - LEAVE events disabled");
       }
@@ -149,7 +149,7 @@ public class PlayerListener implements Listener {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerChat(AsyncPlayerChatEvent event) {
-    if (!isEventEnabled(EventType.CHAT)) {
+    if (!isEventEnabled(MineAdsEvent.DataCase.CHAT_DATA)) {
       if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player chat event ignored - CHAT events disabled");
       }
@@ -186,7 +186,7 @@ public class PlayerListener implements Listener {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerSettings(PlayerClientOptionsChangeEvent event) {
-    if (!isEventEnabled(EventType.PLAYER_SETTINGS)) {
+    if (!isEventEnabled(MineAdsEvent.DataCase.SETTINGS_DATA)) {
       if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player settings event ignored - PLAYER_SETTINGS events disabled");
       }
@@ -229,7 +229,7 @@ public class PlayerListener implements Listener {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
-    if (!isEventEnabled(EventType.COMMAND)) {
+    if (!isEventEnabled(MineAdsEvent.DataCase.COMMAND_DATA)) {
       if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player command event ignored - COMMAND events disabled");
       }
@@ -283,7 +283,7 @@ public class PlayerListener implements Listener {
     });
   }
 
-  private boolean isEventEnabled(EventType eventType) {
+  private boolean isEventEnabled(MineAdsEvent.DataCase eventType) {
     return plugin.getConfig().isEventEnabled(eventType);
   }
 }

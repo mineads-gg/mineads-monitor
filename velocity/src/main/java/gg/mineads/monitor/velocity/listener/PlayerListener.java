@@ -52,7 +52,7 @@ public class PlayerListener {
 
   @Subscribe(priority = Short.MIN_VALUE)
   public void onPostLogin(PostLoginEvent event) {
-    if (!isEventEnabled(EventType.JOIN)) {
+    if (!isEventEnabled(MineAdsEvent.DataCase.JOIN_DATA)) {
       if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player join event ignored - JOIN events disabled");
       }
@@ -111,7 +111,7 @@ public class PlayerListener {
 
   @Subscribe(priority = Short.MIN_VALUE)
   public void onDisconnect(DisconnectEvent event) {
-    if (!isEventEnabled(EventType.LEAVE)) {
+    if (!isEventEnabled(MineAdsEvent.DataCase.LEAVE_DATA)) {
       if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player quit event ignored - LEAVE events disabled");
       }
@@ -146,7 +146,7 @@ public class PlayerListener {
       return;
     }
 
-    if (!isEventEnabled(EventType.CHAT)) {
+    if (!isEventEnabled(MineAdsEvent.DataCase.CHAT_DATA)) {
       if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player chat event ignored - CHAT events disabled");
       }
@@ -183,7 +183,7 @@ public class PlayerListener {
 
   @Subscribe(priority = Short.MIN_VALUE)
   public void onPlayerSettingsChanged(PlayerSettingsChangedEvent event) {
-    if (!isEventEnabled(EventType.PLAYER_SETTINGS)) {
+    if (!isEventEnabled(MineAdsEvent.DataCase.SETTINGS_DATA)) {
       if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player settings event ignored - PLAYER_SETTINGS events disabled");
       }
@@ -225,7 +225,7 @@ public class PlayerListener {
 
   @Subscribe(priority = Short.MIN_VALUE)
   public void onPlayerClientBrand(PlayerClientBrandEvent event) {
-    if (!isEventEnabled(EventType.PLAYER_CLIENT_BRAND)) {
+    if (!isEventEnabled(MineAdsEvent.DataCase.CLIENT_BRAND_DATA)) {
       if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Client brand event ignored - PLAYER_CLIENT_BRAND events disabled");
       }
@@ -264,7 +264,7 @@ public class PlayerListener {
       return;
     }
 
-    if (!isEventEnabled(EventType.COMMAND)) {
+    if (!isEventEnabled(MineAdsEvent.DataCase.COMMAND_DATA)) {
       if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player command event ignored - COMMAND events disabled");
       }
@@ -303,7 +303,7 @@ public class PlayerListener {
     });
   }
 
-  private boolean isEventEnabled(EventType eventType) {
+  private boolean isEventEnabled(MineAdsEvent.DataCase eventType) {
     return plugin.getConfig().isEventEnabled(eventType);
   }
 }

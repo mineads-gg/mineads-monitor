@@ -6,23 +6,6 @@ option go_package = "./generated";
 
 package mineadsmonitor.v1;
 
-// Enum for event types
-enum EventType {
-  EVENT_TYPE_UNSPECIFIED = 0;
-  INITIAL = 1;
-  EXPIRY = 2;
-  RENEWAL = 3;
-  CHARGEBACK = 4;
-  REFUND = 5;
-  CHAT = 6;
-  COMMAND = 7;
-  JOIN = 8;
-  LEAVE = 9;
-  HEARTBEAT = 10;
-  PLAYER_SETTINGS = 11;
-  PLAYER_CLIENT_BRAND = 12;
-}
-
 // LuckPerms data
 message LuckPermsData {
   repeated string groups = 1;
@@ -91,7 +74,6 @@ message TransactionData {
 
 // Main event message
 message MineAdsEvent {
-  EventType event_type = 1;
   int64 time = 2;
 
   // One of the following will be set based on event_type
@@ -100,10 +82,14 @@ message MineAdsEvent {
     PlayerLeaveData leave_data = 4;
     PlayerChatData chat_data = 5;
     PlayerCommandData command_data = 6;
-    TransactionData transaction_data = 7;
     PlayerHeartbeatData heartbeat_data = 8;
     PlayerSettingsData settings_data = 9;
     PlayerClientBrandData client_brand_data = 10;
+    TransactionData initial_transaction_data = 11;
+    TransactionData expiry_transaction_data = 12;
+    TransactionData renewal_transaction_data = 13;
+    TransactionData chargeback_transaction_data = 14;
+    TransactionData refund_transaction_data = 15;
   }
 }
 

@@ -19,7 +19,7 @@ package gg.mineads.monitor.shared.config;
 
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
-import gg.mineads.monitor.shared.event.generated.EventType;
+import gg.mineads.monitor.shared.event.generated.MineAdsEvent;
 import lombok.Getter;
 
 import java.util.Map;
@@ -39,7 +39,7 @@ public class Config {
   private EventListMode eventListMode = EventListMode.BLACKLIST;
 
   @Comment("When in BLACKLIST mode, events here are blocked. When in WHITELIST mode, only events here are allowed. Defaults to an empty list (all events allowed).")
-  private Set<EventType> eventList = Set.of();
+  private Set<MineAdsEvent.DataCase> eventList = Set.of();
 
   @Comment("Disable sending chat message content. When enabled (default), full chat message content is sent with chat events. When disabled, only the fact that a message was sent is transmitted.")
   private boolean disableChatContent = false;
@@ -66,7 +66,7 @@ public class Config {
     return sb.toString();
   }
 
-  public boolean isEventEnabled(EventType eventType) {
+  public boolean isEventEnabled(MineAdsEvent.DataCase eventType) {
     return switch (eventListMode) {
       case WHITELIST -> eventList.contains(eventType);
       case BLACKLIST -> !eventList.contains(eventType);
