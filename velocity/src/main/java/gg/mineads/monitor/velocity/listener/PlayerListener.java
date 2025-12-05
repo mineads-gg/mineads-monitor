@@ -22,7 +22,10 @@ import com.velocitypowered.api.event.command.CommandExecuteEvent;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
+import com.velocitypowered.api.event.player.PlayerClientBrandEvent;
+import com.velocitypowered.api.event.player.PlayerSettingsChangedEvent;
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.player.PlayerSettings;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.event.TypeUtil;
 import gg.mineads.monitor.shared.event.generated.*;
@@ -33,7 +36,7 @@ import lombok.extern.java.Log;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
-import java.util.Objects;
+import java.util.Locale;
 import java.util.UUID;
 
 @Log
@@ -91,16 +94,6 @@ public class PlayerListener {
       int protocolVersion = player.getProtocolVersion().getProtocol();
       if (protocolVersion != -1) {
         builder.setProtocolVersion(protocolVersion);
-      }
-
-      String locale = Objects.toString(player.getEffectiveLocale(), null);
-      if (locale != null && !locale.isBlank()) {
-        builder.setLocale(locale);
-      }
-
-      String clientBrand = player.getClientBrand();
-      if (clientBrand != null && !clientBrand.isBlank()) {
-        builder.setClientBrand(clientBrand);
       }
 
       String virtualHost = TypeUtil.getHostString(player.getVirtualHost().orElse(null));
@@ -185,6 +178,83 @@ public class PlayerListener {
       } else if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player chat ignored: %s - no active session".formatted(player.getUsername()));
       }
+    });
+  }
+
+  @Subscribe(priority = Short.MIN_VALUE)
+  public void onPlayerSettingsChanged(PlayerSettingsChangedEvent event) {
+    if (!isEventEnabled(EventType.PLAYER_SETTINGS)) {
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Player settings event ignored - PLAYER_SETTINGS events disabled");
+      }
+      return;
+    }
+
+    Player player = event.getPlayer();
+    UUID sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
+    PlayerSettings settings = event.getPlayerSettings();
+
+    scheduler.runAsync(() -> {
+      if (sessionId == null) {
+        if (plugin.getConfig().isDebug()) {
+          log.info("[DEBUG] Player settings ignored: %s - no active session".formatted(player.getUsername()));
+        }
+        return;
+      }
+
+      PlayerSettingsData.Builder builder = PlayerSettingsData.newBuilder()
+        .setSessionId(sessionId.toString())
+        .setViewDistance(settings.getViewDistance())
+        .setChatMode(settings.getChatMode().name())
+        .setChatColors(settings.hasChatColors())
+        .setMainHand(settings.getMainHand().name())
+        .setTextFilteringEnabled(settings.isTextFilteringEnabled())
+        .setAllowsServerListings(settings.isClientListingAllowed());
+
+      Locale locale = settings.getLocale();
+      if (locale != null) {
+        builder.setLocale(locale.toLanguageTag());
+      }
+
+      PlayerSettingsData data = builder.build();
+      MineAdsEvent protoEvent = TypeUtil.createPlayerSettingsEvent(data);
+
+      plugin.getBatchProcessor().addEvent(protoEvent);
+    });
+  }
+
+  @Subscribe(priority = Short.MIN_VALUE)
+  public void onPlayerClientBrand(PlayerClientBrandEvent event) {
+    if (!isEventEnabled(EventType.PLAYER_CLIENT_BRAND)) {
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Client brand event ignored - PLAYER_CLIENT_BRAND events disabled");
+      }
+      return;
+    }
+
+    Player player = event.getPlayer();
+    UUID sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
+
+    scheduler.runAsync(() -> {
+      if (sessionId == null) {
+        if (plugin.getConfig().isDebug()) {
+          log.info("[DEBUG] Client brand ignored: %s - no active session".formatted(player.getUsername()));
+        }
+        return;
+      }
+
+      String clientBrand = event.getBrand();
+      if (clientBrand == null || clientBrand.isBlank()) {
+        return;
+      }
+
+      PlayerClientBrandData data = PlayerClientBrandData.newBuilder()
+        .setSessionId(sessionId.toString())
+        .setClientBrand(clientBrand)
+        .build();
+      MineAdsEvent protoEvent = TypeUtil.createPlayerClientBrandEvent(data);
+
+      plugin.getBatchProcessor().addEvent(protoEvent);
     });
   }
 

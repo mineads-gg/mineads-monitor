@@ -19,6 +19,8 @@ enum EventType {
   JOIN = 8;
   LEAVE = 9;
   HEARTBEAT = 10;
+  PLAYER_SETTINGS = 11;
+  PLAYER_CLIENT_BRAND = 12;
 }
 
 // LuckPerms data
@@ -31,9 +33,7 @@ message PlayerJoinData {
   string session_id = 1;
   string uuid = 2;
   string username = 3;
-  optional string locale = 4;
   optional string host = 5;
-  optional string client_brand = 6;
   optional int32 protocol_version = 7;
   optional bool online_mode = 8;
   optional LuckPermsData luckperms_data = 9;
@@ -63,6 +63,22 @@ message PlayerCommandData {
   bool is_truncated = 3;
 }
 
+message PlayerSettingsData {
+  string session_id = 1;
+  optional string locale = 2;
+  optional int32 view_distance = 3;
+  optional string chat_mode = 4;
+  optional bool chat_colors = 5;
+  optional string main_hand = 6;
+  optional bool text_filtering_enabled = 7;
+  optional bool allows_server_listings = 8;
+}
+
+message PlayerClientBrandData {
+  string session_id = 1;
+  optional string client_brand = 2;
+}
+
 // Transaction data
 message TransactionData {
   string transaction_id = 1;
@@ -86,6 +102,8 @@ message MineAdsEvent {
     PlayerCommandData command_data = 6;
     TransactionData transaction_data = 7;
     PlayerHeartbeatData heartbeat_data = 8;
+    PlayerSettingsData settings_data = 9;
+    PlayerClientBrandData client_brand_data = 10;
   }
 }
 

@@ -81,6 +81,22 @@ public class TypeUtil {
       .build();
   }
 
+  public static MineAdsEvent createPlayerSettingsEvent(PlayerSettingsData data) {
+    return MineAdsEvent.newBuilder()
+      .setEventType(EventType.PLAYER_SETTINGS)
+      .setTime(System.currentTimeMillis())
+      .setSettingsData(data)
+      .build();
+  }
+
+  public static MineAdsEvent createPlayerClientBrandEvent(PlayerClientBrandData data) {
+    return MineAdsEvent.newBuilder()
+      .setEventType(EventType.PLAYER_CLIENT_BRAND)
+      .setTime(System.currentTimeMillis())
+      .setClientBrandData(data)
+      .build();
+  }
+
   public static PlayerCommandData.Builder createCommandDataBuilder(String sessionId, String fullCommand, boolean slashPrefixed, int defaultMaxArgs, Map<String, Integer> commandArgLimits) {
     PlayerCommandData.Builder builder = PlayerCommandData.newBuilder()
       .setSessionId(sessionId);

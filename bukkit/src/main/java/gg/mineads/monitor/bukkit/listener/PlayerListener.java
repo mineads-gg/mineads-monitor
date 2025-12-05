@@ -17,6 +17,7 @@
  */
 package gg.mineads.monitor.bukkit.listener;
 
+import com.destroystokyo.paper.event.player.PlayerClientOptionsChangeEvent;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.event.TypeUtil;
 import gg.mineads.monitor.shared.event.generated.*;
@@ -35,11 +36,14 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Log
 public class PlayerListener implements Listener {
+
+  private static final int MAX_BRAND_ATTEMPTS = 6;
+  private static final long BRAND_RETRY_DELAY_MS = 500L;
 
   private final MineAdsScheduler scheduler;
   private final MineAdsMonitorPlugin plugin;
@@ -95,16 +99,6 @@ public class PlayerListener implements Listener {
         builder.setProtocolVersion(protocolVersion);
       }
 
-      String locale = Objects.toString(player.locale(), null);
-      if (locale != null && !locale.isBlank()) {
-        builder.setLocale(locale);
-      }
-
-      String clientBrand = player.getClientBrandName();
-      if (clientBrand != null && !clientBrand.isBlank()) {
-        builder.setClientBrand(clientBrand);
-      }
-
       String virtualHost = TypeUtil.getHostString(player.getVirtualHost());
       if (virtualHost != null && !virtualHost.isBlank()) {
         builder.setVirtualHost(virtualHost);
@@ -115,6 +109,10 @@ public class PlayerListener implements Listener {
       MineAdsEvent protoEvent = TypeUtil.createJoinEvent(data);
 
       plugin.getBatchProcessor().addEvent(protoEvent);
+
+      if (isEventEnabled(EventType.PLAYER_CLIENT_BRAND)) {
+        scheduleClientBrandCapture(player, sessionId, 0);
+      }
     });
   }
 
@@ -187,6 +185,49 @@ public class PlayerListener implements Listener {
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void onPlayerSettings(PlayerClientOptionsChangeEvent event) {
+    if (!isEventEnabled(EventType.PLAYER_SETTINGS)) {
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Player settings event ignored - PLAYER_SETTINGS events disabled");
+      }
+      return;
+    }
+
+    Player player = event.getPlayer();
+    UUID sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
+
+    scheduler.runAsync(() -> {
+      if (sessionId == null) {
+        if (plugin.getConfig().isDebug()) {
+          log.info("[DEBUG] Player settings ignored: %s - no active session".formatted(player.getName()));
+        }
+        return;
+      }
+
+      PlayerSettingsData.Builder builder = PlayerSettingsData.newBuilder()
+        .setSessionId(sessionId.toString());
+
+      String locale = event.getLocale();
+      if (locale != null && !locale.isBlank()) {
+        builder.setLocale(locale);
+      }
+
+      builder
+        .setViewDistance(event.getViewDistance())
+        .setChatMode(event.getChatVisibility().name())
+        .setChatColors(event.hasChatColorsEnabled())
+        .setMainHand(event.getMainHand().name())
+        .setTextFilteringEnabled(event.hasTextFilteringEnabled())
+        .setAllowsServerListings(event.allowsServerListings());
+
+      PlayerSettingsData data = builder.build();
+      MineAdsEvent protoEvent = TypeUtil.createPlayerSettingsEvent(data);
+
+      plugin.getBatchProcessor().addEvent(protoEvent);
+    });
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
     if (!isEventEnabled(EventType.COMMAND)) {
       if (plugin.getConfig().isDebug()) {
@@ -220,6 +261,24 @@ public class PlayerListener implements Listener {
         plugin.getBatchProcessor().addEvent(protoEvent);
       } else if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player command ignored: %s - no active session".formatted(player.getName()));
+      }
+    });
+  }
+
+  private void scheduleClientBrandCapture(Player player, UUID sessionId, int attempt) {
+    scheduler.runAsync(() -> {
+      String clientBrand = player.getClientBrandName();
+      if (clientBrand != null && !clientBrand.isBlank()) {
+        PlayerClientBrandData data = PlayerClientBrandData.newBuilder()
+          .setSessionId(sessionId.toString())
+          .setClientBrand(clientBrand)
+          .build();
+        MineAdsEvent protoEvent = TypeUtil.createPlayerClientBrandEvent(data);
+        plugin.getBatchProcessor().addEvent(protoEvent);
+      } else if (attempt < MAX_BRAND_ATTEMPTS) {
+        scheduler.scheduleAsyncDelayed(() -> scheduleClientBrandCapture(player, sessionId, attempt + 1), BRAND_RETRY_DELAY_MS, TimeUnit.MILLISECONDS);
+      } else if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Client brand not available for %s after %d attempts".formatted(player.getName(), attempt));
       }
     });
   }

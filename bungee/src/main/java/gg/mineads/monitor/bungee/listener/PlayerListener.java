@@ -29,12 +29,17 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
+import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
+import net.md_5.bungee.api.event.SettingsChangedEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
-import java.util.Objects;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.Locale;
 import java.util.UUID;
 
 @Log
@@ -95,16 +100,6 @@ public class PlayerListener implements Listener {
         builder.setProtocolVersion(protocolVersion);
       }
 
-      String locale = Objects.toString(player.getLocale(), null);
-      if (locale != null && !locale.isBlank()) {
-        builder.setLocale(locale);
-      }
-
-      String clientBrand = player.getClientBrand();
-      if (clientBrand != null && !clientBrand.isBlank()) {
-        builder.setClientBrand(clientBrand);
-      }
-
       String virtualHost = TypeUtil.getHostString(player.getPendingConnection().getVirtualHost());
       if (virtualHost != null && !virtualHost.isBlank()) {
         builder.setVirtualHost(virtualHost);
@@ -146,6 +141,83 @@ public class PlayerListener implements Listener {
       } else if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Player quit: %s - no active session found".formatted(player.getName()));
       }
+    });
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void onSettingsChanged(SettingsChangedEvent event) {
+    if (!isEventEnabled(EventType.PLAYER_SETTINGS)) {
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Player settings event ignored - PLAYER_SETTINGS events disabled");
+      }
+      return;
+    }
+
+    ProxiedPlayer player = event.getPlayer();
+    UUID sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
+
+    scheduler.runAsync(() -> {
+      if (sessionId == null) {
+        if (plugin.getConfig().isDebug()) {
+          log.info("[DEBUG] Player settings ignored: %s - no active session".formatted(player.getName()));
+        }
+        return;
+      }
+
+      PlayerSettingsData.Builder builder = PlayerSettingsData.newBuilder()
+        .setSessionId(sessionId.toString())
+        .setViewDistance(player.getViewDistance())
+        .setChatMode(player.getChatMode().name())
+        .setChatColors(player.hasChatColors())
+        .setMainHand(player.getMainHand().name());
+
+      Locale locale = player.getLocale();
+      if (locale != null) {
+        builder.setLocale(locale.toLanguageTag());
+      }
+
+      PlayerSettingsData data = builder.build();
+      MineAdsEvent protoEvent = TypeUtil.createPlayerSettingsEvent(data);
+
+      plugin.getBatchProcessor().addEvent(protoEvent);
+    });
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void onPluginMessage(PluginMessageEvent event) {
+    if (!isEventEnabled(EventType.PLAYER_CLIENT_BRAND)) {
+      return;
+    }
+
+    if (!(event.getSender() instanceof ProxiedPlayer player)) {
+      return;
+    }
+
+    if (!isBrandTag(event.getTag())) {
+      return;
+    }
+
+    UUID sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
+    if (sessionId == null) {
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Client brand ignored: %s - no active session".formatted(player.getName()));
+      }
+      return;
+    }
+
+    scheduler.runAsync(() -> {
+      String clientBrand = decodeClientBrand(event.getData());
+      if (clientBrand == null || clientBrand.isBlank()) {
+        return;
+      }
+
+      PlayerClientBrandData data = PlayerClientBrandData.newBuilder()
+        .setSessionId(sessionId.toString())
+        .setClientBrand(clientBrand)
+        .build();
+      MineAdsEvent protoEvent = TypeUtil.createPlayerClientBrandEvent(data);
+
+      plugin.getBatchProcessor().addEvent(protoEvent);
     });
   }
 
@@ -218,6 +290,25 @@ public class PlayerListener implements Listener {
         }
       }
     });
+  }
+
+  private boolean isBrandTag(String tag) {
+    if (tag == null) {
+      return false;
+    }
+    String normalized = tag.toLowerCase();
+    return normalized.equals("minecraft:brand") || normalized.equals("mc|brand");
+  }
+
+  private String decodeClientBrand(byte[] data) {
+    try (DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(data))) {
+      return inputStream.readUTF();
+    } catch (IOException exception) {
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Failed to decode client brand: " + exception.getMessage());
+      }
+      return null;
+    }
   }
 
   private boolean isEventEnabled(EventType eventType) {
