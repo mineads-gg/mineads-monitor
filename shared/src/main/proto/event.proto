@@ -21,6 +21,9 @@ message PlayerJoinData {
   optional bool online_mode = 8;
   optional LuckPermsData luckperms_data = 9;
   optional string virtual_host = 10;
+  optional string skin_texture_hash = 11;
+  optional string cape_texture_hash = 12;
+  optional string skin_type = 13;
 }
 
 // Player leave data

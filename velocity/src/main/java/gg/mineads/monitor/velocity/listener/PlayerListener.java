@@ -32,10 +32,13 @@ import gg.mineads.monitor.shared.event.generated.*;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
+import gg.mineads.monitor.shared.skin.SkinData;
+import gg.mineads.monitor.shared.skin.property.SkinProperty;
 import lombok.extern.java.Log;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
+import java.util.Optional;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -61,6 +64,7 @@ public class PlayerListener {
 
     Player player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.createSession(player.getUniqueId());
+    SkinData skinData = extractSkinData(player);
 
     // Process event asynchronously to avoid blocking main thread
     scheduler.runAsync(() -> {
@@ -99,6 +103,18 @@ public class PlayerListener {
       String virtualHost = TypeUtil.getHostString(player.getVirtualHost().orElse(null));
       if (virtualHost != null && !virtualHost.isBlank()) {
         builder.setVirtualHost(virtualHost);
+      }
+
+      if (skinData != null) {
+        if (skinData.skinTextureHash() != null && !skinData.skinTextureHash().isBlank()) {
+          builder.setSkinTextureHash(skinData.skinTextureHash());
+        }
+        if (skinData.capeTextureHash() != null && !skinData.capeTextureHash().isBlank()) {
+          builder.setCapeTextureHash(skinData.capeTextureHash());
+        }
+        if (skinData.skinVariant() != null) {
+          builder.setSkinType(skinData.skinVariant().name());
+        }
       }
 
       PlayerJoinData data = builder.build();
@@ -305,5 +321,15 @@ public class PlayerListener {
 
   private boolean isEventEnabled(MineAdsEvent.DataCase eventType) {
     return plugin.getConfig().isEventEnabled(eventType);
+  }
+
+  private SkinData extractSkinData(Player player) {
+    return player.getGameProfile().getProperties().stream()
+      .map(property -> SkinProperty.tryParse(property.getName(), property.getValue(), property.getSignature()))
+      .flatMap(Optional::stream)
+      .map(SkinData::fromProperty)
+      .flatMap(Optional::stream)
+      .findFirst()
+      .orElse(null);
   }
 }

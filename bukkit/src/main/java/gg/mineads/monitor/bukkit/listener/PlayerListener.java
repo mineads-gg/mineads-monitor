@@ -24,6 +24,8 @@ import gg.mineads.monitor.shared.event.generated.*;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
+import gg.mineads.monitor.shared.skin.SkinData;
+import gg.mineads.monitor.shared.skin.property.SkinProperty;
 import lombok.extern.java.Log;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -35,7 +37,9 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.profile.PlayerProfile;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -64,6 +68,7 @@ public class PlayerListener implements Listener {
 
     Player player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.createSession(player.getUniqueId());
+    SkinData skinData = extractSkinData(player);
 
     // Process event asynchronously to avoid blocking main thread
     scheduler.runAsync(() -> {
@@ -102,6 +107,18 @@ public class PlayerListener implements Listener {
       String virtualHost = TypeUtil.getHostString(player.getVirtualHost());
       if (virtualHost != null && !virtualHost.isBlank()) {
         builder.setVirtualHost(virtualHost);
+      }
+
+      if (skinData != null) {
+        if (skinData.skinTextureHash() != null && !skinData.skinTextureHash().isBlank()) {
+          builder.setSkinTextureHash(skinData.skinTextureHash());
+        }
+        if (skinData.capeTextureHash() != null && !skinData.capeTextureHash().isBlank()) {
+          builder.setCapeTextureHash(skinData.capeTextureHash());
+        }
+        if (skinData.skinVariant() != null) {
+          builder.setSkinType(skinData.skinVariant().name());
+        }
       }
 
       PlayerJoinData data = builder.build();
@@ -285,5 +302,20 @@ public class PlayerListener implements Listener {
 
   private boolean isEventEnabled(MineAdsEvent.DataCase eventType) {
     return plugin.getConfig().isEventEnabled(eventType);
+  }
+
+  private SkinData extractSkinData(Player player) {
+    PlayerProfile profile = player.getPlayerProfile();
+    if (profile == null || profile.getProperties().isEmpty()) {
+      return null;
+    }
+
+    return profile.getProperties().stream()
+      .map(property -> SkinProperty.tryParse(property.getName(), property.getValue(), property.getSignature()))
+      .flatMap(Optional::stream)
+      .map(SkinData::fromProperty)
+      .flatMap(Optional::stream)
+      .findFirst()
+      .orElse(null);
   }
 }

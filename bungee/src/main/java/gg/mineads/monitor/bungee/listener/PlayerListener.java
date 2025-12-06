@@ -23,6 +23,8 @@ import gg.mineads.monitor.shared.event.generated.*;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
+import gg.mineads.monitor.shared.skin.SkinData;
+import gg.mineads.monitor.shared.skin.property.SkinProperty;
 import lombok.extern.java.Log;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -35,11 +37,13 @@ import net.md_5.bungee.api.event.SettingsChangedEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
+import net.md_5.bungee.connection.LoginResult;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 
 @Log
@@ -64,6 +68,7 @@ public class PlayerListener implements Listener {
 
     ProxiedPlayer player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.createSession(player.getUniqueId());
+    SkinData skinData = extractSkinData(player.getPendingConnection().getLoginProfile());
 
     // Process event asynchronously to avoid blocking main thread
     scheduler.runAsync(() -> {
@@ -103,6 +108,18 @@ public class PlayerListener implements Listener {
       String virtualHost = TypeUtil.getHostString(player.getPendingConnection().getVirtualHost());
       if (virtualHost != null && !virtualHost.isBlank()) {
         builder.setVirtualHost(virtualHost);
+      }
+
+      if (skinData != null) {
+        if (skinData.skinTextureHash() != null && !skinData.skinTextureHash().isBlank()) {
+          builder.setSkinTextureHash(skinData.skinTextureHash());
+        }
+        if (skinData.capeTextureHash() != null && !skinData.capeTextureHash().isBlank()) {
+          builder.setCapeTextureHash(skinData.capeTextureHash());
+        }
+        if (skinData.skinVariant() != null) {
+          builder.setSkinType(skinData.skinVariant().name());
+        }
       }
 
       PlayerJoinData data = builder.build();
@@ -313,5 +330,19 @@ public class PlayerListener implements Listener {
 
   private boolean isEventEnabled(MineAdsEvent.DataCase eventType) {
     return plugin.getConfig().isEventEnabled(eventType);
+  }
+
+  private SkinData extractSkinData(LoginResult loginProfile) {
+    if (loginProfile == null || loginProfile.getProperties() == null) {
+      return null;
+    }
+
+    return java.util.Arrays.stream(loginProfile.getProperties())
+      .map(property -> SkinProperty.tryParse(property.getName(), property.getValue(), property.getSignature()))
+      .flatMap(Optional::stream)
+      .map(SkinData::fromProperty)
+      .flatMap(Optional::stream)
+      .findFirst()
+      .orElse(null);
   }
 }
