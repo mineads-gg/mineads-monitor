@@ -12,6 +12,8 @@ dependencies {
   implementation(libs.adventure.platform.bungeecord)
 
   compileOnly(libs.bungeecord.api)
+  compileOnly(libs.bungeecord.proxy)
+  compileOnly(libs.bungeecord.protocol)
   compileOnly(libs.luckperms.api)
 
   implementation(libs.cloud.bungee)

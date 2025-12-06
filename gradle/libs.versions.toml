@@ -3,6 +3,8 @@
 paperApi = "1.21.4-R0.1-SNAPSHOT"
 velocityApi = "3.4.0-SNAPSHOT"
 bungeeApi = "1.21-R0.4"
+bungeeProxy = "1.21-R0.5-SNAPSHOT"
+bungeeProtocol = "1.21-R0.5-SNAPSHOT"
 
 # Core dependencies
 luckperms = "5.5"
@@ -81,6 +83,8 @@ folia-lib = { module = "com.tcoded:FoliaLib", version.ref = "foliaLib" }
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paperApi" }
 velocity-api = { module = "com.velocitypowered:velocity-api", version.ref = "velocityApi" }
 bungeecord-api = { module = "net.md-5:bungeecord-api", version.ref = "bungeeApi" }
+bungeecord-proxy = { module = "net.md-5:bungeecord-proxy", version.ref = "bungeeProxy" }
+bungeecord-protocol = { module = "net.md-5:bungeecord-protocol", version.ref = "bungeeProtocol" }
 
 # Testing
 apiguardian-api = { module = "org.apiguardian:apiguardian-api", version.ref = "apiguardian" }

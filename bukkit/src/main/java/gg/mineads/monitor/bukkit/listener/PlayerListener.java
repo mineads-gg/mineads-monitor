@@ -18,6 +18,7 @@
 package gg.mineads.monitor.bukkit.listener;
 
 import com.destroystokyo.paper.event.player.PlayerClientOptionsChangeEvent;
+import com.destroystokyo.paper.profile.PlayerProfile;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.event.TypeUtil;
 import gg.mineads.monitor.shared.event.generated.*;
@@ -37,7 +38,6 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.profile.PlayerProfile;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -306,10 +306,6 @@ public class PlayerListener implements Listener {
 
   private SkinData extractSkinData(Player player) {
     PlayerProfile profile = player.getPlayerProfile();
-    if (profile == null || profile.getProperties().isEmpty()) {
-      return null;
-    }
-
     return profile.getProperties().stream()
       .map(property -> SkinProperty.tryParse(property.getName(), property.getValue(), property.getSignature()))
       .flatMap(Optional::stream)

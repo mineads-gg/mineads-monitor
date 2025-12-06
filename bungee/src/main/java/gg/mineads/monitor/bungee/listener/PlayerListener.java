@@ -35,6 +35,7 @@ import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.SettingsChangedEvent;
 import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 import net.md_5.bungee.connection.LoginResult;
@@ -42,6 +43,7 @@ import net.md_5.bungee.connection.LoginResult;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -68,7 +70,7 @@ public class PlayerListener implements Listener {
 
     ProxiedPlayer player = event.getPlayer();
     UUID sessionId = PlayerSessionManager.createSession(player.getUniqueId());
-    SkinData skinData = extractSkinData(player.getPendingConnection().getLoginProfile());
+    SkinData skinData = extractSkinData(((InitialHandler) player.getPendingConnection()).getLoginProfile());
 
     // Process event asynchronously to avoid blocking main thread
     scheduler.runAsync(() -> {
@@ -337,7 +339,7 @@ public class PlayerListener implements Listener {
       return null;
     }
 
-    return java.util.Arrays.stream(loginProfile.getProperties())
+    return Arrays.stream(loginProfile.getProperties())
       .map(property -> SkinProperty.tryParse(property.getName(), property.getValue(), property.getSignature()))
       .flatMap(Optional::stream)
       .map(SkinData::fromProperty)
