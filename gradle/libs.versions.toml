@@ -8,7 +8,7 @@ bungeeApi = "1.21-R0.4"
 luckperms = "5.5"
 configlibYaml = "4.6.4"
 gson = "2.13.2"
-protobuf = "4.33.1"
+protobuf = "4.33.2"
 
 # Cloud Commands
 cloud = "2.0.0"
@@ -32,7 +32,7 @@ foliaLib = "0.5.1"
 apiguardian = "1.1.2"
 
 # Build tools
-shadowPlugin = "9.2.2"
+shadowPlugin = "9.3.0"
 spotlessPlugin = "8.1.0"
 spotbugsPlugin = "6.4.7"
 indraGit = "4.0.0"
