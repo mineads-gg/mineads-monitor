@@ -76,7 +76,6 @@ message TransactionData {
 message MineAdsEvent {
   int64 time = 2;
 
-  // One of the following will be set based on event_type
   oneof data {
     PlayerJoinData join_data = 3;
     PlayerLeaveData leave_data = 4;
