@@ -29,6 +29,7 @@ import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
+import gg.mineads.monitor.shared.session.PlayerOnlineChecker;
 import gg.mineads.monitor.velocity.command.VelocityCommandManager;
 import gg.mineads.monitor.velocity.listener.PlayerListener;
 import gg.mineads.monitor.velocity.scheduler.VelocityMineAdsScheduler;
@@ -127,6 +128,13 @@ public class MineAdsMonitorVelocity {
       } else {
         log.info("[MineAdsMonitor] LuckPerms not found, permission features will be limited");
       }
+    }
+
+    @Override
+    public PlayerOnlineChecker getPlayerOnlineChecker() {
+      return uuid -> plugin.proxyServer.getPlayer(uuid)
+        .map(player -> player.isActive())
+        .orElse(false);
     }
   }
 }

@@ -24,6 +24,8 @@ import gg.mineads.monitor.shared.event.generated.MineAdsEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -32,6 +34,7 @@ import java.util.UUID;
 public class SessionHeartbeatTask implements Runnable {
 
   private final MineAdsMonitorPlugin plugin;
+  private final PlayerOnlineChecker onlineChecker;
 
   @Override
   public void run() {
@@ -47,16 +50,34 @@ public class SessionHeartbeatTask implements Runnable {
       return;
     }
 
-    if (plugin.getConfig().isDebug()) {
-      log.info("[DEBUG] Emitting heartbeats for active sessions: " + activeSessions.size());
+    List<String> activeSessionIds = new ArrayList<>(activeSessions.size());
+    for (Map.Entry<UUID, UUID> entry : activeSessions.entrySet()) {
+      UUID playerUuid = entry.getKey();
+      UUID sessionId = entry.getValue();
+
+      if (!onlineChecker.isOnline(playerUuid)) {
+        PlayerSessionManager.removeSession(playerUuid);
+        if (plugin.getConfig().isDebug()) {
+          log.info("[DEBUG] Removing inactive session for player " + playerUuid + " (session " + sessionId + ")");
+        }
+        continue;
+      }
+
+      activeSessionIds.add(sessionId.toString());
     }
 
-    for (UUID sessionId : activeSessions.values()) {
-      PlayerHeartbeatData heartbeat = PlayerHeartbeatData.newBuilder()
-        .setSessionId(sessionId.toString())
-        .build();
-      MineAdsEvent event = TypeUtil.createHeartbeatEvent(heartbeat);
-      plugin.getBatchProcessor().addEvent(event);
+    if (activeSessionIds.isEmpty()) {
+      return;
     }
+
+    if (plugin.getConfig().isDebug()) {
+      log.info("[DEBUG] Emitting heartbeat snapshot for active sessions: " + activeSessionIds.size());
+    }
+
+    PlayerHeartbeatData heartbeat = PlayerHeartbeatData.newBuilder()
+      .addAllSessionIds(activeSessionIds)
+      .build();
+    MineAdsEvent event = TypeUtil.createHeartbeatEvent(heartbeat);
+    plugin.getBatchProcessor().addEvent(event);
   }
 }

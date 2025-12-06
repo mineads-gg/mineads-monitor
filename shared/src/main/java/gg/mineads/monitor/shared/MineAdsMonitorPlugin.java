@@ -175,7 +175,12 @@ public class MineAdsMonitorPlugin {
     }
 
     // Emit heartbeats for active sessions to bound sessions on crashes
-    bootstrap.getScheduler().scheduleAsync(new SessionHeartbeatTask(this), 10, 60, TimeUnit.SECONDS);
+    bootstrap.getScheduler().scheduleAsync(
+      new SessionHeartbeatTask(this, bootstrap.getPlayerOnlineChecker()),
+      10,
+      60,
+      TimeUnit.SECONDS
+    );
 
     // Initialize platform-specific services
     bootstrap.initializeLuckPerms();

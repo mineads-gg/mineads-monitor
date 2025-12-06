@@ -30,7 +30,7 @@ message PlayerLeaveData {
 
 // Player heartbeat data
 message PlayerHeartbeatData {
-  string session_id = 1;
+  repeated string session_ids = 1;
 }
 
 // Player chat data

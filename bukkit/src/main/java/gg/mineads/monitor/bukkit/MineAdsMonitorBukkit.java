@@ -26,6 +26,7 @@ import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
+import gg.mineads.monitor.shared.session.PlayerOnlineChecker;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
@@ -118,6 +119,14 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
       } else {
         log.info("[MineAdsMonitor] LuckPerms not found, permission features will be limited");
       }
+    }
+
+    @Override
+    public PlayerOnlineChecker getPlayerOnlineChecker() {
+      return uuid -> {
+        var player = plugin.getServer().getPlayer(uuid);
+        return player != null && player.isOnline();
+      };
     }
   }
 }
