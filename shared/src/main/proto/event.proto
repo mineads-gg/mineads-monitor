@@ -78,6 +78,7 @@ message TransactionData {
 // Main event message
 message MineAdsEvent {
   int64 time = 2;
+  string event_id = 16;
 
   oneof data {
     PlayerJoinData join_data = 3;
@@ -95,8 +96,20 @@ message MineAdsEvent {
   }
 }
 
+message FailedEvent {
+  string event_id = 1;
+  string error = 2;
+}
+
 // Batch of events
 message EventBatch {
   repeated MineAdsEvent events = 1;
   string server_id = 2;
+}
+
+// Response message for ingestion API
+message IngestResponse {
+  bool success = 1;
+  string error = 2;
+  repeated FailedEvent failed_events = 3;
 }

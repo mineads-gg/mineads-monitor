@@ -20,6 +20,7 @@ package gg.mineads.monitor.shared.event;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.generated.EventBatch;
+import gg.mineads.monitor.shared.event.generated.IngestResponse;
 import gg.mineads.monitor.shared.event.generated.MineAdsEvent;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Queue;
+import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
@@ -45,6 +47,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+
+import com.google.protobuf.InvalidProtocolBufferException;
 
 @Log
 @RequiredArgsConstructor
@@ -178,11 +182,14 @@ public class BatchProcessor implements Runnable {
     }
 
     try {
+      Map<String, MineAdsEvent> eventsById = new HashMap<>();
+      currentEvents.forEach(evt -> eventsById.put(evt.getEventId(), evt));
+
       byte[] protobuf = serializeToProtobuf(currentEvents);
       if (config != null && config.isDebug()) {
         log.info("[DEBUG] Serialized batch to " + protobuf.length + " bytes");
       }
-      sendBatchWithRetry(protobuf, 0);
+      sendBatchWithRetry(protobuf, eventsById, 0);
     } catch (Exception e) {
       log.severe("Failed to process batch: " + e.getMessage());
       // Re-queue events on failure
@@ -224,7 +231,7 @@ public class BatchProcessor implements Runnable {
     return httpResponse.headers().firstValue("Content-Encoding").orElse("");
   }
 
-  private void sendBatchWithRetry(byte[] payload, int attempt) {
+  private void sendBatchWithRetry(byte[] payload, Map<String, MineAdsEvent> eventsById, int attempt) {
     Config config = plugin.getConfig();
     HttpRequest request = HttpRequest.newBuilder()
       .uri(URI.create("https://ingest.mineads.gg/event"))
@@ -232,59 +239,79 @@ public class BatchProcessor implements Runnable {
       .header("Content-Type", "application/x-protobuf")
       .header("Content-Encoding", "gzip")
       .header("Accept-Encoding", "gzip")
+      .header("Accept", "application/x-protobuf")
       .timeout(REQUEST_TIMEOUT)
       .PUT(HttpRequest.BodyPublishers.ofByteArray(payload))
       .build();
 
     httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream())
-      .thenAccept(response -> handleResponse(response, payload, attempt))
+      .thenAccept(response -> handleResponse(response, payload, eventsById, attempt))
       .exceptionally(throwable -> {
-        handleSendError(throwable, payload, attempt);
+        handleSendError(throwable, payload, eventsById, attempt);
         return null;
       });
   }
 
-  private void handleResponse(HttpResponse<InputStream> response, byte[] batch, int attempt) {
+  private void handleResponse(HttpResponse<InputStream> response, byte[] batch, Map<String, MineAdsEvent> eventsById, int attempt) {
     Config config = plugin.getConfig();
-    String responseBody;
+    byte[] responseBytes;
     try (InputStream bodyStream = getDecodedInputStream(response)) {
-      responseBody = new String(bodyStream.readAllBytes(), StandardCharsets.UTF_8);
+      responseBytes = bodyStream.readAllBytes();
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
 
+    IngestResponse ingestResponse = parseResponse(responseBytes);
     int statusCode = response.statusCode();
 
-    if (statusCode >= 200 && statusCode < 300) {
-      // Success
+    boolean succeeded = ingestResponse != null && ingestResponse.getSuccess();
+
+    if (statusCode >= 200 && statusCode < 300 && succeeded) {
       log.info("Successfully sent batch of " + batch.length + " bytes");
       if (config != null && config.isDebug()) {
         log.info("[DEBUG] Batch sent successfully with status " + statusCode);
       }
-    } else if (shouldRetry(statusCode) && attempt < MAX_RETRY_ATTEMPTS) {
-      // Retry on server errors or rate limiting
+      return;
+    }
+
+    // Any non-success response should trigger a retry with failed events (or all if unknown)
+    requeueFailedEvents(ingestResponse, eventsById);
+    if (attempt < MAX_RETRY_ATTEMPTS) {
       long delayMs = calculateRetryDelay(attempt);
-      log.warning("Batch send failed with status " + statusCode + ", retrying in " + delayMs + "ms (attempt " + (attempt + 1) + ")");
+      log.warning("Batch send unsuccessful (status " + statusCode + "), retrying in " + delayMs + "ms (attempt " + (attempt + 1) + ")");
       if (config != null && config.isDebug()) {
-        log.info("[DEBUG] Scheduling retry attempt " + (attempt + 1) + " in " + delayMs + "ms");
-        if (!responseBody.isBlank()) {
-          log.info("[DEBUG] Error response body: " + responseBody);
-        }
+        logDebugResponse(ingestResponse, responseBytes);
       }
-      scheduler.scheduleAsyncDelayed(() -> sendBatchWithRetry(batch, attempt + 1), delayMs, TimeUnit.MILLISECONDS);
+      scheduler.scheduleAsyncDelayed(this::processQueueAsync, delayMs, TimeUnit.MILLISECONDS);
     } else {
-      // Final failure
-      log.severe("Batch send failed with status " + statusCode + " after " + (attempt + 1) + " attempts");
+      log.severe("Batch send failed after " + (attempt + 1) + " attempts (status " + statusCode + ")");
       if (config != null && config.isDebug()) {
-        log.info("[DEBUG] Final failure for batch after " + (attempt + 1) + " attempts");
-        if (!responseBody.isBlank()) {
-          log.info("[DEBUG] Error response body: " + responseBody);
-        }
+        logDebugResponse(ingestResponse, responseBytes);
       }
     }
   }
 
-  private void handleSendError(Throwable throwable, byte[] batch, int attempt) {
+  private IngestResponse parseResponse(byte[] responseBytes) {
+    try {
+      return IngestResponse.parseFrom(responseBytes);
+    } catch (InvalidProtocolBufferException e) {
+      log.severe("Failed to parse protobuf ingest response: " + e.getMessage());
+      return null;
+    }
+  }
+
+  private void logDebugResponse(IngestResponse ingestResponse, byte[] rawBytes) {
+    if (ingestResponse != null) {
+      log.info("[DEBUG] IngestResponse success=" + ingestResponse.getSuccess() + " error=" + ingestResponse.getError());
+    } else if (rawBytes != null && rawBytes.length > 0) {
+      String fallback = new String(rawBytes, StandardCharsets.UTF_8);
+      log.info("[DEBUG] Raw response (unparsed): " + fallback);
+    } else {
+      log.info("[DEBUG] Empty response body");
+    }
+  }
+
+  private void handleSendError(Throwable throwable, byte[] batch, Map<String, MineAdsEvent> eventsById, int attempt) {
     Config config = plugin.getConfig();
     if (shouldRetryOnException(throwable) && attempt < MAX_RETRY_ATTEMPTS) {
       long delayMs = calculateRetryDelay(attempt);
@@ -293,7 +320,7 @@ public class BatchProcessor implements Runnable {
         log.info("[DEBUG] Scheduling retry attempt " + (attempt + 1) + " in " + delayMs + "ms due to exception");
         log.info("[DEBUG] Exception details: " + throwable);
       }
-      scheduler.scheduleAsyncDelayed(() -> sendBatchWithRetry(batch, attempt + 1), delayMs, TimeUnit.MILLISECONDS);
+      scheduler.scheduleAsyncDelayed(() -> sendBatchWithRetry(batch, eventsById, attempt + 1), delayMs, TimeUnit.MILLISECONDS);
     } else {
       log.severe("Batch send failed after " + (attempt + 1) + " attempts: " + throwable.getMessage());
       if (config != null && config.isDebug()) {
@@ -306,6 +333,25 @@ public class BatchProcessor implements Runnable {
   private boolean shouldRetry(int statusCode) {
     return statusCode == 429 || // Too Many Requests
       statusCode >= 500;   // Server errors
+  }
+
+  private void requeueFailedEvents(IngestResponse ingestResponse, Map<String, MineAdsEvent> eventsById) {
+    if (ingestResponse == null) {
+      events.addAll(eventsById.values());
+      return;
+    }
+
+    if (ingestResponse.getFailedEventsList().isEmpty()) {
+      events.addAll(eventsById.values());
+      return;
+    }
+
+    for (var failed : ingestResponse.getFailedEventsList()) {
+      MineAdsEvent evt = eventsById.get(failed.getEventId());
+      if (evt != null) {
+        events.add(evt);
+      }
+    }
   }
 
   private boolean shouldRetryOnException(Throwable throwable) {

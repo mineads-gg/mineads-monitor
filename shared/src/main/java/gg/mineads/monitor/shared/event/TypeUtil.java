@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.UUID;
 
 public class TypeUtil {
   private TypeUtil() {}
@@ -53,6 +54,7 @@ public class TypeUtil {
   public static MineAdsEvent createJoinEvent(PlayerJoinData data) {
     return MineAdsEvent.newBuilder()
       .setTime(System.currentTimeMillis())
+      .setEventId(UUID.randomUUID().toString())
       .setJoinData(data)
       .build();
   }
@@ -60,6 +62,7 @@ public class TypeUtil {
   public static MineAdsEvent createLeaveEvent(PlayerLeaveData data) {
     return MineAdsEvent.newBuilder()
       .setTime(System.currentTimeMillis())
+      .setEventId(UUID.randomUUID().toString())
       .setLeaveData(data)
       .build();
   }
@@ -67,6 +70,7 @@ public class TypeUtil {
   public static MineAdsEvent createHeartbeatEvent(PlayerHeartbeatData data) {
     return MineAdsEvent.newBuilder()
       .setTime(System.currentTimeMillis())
+      .setEventId(UUID.randomUUID().toString())
       .setHeartbeatData(data)
       .build();
   }
@@ -74,6 +78,7 @@ public class TypeUtil {
   public static MineAdsEvent createChatEvent(PlayerChatData data) {
     return MineAdsEvent.newBuilder()
       .setTime(System.currentTimeMillis())
+      .setEventId(UUID.randomUUID().toString())
       .setChatData(data)
       .build();
   }
@@ -81,6 +86,7 @@ public class TypeUtil {
   public static MineAdsEvent createPlayerSettingsEvent(PlayerSettingsData data) {
     return MineAdsEvent.newBuilder()
       .setTime(System.currentTimeMillis())
+      .setEventId(UUID.randomUUID().toString())
       .setSettingsData(data)
       .build();
   }
@@ -88,6 +94,7 @@ public class TypeUtil {
   public static MineAdsEvent createPlayerClientBrandEvent(PlayerClientBrandData data) {
     return MineAdsEvent.newBuilder()
       .setTime(System.currentTimeMillis())
+      .setEventId(UUID.randomUUID().toString())
       .setClientBrandData(data)
       .build();
   }
@@ -137,13 +144,15 @@ public class TypeUtil {
   public static MineAdsEvent createCommandEvent(PlayerCommandData data) {
     return MineAdsEvent.newBuilder()
       .setTime(System.currentTimeMillis())
+      .setEventId(UUID.randomUUID().toString())
       .setCommandData(data)
       .build();
   }
 
   public static MineAdsEvent createTransactionEvent(TransactionData data, BiConsumer<MineAdsEvent.Builder, TransactionData> eventTypeSetter) {
     MineAdsEvent.Builder builder = MineAdsEvent.newBuilder()
-      .setTime(System.currentTimeMillis());
+      .setTime(System.currentTimeMillis())
+      .setEventId(UUID.randomUUID().toString());
 
     eventTypeSetter.accept(builder, data);
 
