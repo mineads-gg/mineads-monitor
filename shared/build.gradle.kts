@@ -12,7 +12,7 @@ dependencies {
   testImplementation(libs.luckperms.api)
 
   implementation(libs.configlib.yaml)
-  implementation(libs.gson)
+  compileOnly(libs.gson)
   implementation(libs.protobuf.java)
   implementation(libs.chronicle.queue)
 
@@ -24,8 +24,8 @@ dependencies {
   implementation(libs.cloud.minecraft.extras)
   implementation(libs.cloud.translations.minecraft.extras)
 
-  implementation(libs.adventure.api)
-  implementation(libs.adventure.text.serializer.legacy)
+  compileOnly(libs.adventure.api)
+  compileOnly(libs.adventure.text.serializer.legacy)
 }
 
 protobuf {
