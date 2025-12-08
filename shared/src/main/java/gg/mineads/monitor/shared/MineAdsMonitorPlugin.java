@@ -50,7 +50,7 @@ public class MineAdsMonitorPlugin {
 
   public MineAdsMonitorPlugin(AbstractMineAdsMonitorBootstrap bootstrap) {
     this.bootstrap = bootstrap;
-    this.batchProcessor = new BatchProcessor(this, bootstrap.getScheduler());
+    this.batchProcessor = new BatchProcessor(this, bootstrap.getScheduler(), bootstrap.getDataFolder());
   }
 
   public void onEnable() {
@@ -199,7 +199,7 @@ public class MineAdsMonitorPlugin {
    * Shutdown core services
    */
   private void shutdownCoreServices() {
-    batchProcessor.run(); // Process any remaining events
+    batchProcessor.shutdown(); // Flush and close durable queue
   }
 
   /**

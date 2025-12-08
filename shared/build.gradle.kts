@@ -14,6 +14,7 @@ dependencies {
   implementation(libs.configlib.yaml)
   implementation(libs.gson)
   implementation(libs.protobuf.java)
+  implementation(libs.chronicle.queue)
 
   implementation(libs.cloud.core)
   implementation(libs.cloud.annotations)

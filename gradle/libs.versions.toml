@@ -11,6 +11,7 @@ luckperms = "5.5"
 configlibYaml = "4.6.4"
 gson = "2.13.2"
 protobuf = "4.33.2"
+chronicleQueue = "5.27ea11"
 
 # Cloud Commands
 cloud = "2.0.0"
@@ -54,6 +55,7 @@ luckperms-api = { module = "net.luckperms:api", version.ref = "luckperms" }
 configlib-yaml = { module = "de.exlll:configlib-yaml", version.ref = "configlibYaml" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
+chronicle-queue = { module = "net.openhft:chronicle-queue", version.ref = "chronicleQueue" }
 
 # Cloud Commands
 cloud-core = { module = "org.incendo:cloud-core", version.ref = "cloud" }
