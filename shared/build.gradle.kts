@@ -23,6 +23,7 @@ dependencies {
   implementation(libs.cloud.translations.core)
   implementation(libs.cloud.minecraft.extras)
   implementation(libs.cloud.translations.minecraft.extras)
+  implementation(libs.reflect)
 
   compileOnly(libs.adventure.api)
   compileOnly(libs.adventure.text.serializer.legacy)
