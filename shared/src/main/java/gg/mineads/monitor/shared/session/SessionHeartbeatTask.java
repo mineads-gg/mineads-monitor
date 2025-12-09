@@ -46,10 +46,6 @@ public class SessionHeartbeatTask implements Runnable {
     }
 
     Map<UUID, UUID> activeSessions = PlayerSessionManager.getActiveSessionsSnapshot();
-    if (activeSessions.isEmpty()) {
-      return;
-    }
-
     List<String> activeSessionIds = new ArrayList<>(activeSessions.size());
     for (Map.Entry<UUID, UUID> entry : activeSessions.entrySet()) {
       UUID playerUuid = entry.getKey();
@@ -64,10 +60,6 @@ public class SessionHeartbeatTask implements Runnable {
       }
 
       activeSessionIds.add(sessionId.toString());
-    }
-
-    if (activeSessionIds.isEmpty()) {
-      return;
     }
 
     if (plugin.getConfig().isDebug()) {
