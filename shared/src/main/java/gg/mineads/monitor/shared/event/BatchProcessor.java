@@ -21,6 +21,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.generated.EventBatch;
+import gg.mineads.monitor.shared.event.generated.FailedEvent;
 import gg.mineads.monitor.shared.event.generated.IngestResponse;
 import gg.mineads.monitor.shared.event.generated.MineAdsEvent;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -332,7 +333,7 @@ public class BatchProcessor implements Runnable {
     }
 
     Set<String> failedIds = ingestResponse.getFailedEventsList().stream()
-      .map(failedEvent -> failedEvent.getEventId())
+      .map(FailedEvent::getEventId)
       .collect(Collectors.toSet());
 
     EventBatch eventBatch = parseEventBatch(currentPayload);
