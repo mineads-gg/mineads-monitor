@@ -29,6 +29,7 @@ import lombok.Setter;
 import lombok.extern.java.Log;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
@@ -124,7 +125,7 @@ public class MineAdsMonitorPlugin {
       String currentConfigContent = Files.readString(configPath);
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
       YamlConfigurations.write(outputStream, Config.class, config);
-      String newConfigContent = outputStream.toString();
+      String newConfigContent = outputStream.toString(StandardCharsets.UTF_8);
       if (!currentConfigContent.equals(newConfigContent)) {
         Files.writeString(configPath, newConfigContent);
         if (config != null && config.isDebug()) {

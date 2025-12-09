@@ -17,6 +17,7 @@
  */
 package gg.mineads.monitor.shared.command;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
 import gg.mineads.monitor.shared.ComponentHelper;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
@@ -33,6 +34,7 @@ import org.incendo.cloud.translations.TranslationBundle;
 import org.incendo.cloud.translations.minecraft.extras.MinecraftExtrasTranslationBundle;
 
 @Log
+@SuppressFBWarnings(value = "EI2", justification = "Command manager intentionally retains the plugin reference for command handling.")
 public abstract class MineAdsCommandManager<B extends AbstractMineAdsMonitorBootstrap> implements PlatformCommandManager {
 
   protected final B platformBootstrap;

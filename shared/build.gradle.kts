@@ -13,8 +13,8 @@ dependencies {
 
   implementation(libs.configlib.yaml)
   compileOnly(libs.gson)
+  compileOnly(libs.spotbugs.annotations)
   implementation(libs.protobuf.java)
-  implementation(libs.chronicle.queue)
 
   implementation(libs.cloud.core)
   implementation(libs.cloud.annotations)

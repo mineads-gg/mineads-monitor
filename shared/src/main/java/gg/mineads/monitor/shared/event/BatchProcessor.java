@@ -23,6 +23,7 @@ import gg.mineads.monitor.shared.config.Config;
 import gg.mineads.monitor.shared.event.generated.EventBatch;
 import gg.mineads.monitor.shared.event.generated.IngestResponse;
 import gg.mineads.monitor.shared.event.generated.MineAdsEvent;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import lombok.extern.java.Log;
 
@@ -50,6 +51,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 @Log
+@SuppressFBWarnings(value = "EI2", justification = "BatchProcessor must retain the plugin reference to read configuration and schedule work.")
 public class BatchProcessor implements Runnable {
   private static final int BATCH_SIZE_THRESHOLD = 100;
   private static final int MAX_RETRY_ATTEMPTS = 5;
@@ -60,7 +62,7 @@ public class BatchProcessor implements Runnable {
   private final Queue<MineAdsEvent> stagingEvents = new ConcurrentLinkedQueue<>();
   private final MineAdsMonitorPlugin plugin;
   private final MineAdsScheduler scheduler;
-  private final DurableBatchQueue durableQueue;
+  private final PersistentBatchQueue durableQueue;
   private final HttpClient httpClient = HttpClient.newBuilder()
     .version(HttpClient.Version.HTTP_2)
     .connectTimeout(Duration.ofSeconds(10))
@@ -75,9 +77,7 @@ public class BatchProcessor implements Runnable {
   public BatchProcessor(MineAdsMonitorPlugin plugin, MineAdsScheduler scheduler, Path dataFolder) {
     this.plugin = plugin;
     this.scheduler = scheduler;
-    this.durableQueue = new DurableBatchQueue(dataFolder.resolve("queue"));
-    // Regular retention to prune old queue files; lightweight and safe.
-    scheduler.scheduleAsync(() -> durableQueue.runRetention(), 5, 5, TimeUnit.SECONDS);
+    this.durableQueue = new PersistentBatchQueue(dataFolder.resolve("queue"), scheduler, BATCH_SIZE_THRESHOLD);
   }
 
   @Override
@@ -179,7 +179,7 @@ public class BatchProcessor implements Runnable {
       byte[] payload = serializeToProtobuf(currentEvents);
       durableQueue.append(payload, drained);
       if (config != null && config.isDebug()) {
-        log.info("[DEBUG] Appended batch (" + drained + " events, " + payload.length + " bytes) to Chronicle queue");
+        log.info("[DEBUG] Appended batch (" + drained + " events, " + payload.length + " bytes) to the durable queue");
       }
       kickSendLoop();
       // If more remain, schedule another flush
@@ -213,7 +213,7 @@ public class BatchProcessor implements Runnable {
   }
 
   private boolean processNextStoredBatch() {
-    try (DurableBatchQueue.BatchRecord record = durableQueue.readNext()) {
+    try (PersistentBatchQueue.BatchRecord record = durableQueue.readNext()) {
       if (record == null) {
         return false;
       }
@@ -260,6 +260,10 @@ public class BatchProcessor implements Runnable {
 
   private SendResult sendBatchSync(byte[] payload, int eventCount, int attempt) {
     Config config = plugin.getConfig();
+    if (config == null) {
+      log.warning("Cannot send batch because configuration was not loaded");
+      return SendResult.drop();
+    }
     HttpRequest request = HttpRequest.newBuilder()
       .uri(URI.create("https://ingest.mineads.gg/event"))
       .header("X-API-KEY", config.getPluginKey())
@@ -284,7 +288,7 @@ public class BatchProcessor implements Runnable {
 
       if (succeeded) {
         log.info("Successfully sent batch of " + eventCount + " events (" + payload.length + " bytes)");
-        if (config != null && config.isDebug()) {
+        if (config.isDebug()) {
           log.info("[DEBUG] Batch sent successfully with status " + statusCode);
         }
         return SendResult.success();
@@ -293,25 +297,30 @@ public class BatchProcessor implements Runnable {
       byte[] nextPayload = determineFailedPayload(ingestResponse, payload);
       if (attempt + 1 >= MAX_RETRY_ATTEMPTS) {
         log.severe("Batch send failed after " + (attempt + 1) + " attempts (status " + statusCode + ")");
-        if (config != null && config.isDebug()) {
+        if (config.isDebug()) {
           logDebugResponse(ingestResponse, responseBytes);
         }
         return SendResult.drop();
       }
 
-      if (config != null && config.isDebug()) {
+      if (config.isDebug()) {
         logDebugResponse(ingestResponse, responseBytes);
       }
       return SendResult.retry(nextPayload);
-    } catch (IOException | InterruptedException e) {
-      if (e instanceof InterruptedException interrupted) {
-        Thread.currentThread().interrupt();
-      }
+    } catch (InterruptedException interrupted) {
+      Thread.currentThread().interrupt();
       if (attempt + 1 >= MAX_RETRY_ATTEMPTS) {
-        log.severe("Batch send failed after " + (attempt + 1) + " attempts: " + e.getMessage());
+        log.severe("Batch send interrupted after " + (attempt + 1) + " attempts: " + interrupted.getMessage());
         return SendResult.drop();
       }
-      log.warning("Batch send failed with exception: " + e.getMessage());
+      log.warning("Batch send interrupted: " + interrupted.getMessage());
+      return SendResult.retry(null);
+    } catch (IOException ioException) {
+      if (attempt + 1 >= MAX_RETRY_ATTEMPTS) {
+        log.severe("Batch send failed after " + (attempt + 1) + " attempts: " + ioException.getMessage());
+        return SendResult.drop();
+      }
+      log.warning("Batch send failed with exception: " + ioException.getMessage());
       return SendResult.retry(null);
     }
   }

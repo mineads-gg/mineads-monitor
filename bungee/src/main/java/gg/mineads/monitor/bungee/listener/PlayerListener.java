@@ -17,6 +17,7 @@
  */
 package gg.mineads.monitor.bungee.listener;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.event.TypeUtil;
 import gg.mineads.monitor.shared.event.generated.*;
@@ -49,6 +50,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Log
+@SuppressFBWarnings(value = "EI2", justification = "Listener stores the plugin reference to access config and batches.")
 public class PlayerListener implements Listener {
 
   private final MineAdsScheduler scheduler;

@@ -26,6 +26,7 @@ import com.velocitypowered.api.event.player.PlayerClientBrandEvent;
 import com.velocitypowered.api.event.player.PlayerSettingsChangedEvent;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.player.PlayerSettings;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.event.TypeUtil;
 import gg.mineads.monitor.shared.event.generated.*;
@@ -43,6 +44,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 @Log
+@SuppressFBWarnings(value = "EI2", justification = "Listener retains plugin reference to respect configuration/state.")
 public class PlayerListener {
 
   private final MineAdsScheduler scheduler;

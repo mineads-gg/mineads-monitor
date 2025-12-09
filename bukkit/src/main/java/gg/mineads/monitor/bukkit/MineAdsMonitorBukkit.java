@@ -18,6 +18,7 @@
 package gg.mineads.monitor.bukkit;
 
 import com.tcoded.folialib.FoliaLib;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gg.mineads.monitor.bukkit.command.BukkitCommandManager;
 import gg.mineads.monitor.bukkit.listener.PlayerListener;
 import gg.mineads.monitor.bukkit.scheduler.BukkitMineAdsScheduler;
@@ -73,6 +74,7 @@ public class MineAdsMonitorBukkit extends JavaPlugin {
     }
 
     @Override
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "The owning plugin is intentionally exposed for platform integration hooks.")
     public MineAdsMonitorBukkit getOwningPlugin() {
       return plugin;
     }

@@ -12,6 +12,7 @@ dependencies {
 
   compileOnly(libs.velocity.api)
   compileOnly(libs.luckperms.api)
+  compileOnly(libs.spotbugs.annotations)
 
   implementation(libs.cloud.velocity)
 }

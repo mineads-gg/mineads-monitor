@@ -19,6 +19,7 @@ package gg.mineads.monitor.bukkit.listener;
 
 import com.destroystokyo.paper.event.player.PlayerClientOptionsChangeEvent;
 import com.destroystokyo.paper.profile.PlayerProfile;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
 import gg.mineads.monitor.shared.event.TypeUtil;
 import gg.mineads.monitor.shared.event.generated.*;
@@ -44,6 +45,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Log
+@SuppressFBWarnings(value = "EI2", justification = "Listener needs the plugin reference to access config and batches.")
 public class PlayerListener implements Listener {
 
   private static final int MAX_BRAND_ATTEMPTS = 6;

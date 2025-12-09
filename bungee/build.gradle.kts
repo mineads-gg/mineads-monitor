@@ -15,6 +15,7 @@ dependencies {
   compileOnly(libs.bungeecord.proxy)
   compileOnly(libs.bungeecord.protocol)
   compileOnly(libs.luckperms.api)
+  compileOnly(libs.spotbugs.annotations)
 
   implementation(libs.cloud.bungee)
 }

@@ -16,6 +16,7 @@ dependencies {
 
   compileOnly(libs.paper.api)
   compileOnly(libs.luckperms.api)
+  compileOnly(libs.spotbugs.annotations)
 
   implementation(libs.cloud.paper)
 }

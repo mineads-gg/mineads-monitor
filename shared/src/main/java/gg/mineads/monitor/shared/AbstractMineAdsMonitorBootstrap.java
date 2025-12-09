@@ -17,6 +17,7 @@
  */
 package gg.mineads.monitor.shared;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import gg.mineads.monitor.shared.session.PlayerOnlineChecker;
@@ -26,6 +27,7 @@ import java.nio.file.Path;
 public abstract class AbstractMineAdsMonitorBootstrap {
   private MineAdsMonitorPlugin plugin;
 
+  @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Bootstrap needs to expose the plugin instance for lifecycle coordination.")
   public MineAdsMonitorPlugin getMineAdsPlugin() {
     return plugin;
   }

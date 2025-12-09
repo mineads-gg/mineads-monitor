@@ -17,6 +17,7 @@
  */
 package gg.mineads.monitor.bungee.command;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import gg.mineads.monitor.bungee.MineAdsMonitorBungee;
 import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import net.kyori.adventure.text.Component;
@@ -26,7 +27,14 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import java.util.Locale;
 import java.util.Objects;
 
+@SuppressFBWarnings(value = "EI2", justification = "Command sender reference is required to forward messages and permissions.")
 public record BungeeWrappedCommandSender(MineAdsMonitorBungee.Bootstrap bootstrap, CommandSender sender) implements WrappedCommandSender {
+
+  @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "The wrapped sender must be exposed so Cloud can interact with it.")
+  public CommandSender sender() {
+    return this.sender;
+  }
+
   @Override
   public void sendMessage(final Component component) {
     bootstrap.getAdventure().sender(sender).sendMessage(component);
