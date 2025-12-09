@@ -12,7 +12,6 @@ configlibYaml = "4.6.4"
 gson = "2.13.2"
 protobuf = "4.33.2"
 chronicleQueue = "5.27ea11"
-reflect = "1.6.0"
 
 # Cloud Commands
 cloud = "2.0.0"
@@ -57,7 +56,6 @@ configlib-yaml = { module = "de.exlll:configlib-yaml", version.ref = "configlibY
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
 chronicle-queue = { module = "net.openhft:chronicle-queue", version.ref = "chronicleQueue" }
-reflect = { module = "net.lenni0451:Reflect", version.ref = "reflect"}
 
 # Cloud Commands
 cloud-core = { module = "org.incendo:cloud-core", version.ref = "cloud" }

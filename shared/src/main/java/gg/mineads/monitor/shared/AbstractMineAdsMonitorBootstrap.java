@@ -20,18 +20,10 @@ package gg.mineads.monitor.shared;
 import gg.mineads.monitor.shared.command.MineAdsCommandManager;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import gg.mineads.monitor.shared.session.PlayerOnlineChecker;
-import net.lenni0451.reflect.Modules;
 
 import java.nio.file.Path;
 
 public abstract class AbstractMineAdsMonitorBootstrap {
-  static {
-    // Enable modules for chronicle queue
-    Modules.openEntireModule(sun.misc.Unsafe.class); // jdk.unsupported
-    Modules.openEntireModule(com.sun.tools.javac.Main.class); // jdk.compiler
-    Modules.openEntireModule(java.util.List.class); // java.base
-  }
-
   private MineAdsMonitorPlugin plugin;
 
   public MineAdsMonitorPlugin getMineAdsPlugin() {
