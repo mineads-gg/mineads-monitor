@@ -33,7 +33,6 @@ import gg.mineads.monitor.shared.event.generated.*;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
-import gg.mineads.monitor.shared.session.SessionEventTracker;
 import gg.mineads.monitor.shared.skin.SkinData;
 import gg.mineads.monitor.shared.skin.property.SkinProperty;
 import lombok.extern.java.Log;
@@ -66,7 +65,8 @@ public class PlayerListener {
     }
 
     Player player = event.getPlayer();
-    UUID sessionId = PlayerSessionManager.createSession(player.getUniqueId());
+    PlayerSessionManager.Session session = PlayerSessionManager.createSession(player.getUniqueId());
+    UUID sessionId = session.sessionId();
     SkinData skinData = extractSkinData(player);
 
     // Process event asynchronously to avoid blocking main thread
@@ -84,7 +84,7 @@ public class PlayerListener {
       }
 
       PlayerJoinData.Builder builder = PlayerJoinData.newBuilder()
-        .setSessionId(sessionId.toString())
+        .setSessionId(session.sessionId().toString())
         .setUuid(player.getUniqueId().toString())
         .setUsername(player.getUsername())
         .setOnlineMode(player.isOnlineMode());
@@ -138,16 +138,16 @@ public class PlayerListener {
     }
 
     Player player = event.getPlayer();
-    UUID sessionId = PlayerSessionManager.removeSession(player.getUniqueId());
+    PlayerSessionManager.Session session = PlayerSessionManager.removeSession(player.getUniqueId());
 
     // Process event asynchronously to avoid blocking main thread
     scheduler.runAsync(() -> {
-      if (sessionId != null) {
+      if (session != null) {
         if (plugin.getConfig().isDebug()) {
-          log.info("[DEBUG] Player quit: %s (%s), session: %s".formatted(player.getUsername(), player.getUniqueId(), sessionId));
+          log.info("[DEBUG] Player quit: %s (%s), session: %s".formatted(player.getUsername(), player.getUniqueId(), session.sessionId()));
         }
         PlayerLeaveData data = PlayerLeaveData.newBuilder()
-          .setSessionId(sessionId.toString())
+          .setSessionId(session.sessionId().toString())
           .build();
 
         MineAdsEvent protoEvent = TypeUtil.createLeaveEvent(data);
@@ -173,17 +173,17 @@ public class PlayerListener {
     }
 
     Player player = event.getPlayer();
-    UUID sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
+    PlayerSessionManager.Session session = PlayerSessionManager.getSession(player.getUniqueId());
 
     // Process event asynchronously to avoid blocking main thread
     scheduler.runAsync(() -> {
-      if (sessionId != null) {
+      if (session != null) {
         if (plugin.getConfig().isDebug()) {
           String message = event.getMessage().substring(0, Math.min(50, event.getMessage().length())) + (event.getMessage().length() > 50 ? "..." : "");
           log.info("[DEBUG] Player chat: %s - %s".formatted(player.getUsername(), message));
         }
         PlayerChatData.Builder dataBuilder = PlayerChatData.newBuilder()
-          .setSessionId(sessionId.toString());
+          .setSessionId(session.sessionId().toString());
 
         if (!plugin.getConfig().isDisableChatContent()) {
           dataBuilder.setMessage(event.getMessage());
@@ -210,11 +210,11 @@ public class PlayerListener {
     }
 
     Player player = event.getPlayer();
-    UUID sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
-    PlayerSettings settings = event.getPlayerSettings();
+    PlayerSessionManager.Session session = PlayerSessionManager.getSession(player.getUniqueId());
+        PlayerSettings settings = event.getPlayerSettings();
 
     scheduler.runAsync(() -> {
-      if (sessionId == null) {
+      if (session == null) {
         if (plugin.getConfig().isDebug()) {
           log.info("[DEBUG] Player settings ignored: %s - no active session".formatted(player.getUsername()));
         }
@@ -222,7 +222,7 @@ public class PlayerListener {
       }
 
       PlayerSettingsData.Builder builder = PlayerSettingsData.newBuilder()
-        .setSessionId(sessionId.toString())
+        .setSessionId(session.sessionId().toString())
         .setViewDistance(settings.getViewDistance())
         .setChatMode(settings.getChatMode().name())
         .setChatColors(settings.hasChatColors())
@@ -236,11 +236,11 @@ public class PlayerListener {
       }
 
       PlayerSettingsData data = builder.build();
-      if (SessionEventTracker.markSettingsSentIfFirst(sessionId)) {
+      if (session.markSettingsSentIfFirst()) {
         MineAdsEvent protoEvent = TypeUtil.createPlayerSettingsEvent(data);
         plugin.getBatchProcessor().addEvent(protoEvent);
       } else if (plugin.getConfig().isDebug()) {
-        log.info("[DEBUG] Skipping duplicate player settings event for session " + sessionId);
+        log.info("[DEBUG] Skipping duplicate player settings event for session " + session.sessionId());
       }
     });
   }
@@ -255,10 +255,10 @@ public class PlayerListener {
     }
 
     Player player = event.getPlayer();
-    UUID sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
+    PlayerSessionManager.Session session = PlayerSessionManager.getSession(player.getUniqueId());
 
     scheduler.runAsync(() -> {
-      if (sessionId == null) {
+      if (session == null) {
         if (plugin.getConfig().isDebug()) {
           log.info("[DEBUG] Client brand ignored: %s - no active session".formatted(player.getUsername()));
         }
@@ -270,16 +270,16 @@ public class PlayerListener {
         return;
       }
 
-      if (SessionEventTracker.markBrandSentIfFirst(sessionId)) {
+      if (session.markBrandSentIfFirst()) {
         PlayerClientBrandData data = PlayerClientBrandData.newBuilder()
-          .setSessionId(sessionId.toString())
+          .setSessionId(session.sessionId().toString())
           .setClientBrand(clientBrand)
           .build();
         MineAdsEvent protoEvent = TypeUtil.createPlayerClientBrandEvent(data);
 
         plugin.getBatchProcessor().addEvent(protoEvent);
       } else if (plugin.getConfig().isDebug()) {
-        log.info("[DEBUG] Skipping duplicate client brand event for session " + sessionId);
+        log.info("[DEBUG] Skipping duplicate client brand event for session " + session.sessionId());
       }
     });
   }
@@ -301,17 +301,17 @@ public class PlayerListener {
       return;
     }
 
-    UUID sessionId = PlayerSessionManager.getSessionId(player.getUniqueId());
+    PlayerSessionManager.Session session = PlayerSessionManager.getSession(player.getUniqueId());
 
     // Process event asynchronously to avoid blocking main thread
     scheduler.runAsync(() -> {
-      if (sessionId != null) {
+      if (session != null) {
         if (plugin.getConfig().isDebug()) {
           String command = event.getCommand().substring(0, Math.min(50, event.getCommand().length())) + (event.getCommand().length() > 50 ? "..." : "");
           log.info("[DEBUG] Player command: %s - %s".formatted(player.getUsername(), command));
         }
         PlayerCommandData.Builder dataBuilder = TypeUtil.createCommandDataBuilder(
-          sessionId.toString(),
+          session.sessionId().toString(),
           event.getCommand(),
           false,
                 plugin.getConfig().getDefaultMaxCommandArgs(),

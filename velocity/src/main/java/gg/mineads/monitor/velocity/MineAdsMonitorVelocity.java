@@ -23,6 +23,7 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.PluginContainer;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
+import com.velocitypowered.api.proxy.InboundConnection;
 import com.velocitypowered.api.proxy.ProxyServer;
 import gg.mineads.monitor.shared.AbstractMineAdsMonitorBootstrap;
 import gg.mineads.monitor.shared.MineAdsMonitorPlugin;
@@ -133,7 +134,7 @@ public class MineAdsMonitorVelocity {
     @Override
     public PlayerOnlineChecker getPlayerOnlineChecker() {
       return uuid -> plugin.proxyServer.getPlayer(uuid)
-        .map(player -> player.isActive())
+        .map(InboundConnection::isActive)
         .orElse(false);
     }
   }

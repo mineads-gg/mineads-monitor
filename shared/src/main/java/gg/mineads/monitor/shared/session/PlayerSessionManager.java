@@ -22,33 +22,45 @@ import lombok.extern.java.Log;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Log
 public class PlayerSessionManager {
+  public record Session(UUID sessionId, AtomicBoolean brandSent, AtomicBoolean settingsSent) {
+      public boolean markBrandSentIfFirst() {
+        return brandSent.compareAndSet(false, true);
+      }
 
-  private static final Map<UUID, UUID> playerSessions = new ConcurrentHashMap<>();
+      public boolean markSettingsSentIfFirst() {
+        return settingsSent.compareAndSet(false, true);
+      }
+    }
+
+  private static final Map<UUID, Session> playerSessions = new ConcurrentHashMap<>();
+  private static final Map<UUID, Session> sessionsById = new ConcurrentHashMap<>();
 
   /**
    * Generates a new session ID for a player when they join.
    *
    * @param playerUuid The UUID of the player
-   * @return The generated session ID
+   * @return The session instance
    */
-  public static UUID createSession(UUID playerUuid) {
+  public static Session createSession(UUID playerUuid) {
     UUID sessionId = UUID.randomUUID();
-    playerSessions.put(playerUuid, sessionId);
-    // Note: We don't log here as this is called frequently during player joins
-    return sessionId;
+    Session session = new Session(sessionId, new AtomicBoolean(false), new AtomicBoolean(false));
+    playerSessions.put(playerUuid, session);
+    sessionsById.put(sessionId, session);
+    return session;
   }
 
   /**
-   * Gets the current session ID for a player.
+   * Gets the current session for a player.
    *
    * @param playerUuid The UUID of the player
-   * @return The session ID, or null if no session exists
+   * @return The session, or null if no session exists
    */
-  public static UUID getSessionId(UUID playerUuid) {
+  public static Session getSession(UUID playerUuid) {
     return playerSessions.get(playerUuid);
   }
 
@@ -56,14 +68,15 @@ public class PlayerSessionManager {
    * Removes a player's session when they leave.
    *
    * @param playerUuid The UUID of the player
-   * @return The session ID that was removed, or null if none existed
+   * @return The session that was removed, or null if none existed
    */
-  public static UUID removeSession(UUID playerUuid) {
-    UUID sessionId = playerSessions.remove(playerUuid);
-    if (sessionId != null) {
-      SessionEventTracker.clearSession(sessionId);
+  public static Session removeSession(UUID playerUuid) {
+    Session session = playerSessions.remove(playerUuid);
+    if (session != null) {
+      sessionsById.remove(session.sessionId());
+      return session;
     }
-    return sessionId;
+    return null;
   }
 
   /**
@@ -88,10 +101,9 @@ public class PlayerSessionManager {
   /**
    * Returns a snapshot of active player sessions.
    *
-   * @return Map of player UUID -> session UUID
+   * @return Map of player UUID -> session
    */
-  public static Map<UUID, UUID> getActiveSessionsSnapshot() {
-    // Return an immutable copy to avoid exposing internal map
+  public static Map<UUID, Session> getActiveSessionsSnapshot() {
     return playerSessions.entrySet().stream()
       .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
   }

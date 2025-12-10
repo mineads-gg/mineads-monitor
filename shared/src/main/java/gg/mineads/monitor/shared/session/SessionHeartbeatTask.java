@@ -45,11 +45,11 @@ public class SessionHeartbeatTask implements Runnable {
       return;
     }
 
-    Map<UUID, UUID> activeSessions = PlayerSessionManager.getActiveSessionsSnapshot();
+    Map<UUID, PlayerSessionManager.Session> activeSessions = PlayerSessionManager.getActiveSessionsSnapshot();
     List<String> activeSessionIds = new ArrayList<>(activeSessions.size());
-    for (Map.Entry<UUID, UUID> entry : activeSessions.entrySet()) {
+    for (Map.Entry<UUID, PlayerSessionManager.Session> entry : activeSessions.entrySet()) {
       UUID playerUuid = entry.getKey();
-      UUID sessionId = entry.getValue();
+      UUID sessionId = entry.getValue().sessionId();
 
       if (!onlineChecker.isOnline(playerUuid)) {
         PlayerSessionManager.removeSession(playerUuid);
