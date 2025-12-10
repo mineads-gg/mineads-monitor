@@ -59,7 +59,11 @@ public class PlayerSessionManager {
    * @return The session ID that was removed, or null if none existed
    */
   public static UUID removeSession(UUID playerUuid) {
-    return playerSessions.remove(playerUuid);
+    UUID sessionId = playerSessions.remove(playerUuid);
+    if (sessionId != null) {
+      SessionEventTracker.clearSession(sessionId);
+    }
+    return sessionId;
   }
 
   /**

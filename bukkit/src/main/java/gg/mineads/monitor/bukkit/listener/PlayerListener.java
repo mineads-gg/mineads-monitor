@@ -26,6 +26,7 @@ import gg.mineads.monitor.shared.event.generated.*;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
+import gg.mineads.monitor.shared.session.SessionEventTracker;
 import gg.mineads.monitor.shared.skin.SkinData;
 import gg.mineads.monitor.shared.skin.property.SkinProperty;
 import lombok.extern.java.Log;
@@ -240,9 +241,12 @@ public class PlayerListener implements Listener {
         .setAllowsServerListings(event.allowsServerListings());
 
       PlayerSettingsData data = builder.build();
-      MineAdsEvent protoEvent = TypeUtil.createPlayerSettingsEvent(data);
-
-      plugin.getBatchProcessor().addEvent(protoEvent);
+      if (SessionEventTracker.markSettingsSentIfFirst(sessionId)) {
+        MineAdsEvent protoEvent = TypeUtil.createPlayerSettingsEvent(data);
+        plugin.getBatchProcessor().addEvent(protoEvent);
+      } else if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Skipping duplicate player settings event for session " + sessionId);
+      }
     });
   }
 
@@ -286,6 +290,13 @@ public class PlayerListener implements Listener {
 
   private void scheduleClientBrandCapture(Player player, UUID sessionId, int attempt) {
     scheduler.runAsync(() -> {
+      if (!SessionEventTracker.markBrandSentIfFirst(sessionId)) {
+        if (plugin.getConfig().isDebug()) {
+          log.info("[DEBUG] Skipping duplicate client brand for session " + sessionId);
+        }
+        return;
+      }
+
       String clientBrand = player.getClientBrandName();
       if (clientBrand != null && !clientBrand.isBlank()) {
         PlayerClientBrandData data = PlayerClientBrandData.newBuilder()
@@ -295,6 +306,8 @@ public class PlayerListener implements Listener {
         MineAdsEvent protoEvent = TypeUtil.createPlayerClientBrandEvent(data);
         plugin.getBatchProcessor().addEvent(protoEvent);
       } else if (attempt < MAX_BRAND_ATTEMPTS) {
+        // Allow a later attempt to send once when data becomes available
+        SessionEventTracker.clearBrand(sessionId);
         scheduler.scheduleAsyncDelayed(() -> scheduleClientBrandCapture(player, sessionId, attempt + 1), BRAND_RETRY_DELAY_MS, TimeUnit.MILLISECONDS);
       } else if (plugin.getConfig().isDebug()) {
         log.info("[DEBUG] Client brand not available for %s after %d attempts".formatted(player.getName(), attempt));

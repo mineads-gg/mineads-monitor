@@ -33,6 +33,7 @@ import gg.mineads.monitor.shared.event.generated.*;
 import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import gg.mineads.monitor.shared.scheduler.MineAdsScheduler;
 import gg.mineads.monitor.shared.session.PlayerSessionManager;
+import gg.mineads.monitor.shared.session.SessionEventTracker;
 import gg.mineads.monitor.shared.skin.SkinData;
 import gg.mineads.monitor.shared.skin.property.SkinProperty;
 import lombok.extern.java.Log;
@@ -235,9 +236,12 @@ public class PlayerListener {
       }
 
       PlayerSettingsData data = builder.build();
-      MineAdsEvent protoEvent = TypeUtil.createPlayerSettingsEvent(data);
-
-      plugin.getBatchProcessor().addEvent(protoEvent);
+      if (SessionEventTracker.markSettingsSentIfFirst(sessionId)) {
+        MineAdsEvent protoEvent = TypeUtil.createPlayerSettingsEvent(data);
+        plugin.getBatchProcessor().addEvent(protoEvent);
+      } else if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Skipping duplicate player settings event for session " + sessionId);
+      }
     });
   }
 
@@ -266,13 +270,17 @@ public class PlayerListener {
         return;
       }
 
-      PlayerClientBrandData data = PlayerClientBrandData.newBuilder()
-        .setSessionId(sessionId.toString())
-        .setClientBrand(clientBrand)
-        .build();
-      MineAdsEvent protoEvent = TypeUtil.createPlayerClientBrandEvent(data);
+      if (SessionEventTracker.markBrandSentIfFirst(sessionId)) {
+        PlayerClientBrandData data = PlayerClientBrandData.newBuilder()
+          .setSessionId(sessionId.toString())
+          .setClientBrand(clientBrand)
+          .build();
+        MineAdsEvent protoEvent = TypeUtil.createPlayerClientBrandEvent(data);
 
-      plugin.getBatchProcessor().addEvent(protoEvent);
+        plugin.getBatchProcessor().addEvent(protoEvent);
+      } else if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Skipping duplicate client brand event for session " + sessionId);
+      }
     });
   }
 
