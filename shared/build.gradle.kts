@@ -1,7 +1,7 @@
 plugins {
   id("mm.java-conventions")
   id("mm.shadow-conventions")
-  id("com.google.protobuf") version "0.9.5"
+  id("com.google.protobuf") version "0.9.6"
 }
 
 dependencies {
