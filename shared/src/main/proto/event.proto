@@ -68,9 +68,9 @@ message PlayerClientBrandData {
 // Transaction data
 message TransactionData {
   string transaction_id = 1;
-  string username = 2;
+  // Field 2 (username) removed - now only uuid is sent
   string uuid = 3;
-  string package_name = 4;
+  string package_id = 4;
   double price = 5;
   string currency = 6;
 }

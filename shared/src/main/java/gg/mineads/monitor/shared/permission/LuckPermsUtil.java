@@ -24,9 +24,12 @@ import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.group.Group;
 import net.luckperms.api.model.user.User;
+import net.luckperms.api.model.user.UserManager;
 
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Log
@@ -105,6 +108,47 @@ public class LuckPermsUtil {
     } catch (Exception e) {
       log.warning("[DEBUG] Error retrieving LuckPerms data for UUID: " + uuid + ", error: " + e);
       return null;
+    }
+  }
+
+  /**
+   * Looks up a player's UUID by their username using LuckPerms.
+   * This uses LuckPerms' user lookup which queries Mojang's API if needed.
+   *
+   * @param config The plugin config for debug logging
+   * @param username The username to look up
+   * @return An Optional containing the UUID if found, empty otherwise
+   */
+  public static Optional<UUID> lookupUuidByUsername(Config config, String username) {
+    if (!isAvailable()) {
+      if (config.isDebug()) {
+        log.info("[DEBUG] LuckPerms not available when looking up UUID for username: " + username);
+      }
+      return Optional.empty();
+    }
+
+    try {
+      LuckPerms luckPermsInstance = (LuckPerms) luckPerms;
+      UserManager userManager = luckPermsInstance.getUserManager();
+
+      // lookupUniqueId queries Mojang's API if the user isn't cached
+      CompletableFuture<UUID> lookupFuture = userManager.lookupUniqueId(username);
+      UUID uuid = lookupFuture.get(30, TimeUnit.SECONDS);
+
+      if (uuid == null) {
+        if (config.isDebug()) {
+          log.info("[DEBUG] No UUID found for username: " + username);
+        }
+        return Optional.empty();
+      }
+
+      if (config.isDebug()) {
+        log.info("[DEBUG] Found UUID " + uuid + " for username: " + username);
+      }
+      return Optional.of(uuid);
+    } catch (Exception e) {
+      log.warning("[MineAdsMonitor] Error looking up UUID for username: " + username + ", error: " + e);
+      return Optional.empty();
     }
   }
 }

@@ -24,6 +24,7 @@ import gg.mineads.monitor.shared.command.sender.WrappedCommandSender;
 import gg.mineads.monitor.shared.event.TypeUtil;
 import gg.mineads.monitor.shared.event.generated.MineAdsEvent;
 import gg.mineads.monitor.shared.event.generated.TransactionData;
+import gg.mineads.monitor.shared.permission.LuckPermsUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import net.kyori.adventure.text.Component;
@@ -41,6 +42,8 @@ import org.incendo.cloud.minecraft.extras.MinecraftHelp;
 import org.incendo.cloud.minecraft.extras.caption.ComponentCaptionFormatter;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Log
 @RequiredArgsConstructor
@@ -50,6 +53,34 @@ public class MineAdsCommand {
 
   private final MineAdsMonitorPlugin plugin;
   private final CommandManager<WrappedCommandSender> commandManager;
+
+  /**
+   * Resolves a player UUID from either a UUID string or a username.
+   * First tries to parse the input as a UUID. If that fails, attempts to look up
+   * the username using LuckPerms API (if available).
+   *
+   * @param usernameOrUuid The input string - either a UUID or username
+   * @return An Optional containing the resolved UUID, or empty if resolution failed
+   */
+  private Optional<UUID> resolvePlayerUuid(String usernameOrUuid) {
+    // First, try to parse as UUID
+    try {
+      return Optional.of(UUID.fromString(usernameOrUuid));
+    } catch (IllegalArgumentException e) {
+      // Not a valid UUID, try to look up as username
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Input '" + usernameOrUuid + "' is not a UUID, attempting username lookup");
+      }
+    }
+
+    // Try to look up username via LuckPerms
+    if (!LuckPermsUtil.isAvailable()) {
+      log.warning("[MineAdsMonitor] Cannot resolve username '" + usernameOrUuid + "' - LuckPerms is not available");
+      return Optional.empty();
+    }
+
+    return LuckPermsUtil.lookupUuidByUsername(plugin.getConfig(), usernameOrUuid);
+  }
 
   @Command("")
   @CommandDescription("Displays help information for MineAds Monitor commands")
@@ -130,23 +161,30 @@ public class MineAdsCommand {
     }
   }
 
-  @Command("initial <transactionId> <username> <uuid> <packageName> <price> <currency>")
+  @Command("initial <transactionId> <usernameOrUuid> <packageId> <price> <currency>")
   @CommandDescription("Records an initial purchase event")
   public void onInitial(
     final WrappedCommandSender sender,
     @Argument(value = "transactionId") final String transactionId,
-    @Argument(value = "username") final String username,
-    @Argument(value = "uuid") final String uuid,
-    @Argument(value = "packageName") final String packageName,
+    @Argument(value = "usernameOrUuid") final String usernameOrUuid,
+    @Argument(value = "packageId") final String packageId,
     @Argument(value = "price") final double price,
     @Argument(value = "currency") final String currency
   ) {
+    // Resolve the player UUID
+    Optional<UUID> resolvedUuid = resolvePlayerUuid(usernameOrUuid);
+    if (resolvedUuid.isEmpty()) {
+      sender.sendMessage(Component.text("Failed to resolve player UUID. Input '" + usernameOrUuid + "' is not a valid UUID and username lookup failed (LuckPerms may not be available).", NamedTextColor.RED));
+      return;
+    }
+
+    String uuid = resolvedUuid.get().toString();
+
     // Create transaction data
     TransactionData transactionData = TransactionData.newBuilder()
       .setTransactionId(transactionId)
-      .setUsername(username)
       .setUuid(uuid)
-      .setPackageName(packageName)
+      .setPackageId(packageId)
       .setPrice(price)
       .setCurrency(currency)
       .build();
@@ -158,7 +196,7 @@ public class MineAdsCommand {
       plugin.getBatchProcessor().addEvent(transactionEvent);
       sender.sendMessage(Component.text("Initial purchase event recorded successfully", NamedTextColor.GREEN));
       if (plugin.getConfig().isDebug()) {
-        log.info("[DEBUG] Initial purchase event recorded for player: " + username + ", package: " + packageName + ", transaction: " + transactionId);
+        log.info("[DEBUG] Initial purchase event recorded for player: " + uuid + ", package: " + packageId + ", transaction: " + transactionId);
       }
     } else {
       sender.sendMessage(Component.text("Plugin not properly initialized - check plugin configuration", NamedTextColor.RED));
@@ -168,23 +206,30 @@ public class MineAdsCommand {
     }
   }
 
-  @Command("expiry <transactionId> <username> <uuid> <packageName> <price> <currency>")
+  @Command("expiry <transactionId> <usernameOrUuid> <packageId> <price> <currency>")
   @CommandDescription("Records an expiry event")
   public void onExpiry(
     final WrappedCommandSender sender,
     @Argument(value = "transactionId") final String transactionId,
-    @Argument(value = "username") final String username,
-    @Argument(value = "uuid") final String uuid,
-    @Argument(value = "packageName") final String packageName,
+    @Argument(value = "usernameOrUuid") final String usernameOrUuid,
+    @Argument(value = "packageId") final String packageId,
     @Argument(value = "price") final double price,
     @Argument(value = "currency") final String currency
   ) {
+    // Resolve the player UUID
+    Optional<UUID> resolvedUuid = resolvePlayerUuid(usernameOrUuid);
+    if (resolvedUuid.isEmpty()) {
+      sender.sendMessage(Component.text("Failed to resolve player UUID. Input '" + usernameOrUuid + "' is not a valid UUID and username lookup failed (LuckPerms may not be available).", NamedTextColor.RED));
+      return;
+    }
+
+    String uuid = resolvedUuid.get().toString();
+
     // Create transaction data
     TransactionData transactionData = TransactionData.newBuilder()
       .setTransactionId(transactionId)
-      .setUsername(username)
       .setUuid(uuid)
-      .setPackageName(packageName)
+      .setPackageId(packageId)
       .setPrice(price)
       .setCurrency(currency)
       .build();
@@ -196,7 +241,7 @@ public class MineAdsCommand {
       plugin.getBatchProcessor().addEvent(transactionEvent);
       sender.sendMessage(Component.text("Expiry event recorded successfully", NamedTextColor.GREEN));
       if (plugin.getConfig().isDebug()) {
-        log.info("[DEBUG] Expiry event recorded for player: " + username + ", package: " + packageName + ", transaction: " + transactionId);
+        log.info("[DEBUG] Expiry event recorded for player: " + uuid + ", package: " + packageId + ", transaction: " + transactionId);
       }
     } else {
       sender.sendMessage(Component.text("Plugin not properly initialized - check plugin configuration", NamedTextColor.RED));
@@ -206,23 +251,30 @@ public class MineAdsCommand {
     }
   }
 
-  @Command("renewal <transactionId> <username> <uuid> <packageName> <price> <currency>")
+  @Command("renewal <transactionId> <usernameOrUuid> <packageId> <price> <currency>")
   @CommandDescription("Records a renewal event")
   public void onRenewal(
     final WrappedCommandSender sender,
     @Argument(value = "transactionId") final String transactionId,
-    @Argument(value = "username") final String username,
-    @Argument(value = "uuid") final String uuid,
-    @Argument(value = "packageName") final String packageName,
+    @Argument(value = "usernameOrUuid") final String usernameOrUuid,
+    @Argument(value = "packageId") final String packageId,
     @Argument(value = "price") final double price,
     @Argument(value = "currency") final String currency
   ) {
+    // Resolve the player UUID
+    Optional<UUID> resolvedUuid = resolvePlayerUuid(usernameOrUuid);
+    if (resolvedUuid.isEmpty()) {
+      sender.sendMessage(Component.text("Failed to resolve player UUID. Input '" + usernameOrUuid + "' is not a valid UUID and username lookup failed (LuckPerms may not be available).", NamedTextColor.RED));
+      return;
+    }
+
+    String uuid = resolvedUuid.get().toString();
+
     // Create transaction data
     TransactionData transactionData = TransactionData.newBuilder()
       .setTransactionId(transactionId)
-      .setUsername(username)
       .setUuid(uuid)
-      .setPackageName(packageName)
+      .setPackageId(packageId)
       .setPrice(price)
       .setCurrency(currency)
       .build();
@@ -234,7 +286,7 @@ public class MineAdsCommand {
       plugin.getBatchProcessor().addEvent(transactionEvent);
       sender.sendMessage(Component.text("Renewal event recorded successfully", NamedTextColor.GREEN));
       if (plugin.getConfig().isDebug()) {
-        log.info("[DEBUG] Renewal event recorded for player: " + username + ", package: " + packageName + ", transaction: " + transactionId);
+        log.info("[DEBUG] Renewal event recorded for player: " + uuid + ", package: " + packageId + ", transaction: " + transactionId);
       }
     } else {
       sender.sendMessage(Component.text("Plugin not properly initialized - check plugin configuration", NamedTextColor.RED));
@@ -244,23 +296,30 @@ public class MineAdsCommand {
     }
   }
 
-  @Command("chargeback <transactionId> <username> <uuid> <packageName> <price> <currency>")
+  @Command("chargeback <transactionId> <usernameOrUuid> <packageId> <price> <currency>")
   @CommandDescription("Records a chargeback event")
   public void onChargeback(
     final WrappedCommandSender sender,
     @Argument(value = "transactionId") final String transactionId,
-    @Argument(value = "username") final String username,
-    @Argument(value = "uuid") final String uuid,
-    @Argument(value = "packageName") final String packageName,
+    @Argument(value = "usernameOrUuid") final String usernameOrUuid,
+    @Argument(value = "packageId") final String packageId,
     @Argument(value = "price") final double price,
     @Argument(value = "currency") final String currency
   ) {
+    // Resolve the player UUID
+    Optional<UUID> resolvedUuid = resolvePlayerUuid(usernameOrUuid);
+    if (resolvedUuid.isEmpty()) {
+      sender.sendMessage(Component.text("Failed to resolve player UUID. Input '" + usernameOrUuid + "' is not a valid UUID and username lookup failed (LuckPerms may not be available).", NamedTextColor.RED));
+      return;
+    }
+
+    String uuid = resolvedUuid.get().toString();
+
     // Create transaction data
     TransactionData transactionData = TransactionData.newBuilder()
       .setTransactionId(transactionId)
-      .setUsername(username)
       .setUuid(uuid)
-      .setPackageName(packageName)
+      .setPackageId(packageId)
       .setPrice(price)
       .setCurrency(currency)
       .build();
@@ -272,7 +331,7 @@ public class MineAdsCommand {
       plugin.getBatchProcessor().addEvent(transactionEvent);
       sender.sendMessage(Component.text("Chargeback event recorded successfully", NamedTextColor.GREEN));
       if (plugin.getConfig().isDebug()) {
-        log.info("[DEBUG] Chargeback event recorded for player: " + username + ", package: " + packageName + ", transaction: " + transactionId);
+        log.info("[DEBUG] Chargeback event recorded for player: " + uuid + ", package: " + packageId + ", transaction: " + transactionId);
       }
     } else {
       sender.sendMessage(Component.text("Plugin not properly initialized - check plugin configuration", NamedTextColor.RED));
@@ -282,23 +341,30 @@ public class MineAdsCommand {
     }
   }
 
-  @Command("refund <transactionId> <username> <uuid> <packageName> <price> <currency>")
+  @Command("refund <transactionId> <usernameOrUuid> <packageId> <price> <currency>")
   @CommandDescription("Records a refund event")
   public void onRefund(
     final WrappedCommandSender sender,
     @Argument(value = "transactionId") final String transactionId,
-    @Argument(value = "username") final String username,
-    @Argument(value = "uuid") final String uuid,
-    @Argument(value = "packageName") final String packageName,
+    @Argument(value = "usernameOrUuid") final String usernameOrUuid,
+    @Argument(value = "packageId") final String packageId,
     @Argument(value = "price") final double price,
     @Argument(value = "currency") final String currency
   ) {
+    // Resolve the player UUID
+    Optional<UUID> resolvedUuid = resolvePlayerUuid(usernameOrUuid);
+    if (resolvedUuid.isEmpty()) {
+      sender.sendMessage(Component.text("Failed to resolve player UUID. Input '" + usernameOrUuid + "' is not a valid UUID and username lookup failed (LuckPerms may not be available).", NamedTextColor.RED));
+      return;
+    }
+
+    String uuid = resolvedUuid.get().toString();
+
     // Create transaction data
     TransactionData transactionData = TransactionData.newBuilder()
       .setTransactionId(transactionId)
-      .setUsername(username)
       .setUuid(uuid)
-      .setPackageName(packageName)
+      .setPackageId(packageId)
       .setPrice(price)
       .setCurrency(currency)
       .build();
@@ -310,7 +376,7 @@ public class MineAdsCommand {
       plugin.getBatchProcessor().addEvent(transactionEvent);
       sender.sendMessage(Component.text("Refund event recorded successfully", NamedTextColor.GREEN));
       if (plugin.getConfig().isDebug()) {
-        log.info("[DEBUG] Refund event recorded for player: " + username + ", package: " + packageName + ", transaction: " + transactionId);
+        log.info("[DEBUG] Refund event recorded for player: " + uuid + ", package: " + packageId + ", transaction: " + transactionId);
       }
     } else {
       sender.sendMessage(Component.text("Plugin not properly initialized - check plugin configuration", NamedTextColor.RED));
