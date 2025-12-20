@@ -8,7 +8,7 @@ bungeeProtocol = "1.21-R0.5-SNAPSHOT"
 
 # Core dependencies
 luckperms = "5.5"
-configlibYaml = "4.6.4"
+configlibYaml = "4.7.0"
 gson = "2.13.2"
 protobuf = "4.33.2"
 
