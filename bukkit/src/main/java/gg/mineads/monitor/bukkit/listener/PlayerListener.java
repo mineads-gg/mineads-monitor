@@ -35,10 +35,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.*;
+import io.papermc.paper.event.player.PlayerArmSwingEvent;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -337,5 +339,149 @@ public class PlayerListener implements Listener {
       .flatMap(Optional::stream)
       .findFirst()
       .orElse(null);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void onPlayerDeath(PlayerDeathEvent event) {
+    if (!isEventEnabled(MineAdsEvent.DataCase.DEATH_DATA)) {
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Player death event ignored - DEATH events disabled");
+      }
+      return;
+    }
+
+    Player player = event.getEntity();
+    PlayerSessionManager.Session session = PlayerSessionManager.getSession(player.getUniqueId());
+
+    scheduler.runAsync(() -> {
+      if (session == null) {
+        if (plugin.getConfig().isDebug()) {
+          log.info("[DEBUG] Player death ignored: %s - no active session".formatted(player.getName()));
+        }
+        return;
+      }
+
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Player death: %s".formatted(player.getName()));
+      }
+
+      PlayerDeathData.Builder builder = PlayerDeathData.newBuilder()
+        .setSessionId(session.sessionId().toString());
+
+      String deathMessage = event.getDeathMessage();
+      if (deathMessage != null && !deathMessage.isBlank()) {
+        builder.setDeathMessage(deathMessage);
+      }
+
+      Entity killer = player.getKiller();
+      if (killer != null) {
+        if (killer instanceof Player killerPlayer) {
+          builder.setKillerUuid(killerPlayer.getUniqueId().toString());
+          builder.setKillerType("player");
+        } else {
+          builder.setKillerType("mob");
+        }
+      } else {
+        builder.setKillerType("environment");
+      }
+
+      Location loc = player.getLocation();
+      builder.setWorld(loc.getWorld().getName());
+      builder.setX(loc.getX());
+      builder.setY(loc.getY());
+      builder.setZ(loc.getZ());
+
+      PlayerDeathData data = builder.build();
+      MineAdsEvent protoEvent = TypeUtil.createDeathEvent(data);
+      plugin.getBatchProcessor().addEvent(protoEvent);
+    });
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void onPlayerAdvancement(PlayerAdvancementDoneEvent event) {
+    if (!isEventEnabled(MineAdsEvent.DataCase.ADVANCEMENT_DATA)) {
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Player advancement event ignored - ADVANCEMENT events disabled");
+      }
+      return;
+    }
+
+    Player player = event.getPlayer();
+    PlayerSessionManager.Session session = PlayerSessionManager.getSession(player.getUniqueId());
+
+    scheduler.runAsync(() -> {
+      if (session == null) {
+        if (plugin.getConfig().isDebug()) {
+          log.info("[DEBUG] Player advancement ignored: %s - no active session".formatted(player.getName()));
+        }
+        return;
+      }
+
+      var advancement = event.getAdvancement();
+      // Skip recipe unlocks and hidden advancements
+      if (advancement.getKey().getKey().startsWith("recipes/")) {
+        return;
+      }
+
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Player advancement: %s - %s".formatted(player.getName(), advancement.getKey().toString()));
+      }
+
+      PlayerAdvancementData.Builder builder = PlayerAdvancementData.newBuilder()
+        .setSessionId(session.sessionId().toString())
+        .setAdvancementKey(advancement.getKey().toString());
+
+      // Get display component if available (Paper API)
+      var displayName = advancement.displayName();
+      if (displayName != null) {
+        // Use plain text serializer to extract the title
+        builder.setAdvancementTitle(net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(displayName));
+      }
+
+      PlayerAdvancementData data = builder.build();
+      MineAdsEvent protoEvent = TypeUtil.createAdvancementEvent(data);
+      plugin.getBatchProcessor().addEvent(protoEvent);
+    });
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void onPlayerMove(PlayerMoveEvent event) {
+    if (!isEventEnabled(MineAdsEvent.DataCase.LOCATION_DATA)) {
+      return;
+    }
+
+    // Only track significant moves (at least 10 blocks from last recorded position)
+    Location from = event.getFrom();
+    Location to = event.getTo();
+    if (to == null || from.getWorld() == to.getWorld() && from.distanceSquared(to) < 100) {
+      return;
+    }
+
+    Player player = event.getPlayer();
+    PlayerSessionManager.Session session = PlayerSessionManager.getSession(player.getUniqueId());
+
+    scheduler.runAsync(() -> {
+      if (session == null) {
+        return;
+      }
+
+      if (plugin.getConfig().isDebug()) {
+        log.info("[DEBUG] Player location: %s - %s (%.1f, %.1f, %.1f)".formatted(
+          player.getName(), to.getWorld().getName(), to.getX(), to.getY(), to.getZ()));
+      }
+
+      PlayerLocationData data = PlayerLocationData.newBuilder()
+        .setSessionId(session.sessionId().toString())
+        .setWorld(to.getWorld().getName())
+        .setX(to.getX())
+        .setY(to.getY())
+        .setZ(to.getZ())
+        .setYaw(to.getYaw())
+        .setPitch(to.getPitch())
+        .build();
+
+      MineAdsEvent protoEvent = TypeUtil.createLocationEvent(data);
+      plugin.getBatchProcessor().addEvent(protoEvent);
+    });
   }
 }

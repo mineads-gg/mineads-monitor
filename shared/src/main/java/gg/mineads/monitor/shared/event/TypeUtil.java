@@ -158,4 +158,44 @@ public class TypeUtil {
 
     return builder.build();
   }
+
+  public static MineAdsEvent createPingEvent(PlayerPingData data) {
+    return MineAdsEvent.newBuilder()
+      .setTime(System.currentTimeMillis())
+      .setEventId(UUID.randomUUID().toString())
+      .setPingData(data)
+      .build();
+  }
+
+  public static MineAdsEvent createLocationEvent(PlayerLocationData data) {
+    return MineAdsEvent.newBuilder()
+      .setTime(System.currentTimeMillis())
+      .setEventId(UUID.randomUUID().toString())
+      .setLocationData(data)
+      .build();
+  }
+
+  public static MineAdsEvent createAchievementEvent(PlayerAchievementData data) {
+    return MineAdsEvent.newBuilder()
+      .setTime(System.currentTimeMillis())
+      .setEventId(UUID.randomUUID().toString())
+      .setAchievementData(data)
+      .build();
+  }
+
+  public static MineAdsEvent createDeathEvent(PlayerDeathData data) {
+    return MineAdsEvent.newBuilder()
+      .setTime(System.currentTimeMillis())
+      .setEventId(UUID.randomUUID().toString())
+      .setDeathData(data)
+      .build();
+  }
+
+  public static MineAdsEvent createAdvancementEvent(PlayerAdvancementData data) {
+    return MineAdsEvent.newBuilder()
+      .setTime(System.currentTimeMillis())
+      .setEventId(UUID.randomUUID().toString())
+      .setAdvancementData(data)
+      .build();
+  }
 }

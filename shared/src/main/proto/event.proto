@@ -24,6 +24,53 @@ message PlayerJoinData {
   optional string skin_texture_hash = 11;
   optional string cape_texture_hash = 12;
   optional string skin_type = 13;
+  // Marketing attribution - subdomain player joined through
+  optional string tracking_subdomain = 14;
+}
+
+// Player ping data - tracks latency
+message PlayerPingData {
+  string session_id = 1;
+  int32 ping_ms = 2;
+}
+
+// Player location data - tracks in-game position
+message PlayerLocationData {
+  string session_id = 1;
+  string world = 2;
+  double x = 3;
+  double y = 4;
+  double z = 5;
+  optional float yaw = 6;
+  optional float pitch = 7;
+}
+
+// Player achievement data - tracks unlocked achievements
+message PlayerAchievementData {
+  string session_id = 1;
+  string achievement_key = 2;
+  optional string achievement_name = 3;
+}
+
+// Player death data - tracks player deaths
+message PlayerDeathData {
+  string session_id = 1;
+  optional string death_message = 2;
+  optional string killer_uuid = 3;
+  optional string killer_type = 4; // "player", "mob", "environment"
+  optional string world = 5;
+  optional double x = 6;
+  optional double y = 7;
+  optional double z = 8;
+}
+
+// Player advancement data - tracks advancement progress
+message PlayerAdvancementData {
+  string session_id = 1;
+  string advancement_key = 2;
+  optional string advancement_title = 3;
+  optional string advancement_description = 4;
+  optional string frame_type = 5; // "task", "goal", "challenge"
 }
 
 // Player leave data
@@ -93,6 +140,12 @@ message MineAdsEvent {
     TransactionData renewal_transaction_data = 13;
     TransactionData chargeback_transaction_data = 14;
     TransactionData refund_transaction_data = 15;
+    // New event types for full analytics support
+    PlayerPingData ping_data = 17;
+    PlayerLocationData location_data = 18;
+    PlayerAchievementData achievement_data = 19;
+    PlayerDeathData death_data = 20;
+    PlayerAdvancementData advancement_data = 21;
   }
 }
 
