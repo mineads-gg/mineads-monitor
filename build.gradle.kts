@@ -2,6 +2,10 @@ plugins {
   base
 }
 
+tasks.named<UpdateDaemonJvm>("updateDaemonJvm") {
+    languageVersion = JavaLanguageVersion.of(25)
+}
+
 allprojects {
   group = "gg.mineads"
   version = property("maven_version")!!
