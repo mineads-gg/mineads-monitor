@@ -7,10 +7,21 @@ plugins {
   id("io.freefair.lombok")
   id("net.ltgt.errorprone")
   id("com.github.spotbugs")
+  id("org.openrewrite.rewrite")
 }
 
 spotbugs {
   ignoreFailures = true
+}
+
+rewrite {
+  activeRecipe("org.openrewrite.staticanalysis.CommonStaticAnalysis")
+  activeRecipe("org.openrewrite.staticanalysis.CodeCleanup")
+  activeRecipe("org.openrewrite.staticanalysis.JavaApiBestPractices")
+  activeRecipe("org.openrewrite.java.testing.junit5.JUnit5BestPractices")
+  activeRecipe("org.openrewrite.java.testing.cleanup.BestPractices")
+  activeRecipe("org.openrewrite.java.migrate.UpgradeToJava25")
+  isExportDatatables = true
 }
 
 dependencies {
@@ -19,6 +30,10 @@ dependencies {
 
   errorprone("com.google.errorprone:error_prone_core:2.45.0")
   spotbugs("com.github.spotbugs:spotbugs:4.9.8")
+
+  rewrite("org.openrewrite.recipe:rewrite-static-analysis:2.26.0")
+  rewrite("org.openrewrite.recipe:rewrite-migrate-java:3.26.0")
+  rewrite("org.openrewrite.recipe:rewrite-rewrite:0.19.0")
 
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
   testFixturesApi("org.junit.jupiter:junit-jupiter:6.0.2")
