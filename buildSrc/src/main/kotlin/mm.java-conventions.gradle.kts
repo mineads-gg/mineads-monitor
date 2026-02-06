@@ -28,7 +28,7 @@ dependencies {
   api("org.jetbrains:annotations:26.0.2-1")
   compileOnly("com.github.spotbugs:spotbugs-annotations:4.9.8")
 
-  errorprone("com.google.errorprone:error_prone_core:2.45.0")
+  errorprone("com.google.errorprone:error_prone_core:2.47.0")
   spotbugs("com.github.spotbugs:spotbugs:4.9.8")
 
   rewrite("org.openrewrite.recipe:rewrite-static-analysis:2.26.0")
